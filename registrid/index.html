@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+<meta charset="UTF-8">
+<title>Registrimaatriks</title>
+<link rel="stylesheet" href="../css/main.css">
+<style>
+  body { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+  #body { display: flex; flex: 1; overflow: hidden; background: var(--bg); }
+  #matrix-wrap { flex: 1; overflow: auto; padding: 24px; }
+  .cell { cursor: pointer; transition: opacity .1s; }
+  .cell:hover { opacity: 0.75; }
+  .cell.selected { stroke: var(--text); stroke-width: 2; }
+  #p-regs  { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 4px; line-height: 1.4; }
+  #p-count { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
+  #p-words { font-size: 13px; }
+  .w-item { display: inline-block; margin: 3px 4px 3px 0; padding: 3px 10px; border-radius: 20px; background: var(--surface-alt); color: var(--text-sec); font-size: 12px; }
+  .w-item.diagonal { background: var(--accent-light); color: var(--accent); }
+  .sep { height: 1px; background: var(--surface-alt); margin: 14px 0; }
+  .p-label { font-size: 10px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <a class="header-back" href="../index.html">← Keele peal</a>
+  <span class="header-title">Registrimaatriks</span>
+  <div class="header-end">
+    <span id="info" class="header-info"></span>
+  </div>
+</div>
+
+<div id="body">
+  <div id="matrix-wrap">
+    <svg id="matrix-svg"></svg>
+  </div>
+
+  <div id="panel" class="side-panel">
+    <div id="panel-inner" class="side-panel__inner">
+      <div id="p-regs"></div>
+      <div id="p-count"></div>
+      <div class="sep"></div>
+      <div class="p-label">Näitesõnad</div>
+      <div id="p-words"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script>
+fetch("data/registers.json")
+  .then(r => r.json())
+  .then(draw)
+  .catch(() => {
+    document.getElementById("matrix-wrap").innerHTML =
+      '<p style="padding:40px;color:#94a3b8">⚠ registers.json puudub — käivita prepare_data.py</p>';
+  });
+
+const REG_NAMES = {
+  hrv:    "harv",
+  van:    "vananenud/vananemas",
+  vulg:   "vulgaarne",
+  lastek: "lastekeelne",
+  hlv:    "halvustav",
+  kõnek:  "kõnekeelne, vabakeelne",
+  murd:   "murdekeelne",
+  rhv:    "rahvapärane, rahvakeeles",
+  luulek: "luulekeelne",
+  piib:   "Piiblis",
+  sti:    "stiilitundlik",
+  eevn:   "eestivene",
+  unar:   "unarsõna",
+  inglAm: "Ameerika inglise",
+  inglBr: "Briti inglise",
+  koh:    "kohalik",
+  madalk: "madalkeelne",
+  mta:    "mitteametlik",
+  nlj:    "naljatlev",
+  släng:  "släng",
+  teg:    "tegelik, de facto",
+  hellitl:"hellitlev",
+  liter:  "kirjanduslik",
+  am:     "ametlik",
+  kõrgst: "kõrgstiil",
+  ettep:  "sõnaettepanek",
+  Venemaal:"Venemaal",
+  uus:    "uus",
+  aja:    "ajalooline",
+  slg:    "erialasläng",
+  üldk:   "üldkeelne",
+};
+
+function label(code) { return REG_NAMES[code] || code; }
+
+function draw(data) {
+  const regs   = data.registers;   // [{code, total}]
+  const matrix = data.matrix;
+  const pairs  = data.pairs;
+  const codes  = regs.map(r => r.code);
+  const n      = codes.length;
+
+  document.getElementById("info").textContent =
+    `${n} registrit · ${regs.reduce((s,r) => s+r.total, 0)} lekseemi`;
+
+  // ── mõõtmed ──────────────────────────────────────────────
+  const CELL = 36;
+  const LABEL_W = 240;   // vasak silt (pikem nimetuste jaoks)
+  const LABEL_H = 100;   // ülemine silt (roteeritud nimetused)
+  const W = LABEL_W + n * CELL + 2;
+  const H = LABEL_H + n * CELL + 2;
+
+  const svg = d3.select("#matrix-svg")
+    .attr("width", W).attr("height", H);
+
+  // ── värviskeem ────────────────────────────────────────────
+  const maxCooc = d3.max(codes, r1 =>
+    d3.max(codes.filter(r2 => r1 !== r2), r2 => matrix[r1]?.[r2] || 0)
+  ) || 1;
+  const maxDiag = d3.max(regs, r => r.total) || 1;
+
+  const colorCooc = d3.scaleSequential(d3.interpolateBlues).domain([0, maxCooc]);
+  const colorDiag = d3.scaleSequential(d3.interpolateGreys).domain([0, maxDiag * 1.2]);
+
+  // ── lahtrid ───────────────────────────────────────────────
+  let selected = null;
+
+  codes.forEach((r1, i) => {
+    codes.forEach((r2, j) => {
+      const isDiag = r1 === r2;
+      const key    = `${[r1,r2].sort().join("|")}`;
+      const val    = matrix[r1]?.[r2] || 0;
+      const color  = isDiag ? colorDiag(val) : (val > 0 ? colorCooc(val) : "#f8fafc");
+
+      const cell = svg.append("rect")
+        .attr("class", "cell")
+        .attr("x", LABEL_W + j * CELL)
+        .attr("y", LABEL_H + i * CELL)
+        .attr("width", CELL - 1).attr("height", CELL - 1)
+        .attr("rx", 2)
+        .attr("fill", color)
+        .on("click", () => {
+          if (selected) selected.classed("selected", false);
+          cell.classed("selected", true);
+          selected = cell;
+          openPanel(r1, r2, val, pairs[key] || []);
+        });
+
+      // arv lahtris (ainult kui mahtub)
+      if (val > 0 && CELL >= 18) {
+        svg.append("text")
+          .attr("x", LABEL_W + j * CELL + CELL/2 - 0.5)
+          .attr("y", LABEL_H + i * CELL + CELL/2 + 4)
+          .attr("text-anchor", "middle")
+          .attr("font-size", val >= 1000 ? 10 : val >= 100 ? 11 : 12)
+          .attr("fill", val > maxCooc * 0.5 || (isDiag && val > maxDiag * 0.5) ? "#fff" : "#475569")
+          .style("pointer-events", "none")
+          .text(val > 0 ? (val >= 1000 ? Math.round(val/1000)+"k" : val) : "");
+      }
+    });
+  });
+
+  // ── vasak siltide rida ────────────────────────────────────
+  codes.forEach((r, i) => {
+    svg.append("text")
+      .attr("x", LABEL_W - 6)
+      .attr("y", LABEL_H + i * CELL + CELL/2 + 4)
+      .attr("text-anchor", "end")
+      .attr("font-size", 11)
+      .attr("fill", "#334155")
+      .text(label(r));
+  });
+
+  // ── ülemised sildid (roteeritud) ──────────────────────────
+  codes.forEach((r, j) => {
+    svg.append("text")
+      .attr("transform", `translate(${LABEL_W + j * CELL + CELL/2}, ${LABEL_H - 6}) rotate(-45)`)
+      .attr("text-anchor", "start")
+      .attr("font-size", 11)
+      .attr("fill", "#334155")
+      .text(label(r));
+  });
+
+  // ── legend ────────────────────────────────────────────────
+  const legY = H - 0;  // all nurgas polegi legendi, piisab vihjest
+}
+
+// ── paneel ────────────────────────────────────────────────────
+function openPanel(r1, r2, count, words) {
+  const isDiag = r1 === r2;
+  document.getElementById("p-regs").textContent = isDiag ? label(r1) : `${label(r1)} × ${label(r2)}`;
+  document.getElementById("p-count").textContent =
+    isDiag ? `${count} lekseemi selle registriga` : `${count} lekseemi mõlema registriga`;
+  document.getElementById("p-words").innerHTML = words.length
+    ? words.map(w => `<span class="w-item${isDiag ? " diagonal" : ""}">${w}</span>`).join("")
+    : '<span style="color:#94a3b8;font-size:12px">näitesõnad puuduvad</span>';
+  document.getElementById("panel").classList.add("open");
+}
+</script>
+</body>
+</html>

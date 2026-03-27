@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+<meta charset="UTF-8">
+<title>Polüseemia</title>
+<link rel="stylesheet" href="../css/main.css">
+<style>
+  body { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+  #body { display: flex; flex: 1; overflow: hidden; }
+  #list-wrap { flex: 1; overflow-y: auto; padding: 16px 24px 40px; background: var(--bg); }
+
+  .row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 5px 8px; border-radius: var(--radius-sm);
+    cursor: pointer; transition: background .12s;
+  }
+  .row:hover    { background: var(--row-hover); }
+  .row.selected { background: var(--row-selected); }
+
+  .word {
+    width: 160px; flex-shrink: 0; font-size: 13px; color: var(--text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .bar-wrap { flex: 1; height: 12px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .bar { height: 100%; border-radius: 3px; background: var(--accent); transition: width .3s ease; }
+  .num {
+    width: 28px; flex-shrink: 0; text-align: right;
+    font-size: 12px; color: var(--text-dim); font-variant-numeric: tabular-nums;
+  }
+
+  #p-word  { font-size: 24px; font-weight: 300; letter-spacing: 1px; color: var(--text); margin-bottom: 4px; }
+  #p-count { font-size: 12px; color: var(--text-muted); margin-bottom: 20px; }
+  .m-item  { margin-bottom: 18px; padding-bottom: 18px; border-bottom: 1px solid var(--surface-alt); }
+  .m-item:last-child { border-bottom: none; }
+  .m-num   { font-size: 10px; color: var(--text-muted); margin-bottom: 5px; letter-spacing: 1px; text-transform: uppercase; }
+  .m-def   { font-size: 13px; color: var(--text-sec); line-height: 1.6; }
+  .m-def.empty { color: var(--text-ghost); font-style: italic; }
+
+  #pager {
+    display: none; align-items: center; justify-content: center;
+    gap: 12px; padding: 16px 0 8px;
+  }
+  #pg-info { font-size: 12px; color: var(--text-muted); min-width: 60px; text-align: center; }
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Hüppa põhisisu juurde</a>
+
+<div class="app-header">
+  <a class="header-back" href="../index.html">← Keele peal</a>
+  <span class="header-title">Polüseemia</span>
+  <div class="header-end">
+    <span id="count-info" class="header-info"></span>
+    <input id="search" class="text-input" type="text" placeholder="Otsi sõna…"
+           style="width:180px" autocomplete="off" spellcheck="false">
+  </div>
+</div>
+
+<div id="body" id="main">
+  <div id="list-wrap">
+    <div id="list"></div>
+    <div id="pager">
+      <button type="button" class="btn btn-sm" id="pg-prev">← Eelmine</button>
+      <span id="pg-info"></span>
+      <button type="button" class="btn btn-sm" id="pg-next">Järgmine →</button>
+    </div>
+  </div>
+
+  <div id="panel" class="side-panel">
+    <div id="panel-inner" class="side-panel__inner">
+      <div id="p-word"></div>
+      <div id="p-count"></div>
+      <div id="p-defs"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const PAGE_SIZE = 50;
+let allWords = [], currentWords = [], maxCount = 1, currentPage = 1, selected = null;
+
+function buildRow(d) {
+  const row = document.createElement("div");
+  row.className = "row";
+  row.dataset.word = d.word;
+  const pct     = (d.count / maxCount * 100).toFixed(1);
+  const opacity = 0.45 + (d.count / maxCount) * 0.55;
+  row.innerHTML = `
+    <span class="word">${d.word}</span>
+    <div class="bar-wrap"><div class="bar" style="width:${pct}%;opacity:${opacity}"></div></div>
+    <span class="num">${d.count}</span>`;
+  row.addEventListener("click", () => openPanel(d, row));
+  return row;
+}
+
+function renderList(words) {
+  currentWords = words;
+  const list  = document.getElementById("list");
+  const start = (currentPage - 1) * PAGE_SIZE;
+  list.innerHTML = "";
+  words.slice(start, start + PAGE_SIZE).forEach(d => list.appendChild(buildRow(d)));
+  document.getElementById("list-wrap").scrollTop = 0;
+  renderPager();
+}
+
+function renderPager() {
+  const total      = currentWords.length;
+  const totalPages = Math.ceil(total / PAGE_SIZE);
+  const pager      = document.getElementById("pager");
+  pager.style.display = totalPages > 1 ? "flex" : "none";
+  document.getElementById("pg-info").textContent  = `${currentPage} / ${totalPages}`;
+  document.getElementById("pg-prev").disabled = currentPage <= 1;
+  document.getElementById("pg-next").disabled = currentPage >= totalPages;
+}
+
+document.getElementById("pg-prev").addEventListener("click", () => {
+  if (currentPage > 1) { currentPage--; renderList(currentWords); }
+});
+document.getElementById("pg-next").addEventListener("click", () => {
+  if (currentPage < Math.ceil(currentWords.length / PAGE_SIZE)) { currentPage++; renderList(currentWords); }
+});
+
+function openPanel(d, row) {
+  document.querySelectorAll(".row.selected").forEach(r => r.classList.remove("selected"));
+  if (row) row.classList.add("selected");
+  selected = d.word;
+  document.getElementById("p-word").textContent  = d.word;
+  document.getElementById("p-count").textContent = `${d.count} tähendust`;
+  document.getElementById("p-defs").innerHTML = d.meanings.map((m, i) => `
+    <div class="m-item">
+      <div class="m-num">tähendus ${i + 1}</div>
+      <div class="m-def${m.def ? "" : " empty"}">${m.def || "seletus puudub"}</div>
+    </div>`).join("");
+  document.getElementById("panel").classList.add("open");
+}
+
+document.getElementById("search").addEventListener("input", function() {
+  const q = this.value.trim().toLowerCase();
+  const filtered = q ? allWords.filter(w => w.word.toLowerCase().includes(q)) : allWords;
+  currentPage = 1;
+  renderList(filtered);
+  document.getElementById("count-info").textContent = `${filtered.length} sõna`;
+});
+
+fetch("data/polysemy.json")
+  .then(r => r.json())
+  .then(data => {
+    allWords = data.words.filter(w => w.count >= 2);
+    maxCount = allWords[0]?.count || 1;
+    renderList(allWords);
+    document.getElementById("count-info").textContent = `${allWords.length} sõna`;
+  })
+  .catch(() => {
+    document.getElementById("list").textContent = "⚠ polysemy.json puudub — käivita prepare_data.py";
+  });
+</script>
+</body>
+</html>

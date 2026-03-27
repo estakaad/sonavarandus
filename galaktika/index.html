@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+<meta charset="UTF-8">
+<title>Sõnagalaktika</title>
+<link rel="stylesheet" href="../css/main.css">
+<style>
+  /* dark override — galaktika säilitab kosmose teema */
+  body {
+    background: #050a14;
+    color: rgba(225, 238, 255, 0.9);
+    overflow: hidden; width: 100vw; height: 100vh;
+  }
+  #svg { width: 100%; height: 100%; }
+
+  #back {
+    position: fixed;
+    top: 14px;
+    right: 20px;
+    font-size: 12px;
+    color: rgba(120, 160, 210, 0.45);
+    text-decoration: none;
+    letter-spacing: 0.5px;
+    transition: color 0.2s;
+    z-index: 25;
+  }
+  #back:hover { color: var(--accent); }
+
+  #search-wrap {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    transition: all 0.5s ease;
+    z-index: 20;
+  }
+  #search-wrap.top {
+    top: 28px;
+    left: 20px;
+    transform: none;
+  }
+  #search-wrap h1 {
+    font-size: 28px;
+    font-weight: 300;
+    letter-spacing: 4px;
+    color: rgba(180, 210, 255, 0.7);
+    margin-bottom: 6px;
+  }
+  #search-wrap p {
+    font-size: 13px;
+    color: rgba(150, 180, 220, 0.4);
+    margin-bottom: 20px;
+  }
+  #search-wrap.top h1,
+  #search-wrap.top p { display: none; }
+
+  #search {
+    background: rgba(10, 25, 60, 0.9);
+    border: 1px solid rgba(100, 160, 255, 0.4);
+    border-radius: 10px;
+    padding: 10px 18px;
+    color: #e0ecff;
+    font-size: 16px;
+    width: 280px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  #search:focus {
+    border-color: rgba(100, 160, 255, 0.9);
+    box-shadow: 0 0 20px rgba(80, 140, 255, 0.2);
+  }
+  #search::placeholder { color: rgba(150, 180, 220, 0.35); }
+
+  #suggestions {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    width: 280px;
+    background: rgba(10, 25, 60, 0.97);
+    border: 1px solid rgba(100, 160, 255, 0.25);
+    border-radius: 8px;
+    overflow: hidden;
+    display: none;
+  }
+  .suggestion {
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    color: rgba(200, 220, 255, 0.85);
+    transition: background 0.1s;
+  }
+  .suggestion:hover, .suggestion.active {
+    background: rgba(100, 160, 255, 0.15);
+    color: #fff;
+  }
+
+  #info {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    background: rgba(10, 25, 60, 0.9);
+    border: 1px solid rgba(100, 160, 255, 0.2);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 12px;
+    line-height: 1.8;
+    min-width: 200px;
+    display: none;
+    z-index: 10;
+  }
+  #info.visible { display: block; }
+  #info-word { font-size: 18px; font-weight: 600; color: #e8f4ff; }
+  #info-count { color: rgba(150, 180, 220, 0.6); font-size: 12px; margin-bottom: 8px; }
+  .rel-row { display: flex; align-items: center; gap: 8px; margin: 2px 0; }
+  .rel-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .rel-name { color: rgba(200, 220, 255, 0.75); }
+  .rel-count { color: rgba(150, 180, 220, 0.45); font-size: 11px; }
+
+  #hint {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    color: rgba(120, 160, 210, 0.35);
+    font-size: 11px;
+    text-align: right;
+    line-height: 1.7;
+    z-index: 10;
+  }
+
+  .tooltip {
+    position: fixed;
+    background: rgba(10, 25, 60, 0.95);
+    border: 1px solid rgba(100, 160, 255, 0.3);
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 13px;
+    pointer-events: none;
+    display: none;
+    z-index: 30;
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+
+<svg id="svg"></svg>
+
+<a id="back" href="../index.html">← Keele peal</a>
+
+<div id="search-wrap">
+  <h1>sõnagalaktika</h1>
+  <p>avasta eesti keele semantilisi seoseid</p>
+  <div style="position:relative">
+    <input id="search" type="text" placeholder="Sisesta sõna…" autocomplete="off" spellcheck="false">
+    <div id="suggestions"></div>
+  </div>
+</div>
+
+<div id="info">
+  <div id="info-word"></div>
+  <div id="info-count"></div>
+  <div id="info-rels"></div>
+</div>
+
+<div id="hint">
+  klõps sõnal → näitab seoseid<br>
+  teine klõps → avardab<br>
+  scroll → suum
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script>
+const REL_COLORS = {
+  "sarnane":          "#4a9eff",
+  "antonüüm":         "#ff4466",
+  "vastand":          "#ff7733",
+  "ülemmõiste":       "#cc88ff",
+  "alammõiste":       "#33ddbb",
+  "kaashüponüüm":     "#55bbff",
+  "seotud mõiste":    "#77dd77",
+  "soomõiste":        "#bb66ff",
+  "liigimõiste":      "#44ccee",
+  "tervikumõiste":    "#ffcc44",
+  "osamõiste":        "#ffaa22",
+  "põhjus":           "#ff6688",
+  "tagajärg":         "#ff8866",
+  "üldmõiste":        "#aabbff",
+  "ainikmõiste":      "#ffbbee",
+};
+const DEFAULT_COLOR = "#4a6080";
+
+function rc(type) { return REL_COLORS[type] || DEFAULT_COLOR; }
+
+// --- setup ---
+const svgEl = document.getElementById("svg");
+const W = window.innerWidth, H = window.innerHeight;
+const svg = d3.select(svgEl).attr("viewBox", [0, 0, W, H]);
+
+const defs = svg.append("defs");
+const filt = defs.append("filter").attr("id", "glow")
+  .attr("x", "-80%").attr("y", "-80%").attr("width", "260%").attr("height", "260%");
+filt.append("feGaussianBlur").attr("stdDeviation", "6").attr("result", "blur");
+const fm = filt.append("feMerge");
+fm.append("feMergeNode").attr("in", "blur");
+fm.append("feMergeNode").attr("in", "blur");
+fm.append("feMergeNode").attr("in", "SourceGraphic");
+
+// tähefon
+const stars = svg.append("g");
+for (let i = 0; i < 250; i++) {
+  stars.append("circle")
+    .attr("cx", Math.random() * W).attr("cy", Math.random() * H)
+    .attr("r", Math.random() * 0.9 + 0.1)
+    .attr("fill", "white")
+    .attr("opacity", Math.random() * 0.4 + 0.05);
+}
+
+const zoomG = svg.append("g");
+svg.call(d3.zoom().scaleExtent([0.05, 10]).on("zoom", e => zoomG.attr("transform", e.transform)));
+
+const linkG = zoomG.append("g").attr("class", "links");
+const nodeG = zoomG.append("g").attr("class", "nodes");
+const labelG = zoomG.append("g").attr("class", "labels");
+
+// --- state ---
+let adjacency = {};
+let allWords = [];
+const nodes = [];
+const links = [];
+const nodeMap = new Map();
+const linkSet = new Set();
+const expanded = new Set();
+
+// --- simulatsioon ---
+const simulation = d3.forceSimulation([])
+  .force("link", d3.forceLink([]).id(d => d.id).distance(100).strength(0.4))
+  .force("charge", d3.forceManyBody().strength(-300))
+  .force("collision", d3.forceCollide().radius(d => nodeR(d) + 25))
+  .alphaDecay(0.03)
+  .on("tick", ticked);
+
+function nodeR(d) {
+  const deg = adjacency[d.id] ? adjacency[d.id].length : 0;
+  return Math.max(5, Math.min(18, 5 + Math.sqrt(deg) * 1.8));
+}
+
+// --- render ---
+let linkSel = linkG.selectAll("line");
+let nodeSel = nodeG.selectAll("circle");
+let labelSel = labelG.selectAll("text");
+
+function update() {
+  linkSel = linkG.selectAll("line").data(links, d => d.key);
+  linkSel.enter().append("line")
+    .attr("stroke", d => rc(d.type))
+    .attr("stroke-opacity", 0)
+    .attr("stroke-width", 1.5)
+    .transition().duration(400)
+    .attr("stroke-opacity", 0.55);
+  linkSel.exit().remove();
+  linkSel = linkG.selectAll("line");
+
+  nodeSel = nodeG.selectAll("circle").data(nodes, d => d.id);
+  const enter = nodeSel.enter().append("circle")
+    .attr("r", 0)
+    .attr("fill", d => nodeColor(d))
+    .attr("fill-opacity", 0.9)
+    .attr("filter", "url(#glow)")
+    .style("cursor", "pointer")
+    .on("click", onNodeClick)
+    .on("mouseover", onMouseOver)
+    .on("mousemove", onMouseMove)
+    .on("mouseout", onMouseOut)
+    .call(d3.drag()
+      .on("start", (e, d) => { if (!e.active) simulation.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; })
+      .on("drag", (e, d) => { d.fx = e.x; d.fy = e.y; })
+      .on("end", (e, d) => { if (!e.active) simulation.alphaTarget(0); d.fx = null; d.fy = null; })
+    );
+  enter.transition().duration(400).attr("r", d => nodeR(d));
+  nodeSel.exit().transition().duration(300).attr("r", 0).remove();
+  nodeSel = nodeG.selectAll("circle");
+
+  labelSel = labelG.selectAll("text").data(nodes, d => d.id);
+  labelSel.enter().append("text")
+    .text(d => d.id)
+    .attr("text-anchor", "middle")
+    .attr("font-size", d => Math.min(11 + nodeR(d) * 0.3, 15))
+    .attr("fill", "rgba(225,238,255,0.9)")
+    .attr("opacity", 0)
+    .style("pointer-events", "none")
+    .style("user-select", "none")
+    .style("paint-order", "stroke")
+    .style("stroke", "rgba(6,10,20,0.95)")
+    .style("stroke-width", "3px")
+    .transition().duration(500).attr("opacity", 1);
+  labelSel.exit().remove();
+  labelSel = labelG.selectAll("text");
+
+  simulation.nodes(nodes);
+  simulation.force("link").links(links);
+  simulation.alpha(0.5).restart();
+}
+
+function ticked() {
+  linkSel
+    .attr("x1", d => d.source.x).attr("y1", d => d.source.y)
+    .attr("x2", d => d.target.x).attr("y2", d => d.target.y);
+  nodeSel.attr("cx", d => d.x).attr("cy", d => d.y);
+  labelSel.attr("x", d => d.x).attr("y", d => d.y - nodeR(d) - 4);
+}
+
+function nodeColor(d) {
+  const neighbors = adjacency[d.id] || [];
+  const freq = {};
+  neighbors.forEach(n => freq[n.type] = (freq[n.type] || 0) + 1);
+  const top = Object.entries(freq).sort((a, b) => b[1] - a[1])[0];
+  return top ? rc(top[0]) : DEFAULT_COLOR;
+}
+
+// --- laiendamine ---
+function expandWord(word, cx, cy) {
+  if (!adjacency[word]) return;
+  expanded.add(word);
+
+  let added = false;
+
+  if (!nodeMap.has(word)) {
+    const node = { id: word, x: cx || W / 2, y: cy || H / 2 };
+    nodes.push(node);
+    nodeMap.set(word, node);
+    added = true;
+  }
+
+  (adjacency[word] || []).forEach(({ word: w2, type }) => {
+    if (!nodeMap.has(w2)) {
+      const angle = Math.random() * Math.PI * 2;
+      const dist = 120 + Math.random() * 60;
+      const src = nodeMap.get(word);
+      const node = { id: w2, x: (src?.x || W/2) + Math.cos(angle) * dist, y: (src?.y || H/2) + Math.sin(angle) * dist };
+      nodes.push(node);
+      nodeMap.set(w2, node);
+      added = true;
+    }
+    const key = [word, w2, type].sort().join("|");
+    if (!linkSet.has(key)) {
+      linkSet.add(key);
+      links.push({ source: word, target: w2, type, key });
+      added = true;
+    }
+  });
+
+  if (added) update();
+  showInfo(word);
+
+  nodeG.selectAll("circle")
+    .attr("stroke", d => expanded.has(d.id) ? "rgba(255,255,255,0.5)" : "none")
+    .attr("stroke-width", 1.5);
+}
+
+// --- info paneel ---
+function showInfo(word) {
+  const neighbors = adjacency[word] || [];
+  const freq = {};
+  neighbors.forEach(n => freq[n.type] = (freq[n.type] || 0) + 1);
+
+  document.getElementById("info-word").textContent = word;
+  document.getElementById("info-count").textContent = `${neighbors.length} seost`;
+  document.getElementById("info-rels").innerHTML = Object.entries(freq)
+    .sort((a, b) => b[1] - a[1])
+    .map(([t, n]) => `
+      <div class="rel-row">
+        <span class="rel-dot" style="background:${rc(t)}"></span>
+        <span class="rel-name">${t}</span>
+        <span class="rel-count">${n}</span>
+      </div>`)
+    .join("");
+  document.getElementById("info").classList.add("visible");
+}
+
+// --- sündmused ---
+function onNodeClick(event, d) {
+  event.stopPropagation();
+  if (expanded.has(d.id)) {
+    showInfo(d.id);
+  } else {
+    expandWord(d.id, d.x, d.y);
+  }
+}
+
+const tooltip = document.getElementById("tooltip");
+function onMouseOver(event, d) {
+  tooltip.style.display = "block";
+  const deg = adjacency[d.id]?.length || 0;
+  tooltip.textContent = `${d.id}  ·  ${deg} seost`;
+}
+function onMouseMove(event) {
+  tooltip.style.left = (event.clientX + 14) + "px";
+  tooltip.style.top = (event.clientY - 10) + "px";
+}
+function onMouseOut() { tooltip.style.display = "none"; }
+
+// --- otsing ---
+const searchEl = document.getElementById("search");
+const suggestEl = document.getElementById("suggestions");
+const wrapEl = document.getElementById("search-wrap");
+let suggestList = [];
+let activeIdx = -1;
+
+searchEl.addEventListener("input", () => {
+  const q = searchEl.value.trim().toLowerCase();
+  if (!q) { suggestEl.style.display = "none"; return; }
+  suggestList = allWords.filter(w => w.toLowerCase().startsWith(q)).slice(0, 8);
+  if (!suggestList.length) { suggestEl.style.display = "none"; return; }
+  activeIdx = -1;
+  suggestEl.innerHTML = suggestList.map((w, i) =>
+    `<div class="suggestion" data-i="${i}">${w}</div>`).join("");
+  suggestEl.style.display = "block";
+  suggestEl.querySelectorAll(".suggestion").forEach(el => {
+    el.addEventListener("click", () => pick(el.dataset.i));
+  });
+});
+
+searchEl.addEventListener("keydown", e => {
+  if (e.key === "ArrowDown") { activeIdx = Math.min(activeIdx + 1, suggestList.length - 1); renderActive(); e.preventDefault(); }
+  else if (e.key === "ArrowUp") { activeIdx = Math.max(activeIdx - 1, 0); renderActive(); e.preventDefault(); }
+  else if (e.key === "Enter") {
+    if (activeIdx >= 0) pick(activeIdx);
+    else if (suggestList.length) pick(0);
+  }
+  else if (e.key === "Escape") { suggestEl.style.display = "none"; }
+});
+
+function renderActive() {
+  suggestEl.querySelectorAll(".suggestion").forEach((el, i) =>
+    el.classList.toggle("active", i === activeIdx));
+}
+
+function pick(i) {
+  const word = suggestList[i];
+  searchEl.value = word;
+  suggestEl.style.display = "none";
+  wrapEl.classList.add("top");
+  expandWord(word, W / 2, H / 2);
+}
+
+// --- lae andmed ---
+fetch("data/graph.json")
+  .then(r => r.json())
+  .then(data => {
+    adjacency = data.adjacency;
+    allWords = Object.keys(adjacency).sort();
+    console.log(`Laaditud: ${allWords.length} sõna`);
+  });
+</script>
+</body>
+</html>

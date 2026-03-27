@@ -1,0 +1,12 @@
+# Andmefailid – ei laadita GitHubi
+**/data/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# OS
+.DS_Store
+Thumbs.db

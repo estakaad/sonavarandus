@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+<meta charset="UTF-8">
+<title>Liitsõnasild</title>
+<link rel="stylesheet" href="../css/main.css">
+<style>
+  body { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+  #wrap { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  #setup { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px; flex: 1; padding: 20px; }
+  #setup-row { display: flex; align-items: flex-start; gap: 16px; }
+  .input-group { display: flex; flex-direction: column; gap: 6px; position: relative; }
+  .input-label { font-size: 11px; letter-spacing: 1px; color: var(--text-muted); text-align: center; }
+  .word-input { width: 200px; font-size: 16px; padding: 10px 18px; }
+  .suggestions { position: absolute; top: calc(100% + 2px); left: 0; width: 200px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; display: none; z-index: 50; box-shadow: 0 4px 16px rgba(0,0,0,.08); }
+  .sug-item { padding: 7px 16px; cursor: pointer; font-size: 14px; color: var(--text-sec); }
+  .sug-item:hover, .sug-item.active { background: var(--row-hover); color: var(--accent); }
+  .arrow-mid { font-size: 22px; color: var(--text-ghost); margin-top: 28px; }
+  #btn-row { display: flex; gap: 10px; }
+  #msg { font-size: 13px; color: var(--text-muted); text-align: center; min-height: 20px; }
+
+  /* ── mängu vaade ── */
+  #game { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+
+  /* ahel ülaosas */
+  #chain-wrap {
+    flex-shrink: 0; padding: 14px 24px;
+    background: #fff; border-bottom: 1px solid #e2e8f0;
+    overflow-x: auto; white-space: nowrap;
+  }
+  #chain-wrap::-webkit-scrollbar { height: 4px; }
+  #chain-wrap::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 2px; }
+
+  .ch-word {
+    display: inline-block; padding: 5px 14px;
+    border-radius: 20px; font-size: 14px; color: #1e293b;
+    background: #f1f5f9; border: 1px solid #e2e8f0;
+    vertical-align: middle;
+  }
+  .ch-word.current { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .ch-word.target  { background: #dcfce7; color: #15803d; border-color: #86efac; }
+  .ch-word.done    { background: #dcfce7; color: #15803d; border-color: #86efac; }
+
+  .ch-via {
+    display: inline-block; margin: 0 6px;
+    font-size: 11px; color: #94a3b8; vertical-align: middle;
+  }
+  .ch-arrow { display: inline-block; margin: 0 4px; color: #cbd5e1; vertical-align: middle; }
+
+  /* praegune sõna + liigutused */
+  #game-body { flex: 1; overflow: hidden; display: flex; flex-direction: column; padding: 20px 24px 0; gap: 16px; }
+
+  #cur-row { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+  #cur-word { font-size: 32px; font-weight: 300; color: #1e293b; letter-spacing: 1px; }
+  #hint-btn {
+    margin-left: auto; font-size: 12px; padding: 6px 14px;
+    border-radius: 6px;
+  }
+
+  #target-row { font-size: 13px; color: #64748b; flex-shrink: 0; }
+  #target-word-label { color: var(--accent); font-weight: 500; }
+
+  /* liikumiste filter + ruudustik */
+  #moves-section { flex: 1; display: flex; flex-direction: column; overflow: hidden; gap: 10px; }
+
+  #moves-header { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+  #moves-label  { font-size: 11px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; }
+  #moves-count  { font-size: 11px; color: var(--text-ghost); }
+  #moves-filter { width: 200px; margin-left: auto; }
+  #moves-wrap   { flex: 1; overflow-y: auto; padding-bottom: 20px; }
+  #moves-grid   { display: flex; flex-wrap: wrap; gap: 8px; align-content: flex-start; }
+
+  .move-btn {
+    display: flex; flex-direction: column; align-items: flex-start;
+    padding: 8px 14px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius);
+    cursor: pointer; transition: border-color .15s, background .15s;
+    font-family: inherit; text-align: left; min-width: 140px;
+  }
+  .move-btn:hover { border-color: var(--accent); background: var(--accent-light); }
+  .move-btn:hover .move-to { color: var(--accent); }
+  .move-via { font-size: 13px; color: var(--text); font-weight: 500; }
+  .move-to  { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .move-btn.hint-next { border-color: #86efac; background: #f0fdf4; }
+  .move-btn.hint-next .move-to { color: #15803d; }
+
+  #win-banner {
+    display: none; position: fixed; inset: 0;
+    background: rgba(248,250,252,.93); backdrop-filter: blur(4px);
+    align-items: center; justify-content: center; flex-direction: column; gap: 16px; z-index: 100;
+  }
+  #win-banner.show { display: flex; }
+  #win-title { font-size: 36px; font-weight: 300; color: var(--text); letter-spacing: 2px; }
+  #win-steps { font-size: 14px; color: var(--text-dim); }
+  #win-again { margin-top: 8px; }
+
+  @keyframes pop {
+    0%   { transform: scale(.8); opacity: 0; }
+    60%  { transform: scale(1.05); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  #win-banner.show > * { animation: pop .4s ease both; }
+  #win-banner.show > *:nth-child(2) { animation-delay: .06s; }
+  #win-banner.show > *:nth-child(3) { animation-delay: .12s; }
+  #win-banner.show > *:nth-child(4) { animation-delay: .18s; }
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#wrap">Hüppa põhisisu juurde</a>
+
+<div class="app-header">
+  <a class="header-back" href="../index.html">← Keele peal</a>
+  <span class="header-title">Liitsõnasild</span>
+  <div class="header-end">
+    <span id="nav-steps" class="header-info"></span>
+  </div>
+</div>
+
+<div id="wrap">
+
+  <!-- ── seadistus ── -->
+  <div id="setup">
+    <div id="setup-row">
+      <div class="input-group">
+        <span class="input-label">Algussõna</span>
+        <input class="text-input word-input" id="w1" type="text" placeholder="nt käsi" autocomplete="off" spellcheck="false">
+        <div class="suggestions" id="s1"></div>
+      </div>
+      <div class="arrow-mid">→</div>
+      <div class="input-group">
+        <span class="input-label">Sihtmärk</span>
+        <input class="text-input word-input" id="w2" type="text" placeholder="nt kivi" autocomplete="off" spellcheck="false">
+        <div class="suggestions" id="s2"></div>
+      </div>
+    </div>
+    <div id="btn-row">
+      <button type="button" class="btn btn-primary" id="btn-start">Alusta</button>
+      <button type="button" class="btn" id="btn-random">Juhuslik paar</button>
+    </div>
+    <div id="msg"></div>
+  </div>
+
+  <!-- ── mäng ── -->
+  <div id="game">
+    <div id="chain-wrap"><div id="chain"></div></div>
+    <div id="game-body">
+      <div id="cur-row">
+        <div id="cur-word"></div>
+        <button type="button" class="btn btn-sm" id="hint-btn"><span aria-hidden="true">💡</span> Vihje</button>
+      </div>
+      <div id="target-row">sihtmärk: <span id="target-word-label"></span></div>
+      <div id="moves-section">
+        <div id="moves-header">
+          <span id="moves-label">Vali liitsõna</span>
+          <span id="moves-count"></span>
+          <input id="moves-filter" class="text-input" type="text" placeholder="Filtreeri…" autocomplete="off" spellcheck="false">
+        </div>
+        <div id="moves-wrap"><div id="moves-grid"></div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── võit ── -->
+<div id="win-banner">
+  <div id="win-title">Sild ehitatud!</div>
+  <div id="win-steps"></div>
+  <div id="win-chain"></div>
+  <button type="button" class="btn btn-primary" id="win-again" onclick="resetGame()">Uus mäng</button>
+</div>
+
+<script>
+// ── andmed ────────────────────────────────────────────────────
+let graph = {}, playable = [];
+
+fetch("data/compounds.json")
+  .then(r => r.json())
+  .then(d => {
+    graph    = d.graph;
+    playable = d.playable;
+  })
+  .catch(() => {
+    document.getElementById("msg").textContent =
+      "⚠ compounds.json puudub — käivita prepare_data.py";
+  });
+
+// ── mängu olek ────────────────────────────────────────────────
+let target = "", path = [], hintNext = null;
+
+// ── BFS ───────────────────────────────────────────────────────
+function findPath(start, end) {
+  if (!graph[start] || !graph[end]) return null;
+  if (start === end) return [{ word: start, via: null }];
+  const queue = [[{ word: start, via: null }]];
+  const visited = new Set([start]);
+  let checked = 0;
+  while (queue.length) {
+    const p = queue.shift();
+    const cur = p[p.length - 1].word;
+    for (const { via, to } of (graph[cur] || [])) {
+      if (to === end) return [...p, { word: to, via }];
+      if (!visited.has(to)) {
+        visited.add(to);
+        if (p.length < 10) queue.push([...p, { word: to, via }]);
+        if (++checked > 50000) return null;
+      }
+    }
+  }
+  return null;
+}
+
+// ── mängu alustamine ─────────────────────────────────────────
+function startGame(start, end) {
+  target = end;
+  path   = [{ word: start, via: null }];
+  hintNext = null;
+  document.getElementById("setup").style.display = "none";
+  document.getElementById("game").style.display  = "flex";
+  renderGame();
+}
+
+function renderGame() {
+  const cur = path[path.length - 1].word;
+  renderChain();
+  document.getElementById("cur-word").textContent    = cur;
+  document.getElementById("target-word-label").textContent = target;
+  document.getElementById("nav-steps").textContent =
+    path.length > 1 ? `${path.length - 1} sammu` : "";
+  renderMoves(cur, "");
+  document.getElementById("moves-filter").value = "";
+}
+
+function renderChain() {
+  const chain = document.getElementById("chain");
+  chain.innerHTML = "";
+  path.forEach((step, i) => {
+    if (i > 0) {
+      const via = document.createElement("span");
+      via.className = "ch-via";
+      via.textContent = step.via;
+      chain.appendChild(via);
+      const arr = document.createElement("span");
+      arr.className = "ch-arrow";
+      arr.textContent = "→";
+      chain.appendChild(arr);
+    }
+    const node = document.createElement("span");
+    const isDone = step.word === target && i === path.length - 1;
+    node.className = "ch-word" +
+      (i === path.length - 1 && !isDone ? " current" : "") +
+      (isDone ? " done" : "");
+    node.textContent = step.word;
+    chain.appendChild(node);
+  });
+  // sihtmärk (kui pole veel jõutud)
+  if (path[path.length - 1].word !== target) {
+    const dots = document.createElement("span");
+    dots.className = "ch-arrow";
+    dots.textContent = " … ";
+    chain.appendChild(dots);
+    const tgt = document.createElement("span");
+    tgt.className = "ch-word target";
+    tgt.textContent = target;
+    chain.appendChild(tgt);
+  }
+  // kerib viimaseni
+  chain.parentElement.scrollLeft = chain.scrollWidth;
+}
+
+function renderMoves(cur, filter) {
+  const edges = graph[cur] || [];
+  const q = filter.toLowerCase();
+  const filtered = q
+    ? edges.filter(e => e.via.toLowerCase().includes(q) || e.to.toLowerCase().includes(q))
+    : edges;
+
+  document.getElementById("moves-count").textContent = `${filtered.length} / ${edges.length}`;
+
+  const grid = document.getElementById("moves-grid");
+  grid.innerHTML = "";
+
+  filtered.forEach(({ via, to }) => {
+    const btn = document.createElement("button");
+    btn.className = "move-btn" + (hintNext && via === hintNext.via ? " hint-next" : "");
+    btn.innerHTML = `<span class="move-via">${via}</span><span class="move-to">→ ${to}</span>`;
+    btn.addEventListener("click", () => makeMove(via, to));
+    grid.appendChild(btn);
+  });
+}
+
+function makeMove(via, to) {
+  path.push({ word: to, via });
+  hintNext = null;
+  if (to === target) {
+    showWin();
+  } else {
+    renderGame();
+  }
+}
+
+// ── vihje ─────────────────────────────────────────────────────
+document.getElementById("hint-btn").addEventListener("click", () => {
+  const cur = path[path.length - 1].word;
+  const sol = findPath(cur, target);
+  if (!sol || sol.length < 2) return;
+  hintNext = sol[1]; // {word, via}
+  renderMoves(cur, document.getElementById("moves-filter").value);
+});
+
+// ── filter ────────────────────────────────────────────────────
+document.getElementById("moves-filter").addEventListener("input", function() {
+  const cur = path[path.length - 1].word;
+  renderMoves(cur, this.value);
+});
+
+// ── võit ──────────────────────────────────────────────────────
+function showWin() {
+  const steps = path.length - 1;
+  document.getElementById("win-steps").textContent =
+    steps === 1 ? "1 sammuga — imetabane!" :
+    steps <= 3  ? `${steps} sammuga — suurepärane!` :
+                  `${steps} sammuga`;
+
+  // näita ahelat võitusõnumis
+  const wc = document.getElementById("win-chain");
+  wc.innerHTML = path.map((s, i) =>
+    (i > 0 ? `<span style="color:#94a3b8;font-size:12px"> ${s.via} → </span>` : "") +
+    `<strong>${s.word}</strong>`
+  ).join("");
+
+  document.getElementById("win-banner").classList.add("show");
+}
+
+function resetGame() {
+  document.getElementById("win-banner").classList.remove("show");
+  document.getElementById("game").style.display  = "none";
+  document.getElementById("setup").style.display = "flex";
+  document.getElementById("nav-steps").textContent = "";
+  document.getElementById("msg").textContent = "";
+  path = []; target = ""; hintNext = null;
+}
+
+// ── alusta nupp ───────────────────────────────────────────────
+document.getElementById("btn-start").addEventListener("click", () => {
+  const a = document.getElementById("w1").value.trim();
+  const b = document.getElementById("w2").value.trim();
+  const msg = document.getElementById("msg");
+  if (!a || !b) { msg.textContent = "Mõlemad sõnad peavad olema täidetud."; return; }
+  if (!graph[a]) { msg.textContent = `„${a}" ei leidu liitsõnade andmestikus.`; return; }
+  if (!graph[b]) { msg.textContent = `„${b}" ei leidu liitsõnade andmestikus.`; return; }
+  if (a === b)   { msg.textContent = "Algus- ja sihtmärksõna peavad erinema."; return; }
+  msg.textContent = "Otsin teed…";
+  setTimeout(() => {
+    const sol = findPath(a, b);
+    if (!sol) {
+      msg.textContent = `sild sõnade "${a}" ja "${b}" vahel puudub (ühendus puudub)`;
+    } else {
+      startGame(a, b);
+    }
+  }, 20);
+});
+
+// ── juhuslik paar ─────────────────────────────────────────────
+document.getElementById("btn-random").addEventListener("click", () => {
+  if (!playable.length) return;
+  const msg = document.getElementById("msg");
+  msg.textContent = "otsin huvitavat paari…";
+  setTimeout(() => {
+    const pick = () => playable[Math.floor(Math.random() * playable.length)];
+    for (let attempt = 0; attempt < 30; attempt++) {
+      const a = pick(), b = pick();
+      if (a === b) continue;
+      const sol = findPath(a, b);
+      if (sol && sol.length >= 3 && sol.length <= 7) {
+        document.getElementById("w1").value = a;
+        document.getElementById("w2").value = b;
+        msg.textContent = "";
+        startGame(a, b);
+        return;
+      }
+    }
+    msg.textContent = "proovi uuesti";
+  }, 20);
+});
+
+// ── automaattäiendus ──────────────────────────────────────────
+function setupAutocomplete(inputId, sugId) {
+  const inp = document.getElementById(inputId);
+  const sug = document.getElementById(sugId);
+  let list = [], activeIdx = -1;
+
+  inp.addEventListener("input", () => {
+    const q = inp.value.trim().toLowerCase();
+    sug.innerHTML = "";
+    if (!q || !playable.length) { sug.style.display = "none"; return; }
+    list = playable.filter(w => w.toLowerCase().startsWith(q)).slice(0, 8);
+    if (!list.length) { sug.style.display = "none"; return; }
+    activeIdx = -1;
+    list.forEach(w => {
+      const d = document.createElement("div");
+      d.className = "sug-item"; d.textContent = w;
+      d.addEventListener("click", () => { inp.value = w; sug.style.display = "none"; });
+      sug.appendChild(d);
+    });
+    sug.style.display = "block";
+  });
+
+  inp.addEventListener("keydown", e => {
+    const items = sug.querySelectorAll(".sug-item");
+    if (e.key === "ArrowDown") activeIdx = Math.min(activeIdx + 1, list.length - 1);
+    else if (e.key === "ArrowUp") activeIdx = Math.max(activeIdx - 1, 0);
+    else if (e.key === "Enter") {
+      if (activeIdx >= 0) inp.value = list[activeIdx];
+      sug.style.display = "none"; return;
+    } else if (e.key === "Escape") { sug.style.display = "none"; return; }
+    items.forEach((el, i) => el.classList.toggle("active", i === activeIdx));
+  });
+
+  document.addEventListener("click", e => {
+    if (!inp.contains(e.target) && !sug.contains(e.target)) sug.style.display = "none";
+  });
+}
+
+setupAutocomplete("w1", "s1");
+setupAutocomplete("w2", "s2");
+
+document.getElementById("w1").addEventListener("keydown", e => {
+  if (e.key === "Tab") { e.preventDefault(); document.getElementById("w2").focus(); }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+<meta charset="UTF-8">
+<title>Kiirtee</title>
+<link rel="stylesheet" href="../css/main.css">
+<style>
+  body { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+  #wrap {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 36px; padding: 20px;
+    background: var(--bg);
+  }
+
+  /* ── sisestusalad ── */
+  #inputs { display: flex; align-items: flex-start; gap: 16px; }
+  .input-group { position: relative; display: flex; flex-direction: column; gap: 6px; }
+  .input-label { font-size: 11px; letter-spacing: 1px; color: var(--text-muted); text-align: center; }
+  .word-input { width: 220px; font-size: 16px; padding: 10px 18px; }
+
+  .suggestions {
+    position: absolute; top: calc(100% + 2px); left: 0; width: 220px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    overflow: hidden; display: none; z-index: 50;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  }
+  .sug-item { padding: 7px 16px; cursor: pointer; font-size: 14px; color: var(--text-sec); transition: background .1s; }
+  .sug-item:hover, .sug-item.active { background: var(--row-hover); color: var(--accent); }
+
+  .arrow-mid { font-size: 22px; color: var(--text-ghost); margin-top: 32px; flex-shrink: 0; }
+
+  /* ── nupud ── */
+  #btn-row { display: flex; gap: 10px; }
+
+  /* ── tulemus ── */
+  #result { min-height: 100px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+  #msg { font-size: 14px; color: var(--text-muted); text-align: center; line-height: 1.6; }
+
+  /* ── tee ── */
+  #chain {
+    display: flex; align-items: center; flex-wrap: wrap;
+    justify-content: center; gap: 0; max-width: 900px;
+  }
+  .chain-node {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px 18px;
+    font-size: 16px; color: var(--text); white-space: nowrap;
+    animation: fadeIn .3s ease both;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .chain-node.start, .chain-node.end {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px var(--accent-ring);
+  }
+  .chain-edge {
+    display: flex; flex-direction: column;
+    align-items: center; padding: 0 4px;
+    animation: fadeIn .3s ease both;
+  }
+  .edge-line { width: 32px; height: 1px; background: var(--text-ghost); }
+  .edge-type { font-size: 10px; color: var(--text-muted); margin-top: 4px; white-space: nowrap; }
+  #path-len { font-size: 12px; color: var(--text-muted); letter-spacing: 1px; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#wrap">Hüppa põhisisu juurde</a>
+
+<div class="app-header">
+  <a class="header-back" href="../index.html">← Keele peal</a>
+  <span class="header-title">Kiirtee</span>
+</div>
+
+<div id="wrap">
+  <div id="inputs">
+    <div class="input-group">
+      <span class="input-label">Algussõna</span>
+      <input class="text-input word-input" id="w1" type="text" placeholder="nt käsi" autocomplete="off" spellcheck="false">
+      <div class="suggestions" id="s1"></div>
+    </div>
+    <div class="arrow-mid">→</div>
+    <div class="input-group">
+      <span class="input-label">Lõppsõna</span>
+      <input class="text-input word-input" id="w2" type="text" placeholder="nt jalg" autocomplete="off" spellcheck="false">
+      <div class="suggestions" id="s2"></div>
+    </div>
+  </div>
+
+  <div id="btn-row">
+    <button type="button" class="btn btn-primary" id="btn-find">Leia tee</button>
+    <button type="button" class="btn" id="btn-random">Juhuslik paar</button>
+  </div>
+
+  <div id="result">
+    <div id="msg">Sisesta kaks sõna ja vajuta "Leia tee"</div>
+    <div id="chain"></div>
+    <div id="path-len"></div>
+  </div>
+</div>
+
+<script>
+let adjacency = {}, allWords = [];
+
+fetch("../galaktika/data/graph.json")
+  .then(r => r.json())
+  .then(data => {
+    adjacency = data.adjacency;
+    allWords  = Object.keys(adjacency).sort();
+  });
+
+function findPath(start, end) {
+  if (!adjacency[start] || !adjacency[end]) return null;
+  if (start === end) return [{ word: start, type: null }];
+  const queue   = [[{ word: start, type: null }]];
+  const visited = new Set([start]);
+  let checked   = 0;
+  while (queue.length) {
+    const path = queue.shift();
+    const cur  = path[path.length - 1].word;
+    for (const { word: nb, type } of (adjacency[cur] || [])) {
+      if (nb === end) return [...path, { word: nb, type }];
+      if (!visited.has(nb)) {
+        visited.add(nb);
+        if (path.length < 10) queue.push([...path, { word: nb, type }]);
+        if (++checked > 20000) return null;
+      }
+    }
+  }
+  return null;
+}
+
+const REL_COLORS = {
+  "sarnane": "#4a9eff", "antonüüm": "#ff4466", "vastand": "#ff7733",
+  "ülemmõiste": "#cc88ff", "alammõiste": "#33ddbb", "kaashüponüüm": "#55bbff",
+  "seotud mõiste": "#77dd77", "soomõiste": "#bb66ff", "liigimõiste": "#44ccee",
+  "tervikumõiste": "#ffcc44", "osamõiste": "#ffaa22",
+};
+
+function showPath(path) {
+  const chain = document.getElementById("chain");
+  const lenEl = document.getElementById("path-len");
+  chain.innerHTML = "";
+  const steps = path.length - 1;
+  path.forEach((item, i) => {
+    const node = document.createElement("div");
+    node.className = "chain-node" + (i === 0 ? " start" : i === path.length - 1 ? " end" : "");
+    node.textContent = item.word;
+    node.style.animationDelay = `${i * 80}ms`;
+    chain.appendChild(node);
+    if (i < path.length - 1) {
+      const nextType = path[i + 1].type;
+      const edge = document.createElement("div");
+      edge.className = "chain-edge";
+      edge.style.animationDelay = `${i * 80 + 40}ms`;
+      const color = REL_COLORS[nextType] || "rgba(100,160,255,0.5)";
+      edge.innerHTML = `
+        <div class="edge-line" style="background:${color}"></div>
+        <div class="edge-type" style="color:${color}">${nextType || ""}</div>`;
+      chain.appendChild(edge);
+    }
+  });
+  lenEl.textContent = steps === 1 ? "otsene seos" : `${steps} sammu`;
+}
+
+function setMsg(txt) {
+  document.getElementById("msg").textContent = txt;
+  document.getElementById("chain").innerHTML = "";
+  document.getElementById("path-len").textContent = "";
+}
+
+document.getElementById("btn-find").addEventListener("click", () => {
+  const a = document.getElementById("w1").value.trim();
+  const b = document.getElementById("w2").value.trim();
+  if (!a || !b) { setMsg("Mõlemad sõnad peavad olema täidetud."); return; }
+  if (!adjacency[a]) { setMsg(`„${a}" ei leidu seoste andmestikus.`); return; }
+  if (!adjacency[b]) { setMsg(`„${b}" ei leidu seoste andmestikus.`); return; }
+  setMsg("Otsin…");
+  setTimeout(() => {
+    const path = findPath(a, b);
+    if (!path) {
+      setMsg(`teed sõnade "${a}" ja "${b}" vahel ei leitud (liiga kaugel või ühendus puudub)`);
+    } else {
+      document.getElementById("msg").textContent = "";
+      showPath(path);
+    }
+  }, 30);
+});
+
+document.getElementById("btn-random").addEventListener("click", () => {
+  if (!allWords.length) return;
+  const pick = () => allWords[Math.floor(Math.random() * allWords.length)];
+  document.getElementById("w1").value = pick();
+  document.getElementById("w2").value = pick();
+  document.getElementById("btn-find").click();
+});
+
+function setupAutocomplete(inputId, sugId) {
+  const inp = document.getElementById(inputId);
+  const sug = document.getElementById(sugId);
+  let list = [], activeIdx = -1;
+  inp.addEventListener("input", () => {
+    const q = inp.value.trim().toLowerCase();
+    sug.innerHTML = "";
+    if (!q) { sug.style.display = "none"; return; }
+    list = allWords.filter(w => w.toLowerCase().startsWith(q)).slice(0, 7);
+    if (!list.length) { sug.style.display = "none"; return; }
+    activeIdx = -1;
+    list.forEach(w => {
+      const d = document.createElement("div");
+      d.className = "sug-item"; d.textContent = w;
+      d.addEventListener("click", () => { inp.value = w; sug.style.display = "none"; });
+      sug.appendChild(d);
+    });
+    sug.style.display = "block";
+  });
+  inp.addEventListener("keydown", e => {
+    const items = sug.querySelectorAll(".sug-item");
+    if (e.key === "ArrowDown") activeIdx = Math.min(activeIdx + 1, list.length - 1);
+    else if (e.key === "ArrowUp") activeIdx = Math.max(activeIdx - 1, 0);
+    else if (e.key === "Enter") {
+      if (activeIdx >= 0) inp.value = list[activeIdx];
+      sug.style.display = "none"; return;
+    } else if (e.key === "Escape") { sug.style.display = "none"; return; }
+    items.forEach((el, i) => el.classList.toggle("active", i === activeIdx));
+  });
+  document.addEventListener("click", e => {
+    if (!inp.contains(e.target) && !sug.contains(e.target)) sug.style.display = "none";
+  });
+}
+
+setupAutocomplete("w1", "s1");
+setupAutocomplete("w2", "s2");
+
+document.getElementById("w1").addEventListener("keydown", e => {
+  if (e.key === "Tab") { e.preventDefault(); document.getElementById("w2").focus(); }
+});
+</script>
+</body>
+</html>

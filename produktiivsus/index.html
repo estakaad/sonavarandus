@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+<meta charset="UTF-8">
+<title>Liitsõnade produktiivsus</title>
+<link rel="stylesheet" href="../css/main.css">
+<style>
+  body { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+  #body { display: flex; flex: 1; overflow: hidden; background: var(--bg); }
+  #list-wrap { flex: 1; overflow-y: auto; padding: 16px 24px 40px; }
+
+  .sort-btn { padding: 5px 12px; font-size: 12px; }
+  .sort-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  #legend { display: flex; align-items: center; gap: 20px; margin-bottom: 12px; font-size: 11px; color: var(--text-dim); }
+  .leg-dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; margin-right: 5px; vertical-align: middle; }
+  .leg-esiosa   { background: #3b82f6; }
+  .leg-jarelosa { background: #10b981; }
+
+  .row { display: flex; align-items: center; gap: 10px; padding: 5px 8px; border-radius: var(--radius-sm); cursor: pointer; transition: background .1s; }
+  .row:hover    { background: var(--row-hover); }
+  .row.selected { background: var(--row-selected); }
+
+  .word { width: 150px; flex-shrink: 0; font-size: 13px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar-wrap { flex: 1; height: 14px; border-radius: 3px; overflow: hidden; display: flex; background: var(--border); }
+  .bar-e { background: #3b82f6; height: 100%; transition: width .3s ease; }
+  .bar-j { background: #10b981; height: 100%; transition: width .3s ease; }
+  .num { width: 36px; flex-shrink: 0; text-align: right; font-size: 12px; color: var(--text-dim); font-variant-numeric: tabular-nums; }
+
+  #p-word  { font-size: 26px; font-weight: 300; color: var(--text); margin-bottom: 4px; }
+  #p-stats { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
+  .p-section { margin-bottom: 18px; }
+  .p-label { font-size: 10px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .p-label-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+  .sep { height: 1px; background: var(--surface-alt); margin: 14px 0; }
+  .ex-item { display: inline-block; margin: 3px 4px 3px 0; padding: 3px 10px; border-radius: 20px; font-size: 12px; background: var(--surface-alt); color: var(--text-sec); }
+  .ex-item.e { background: var(--accent-light); color: #1d4ed8; }
+  .ex-item.j { background: #ecfdf5; color: #059669; }
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#body">Hüppa põhisisu juurde</a>
+
+<div class="app-header">
+  <a class="header-back" href="../index.html">← Keele peal</a>
+  <span class="header-title">Liitsõnade produktiivsus</span>
+  <div class="header-end">
+    <span id="info" class="header-info"></span>
+    <button type="button" class="btn sort-btn active" data-sort="total">Kokku</button>
+    <button type="button" class="btn sort-btn" data-sort="esiosa">Eesosana</button>
+    <button type="button" class="btn sort-btn" data-sort="jarelosa">Järelosana</button>
+    <input id="search" class="text-input" type="text" placeholder="Otsi sõna…"
+           style="width:160px" autocomplete="off" spellcheck="false">
+  </div>
+</div>
+
+<div id="body">
+  <div id="list-wrap">
+    <div id="legend">
+      <span><span class="leg-dot leg-esiosa"></span>Eesosana</span>
+      <span><span class="leg-dot leg-jarelosa"></span>Järelosana</span>
+    </div>
+    <div id="list"></div>
+  </div>
+
+  <div id="panel" class="side-panel">
+    <div id="panel-inner" class="side-panel__inner">
+      <div id="p-word"></div>
+      <div id="p-stats"></div>
+      <div class="sep"></div>
+      <div class="p-section">
+        <div class="p-label">
+          <span class="p-label-dot" style="background:#3b82f6"></span>Eesosana
+        </div>
+        <div id="p-esiosa-ex"></div>
+      </div>
+      <div class="p-section">
+        <div class="p-label">
+          <span class="p-label-dot" style="background:#10b981"></span>Järelosana
+        </div>
+        <div id="p-jarelosa-ex"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let allWords = [], sortKey = "total", maxVal = 1;
+
+function buildRow(d) {
+  const row = document.createElement("div");
+  row.className = "row";
+  row.dataset.word = d.word;
+  const ePct = (d.esiosa  / maxVal * 100).toFixed(2);
+  const jPct = (d.jarelosa / maxVal * 100).toFixed(2);
+  row.innerHTML = `
+    <span class="word" title="${d.word}">${d.word}</span>
+    <div class="bar-wrap">
+      <div class="bar-e" style="width:${ePct}%"></div>
+      <div class="bar-j" style="width:${jPct}%"></div>
+    </div>
+    <span class="num">${d.esiosa + d.jarelosa}</span>`;
+  row.addEventListener("click", () => openPanel(d, row));
+  return row;
+}
+
+function getMaxVal(words) {
+  if (sortKey === "esiosa")   return Math.max(...words.map(w => w.esiosa), 1);
+  if (sortKey === "jarelosa") return Math.max(...words.map(w => w.jarelosa), 1);
+  return Math.max(...words.map(w => w.esiosa + w.jarelosa), 1);
+}
+
+function renderList(words) {
+  maxVal = getMaxVal(words);
+  const list = document.getElementById("list");
+  list.innerHTML = "";
+  words.forEach(d => list.appendChild(buildRow(d)));
+}
+
+function getSorted(words) {
+  return [...words].sort((a, b) => {
+    if (sortKey === "esiosa")   return b.esiosa   - a.esiosa;
+    if (sortKey === "jarelosa") return b.jarelosa - a.jarelosa;
+    return (b.esiosa + b.jarelosa) - (a.esiosa + a.jarelosa);
+  });
+}
+
+function openPanel(d, row) {
+  document.querySelectorAll(".row.selected").forEach(r => r.classList.remove("selected"));
+  if (row) row.classList.add("selected");
+  document.getElementById("p-word").textContent = d.word;
+  document.getElementById("p-stats").textContent =
+    `${d.esiosa} × eesosana · ${d.jarelosa} × järelosana · kokku ${d.esiosa + d.jarelosa} liitsõna`;
+  const exFn = (items, cls) => items.length
+    ? items.map(w => `<span class="ex-item ${cls}">${w}</span>`).join("")
+    : '<span style="color:var(--text-ghost);font-size:12px">näited puuduvad</span>';
+  document.getElementById("p-esiosa-ex").innerHTML  = exFn(d.esiosa_ex,  "e");
+  document.getElementById("p-jarelosa-ex").innerHTML = exFn(d.jarelosa_ex, "j");
+  document.getElementById("panel").classList.add("open");
+}
+
+document.getElementById("search").addEventListener("input", function() {
+  const q = this.value.trim().toLowerCase();
+  const filtered = q ? allWords.filter(w => w.word.toLowerCase().includes(q)) : allWords;
+  renderList(getSorted(filtered));
+});
+
+document.querySelectorAll(".sort-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    sortKey = btn.dataset.sort;
+    document.querySelectorAll(".sort-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    renderList(getSorted(allWords));
+  });
+});
+
+fetch("data/productivity.json")
+  .then(r => r.json())
+  .then(data => {
+    allWords = data.words;
+    document.getElementById("info").textContent =
+      `${allWords.length} sõna · ${allWords.reduce((s, w) => s + w.esiosa + w.jarelosa, 0)} liitsõna`;
+    renderList(getSorted(allWords));
+  })
+  .catch(() => {
+    document.getElementById("list").textContent =
+      "⚠ productivity.json puudub — käivita prepare_data.py";
+  });
+</script>
+</body>
+</html>
