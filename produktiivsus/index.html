@@ -36,6 +36,12 @@
   .ex-item { display: inline-block; margin: 3px 4px 3px 0; padding: 3px 10px; border-radius: 20px; font-size: 12px; background: var(--surface-alt); color: var(--text-sec); }
   .ex-item.e { background: var(--accent-light); color: #1d4ed8; }
   .ex-item.j { background: #ecfdf5; color: #059669; }
+
+  #pager {
+    display: none; align-items: center; justify-content: center;
+    gap: 12px; padding: 16px 0 8px;
+  }
+  #pg-info { font-size: 12px; color: var(--text-muted); min-width: 60px; text-align: center; }
 </style>
 </head>
 <body>
@@ -62,6 +68,11 @@
       <span><span class="leg-dot leg-jarelosa"></span>Järelosana</span>
     </div>
     <div id="list"></div>
+    <div id="pager">
+      <button type="button" class="btn btn-sm" id="pg-prev">← Eelmine</button>
+      <span id="pg-info"></span>
+      <button type="button" class="btn btn-sm" id="pg-next">Järgmine →</button>
+    </div>
   </div>
 
   <div id="panel" class="side-panel">
@@ -86,13 +97,14 @@
 </div>
 
 <script>
-let allWords = [], sortKey = "total", maxVal = 1;
+const PAGE_SIZE = 50;
+let allWords = [], currentWords = [], sortKey = "total", maxVal = 1, currentPage = 1;
 
 function buildRow(d) {
   const row = document.createElement("div");
   row.className = "row";
   row.dataset.word = d.word;
-  const ePct = (d.esiosa  / maxVal * 100).toFixed(2);
+  const ePct = (d.esiosa   / maxVal * 100).toFixed(2);
   const jPct = (d.jarelosa / maxVal * 100).toFixed(2);
   row.innerHTML = `
     <span class="word" title="${d.word}">${d.word}</span>
@@ -111,13 +123,6 @@ function getMaxVal(words) {
   return Math.max(...words.map(w => w.esiosa + w.jarelosa), 1);
 }
 
-function renderList(words) {
-  maxVal = getMaxVal(words);
-  const list = document.getElementById("list");
-  list.innerHTML = "";
-  words.forEach(d => list.appendChild(buildRow(d)));
-}
-
 function getSorted(words) {
   return [...words].sort((a, b) => {
     if (sortKey === "esiosa")   return b.esiosa   - a.esiosa;
@@ -125,6 +130,33 @@ function getSorted(words) {
     return (b.esiosa + b.jarelosa) - (a.esiosa + a.jarelosa);
   });
 }
+
+function renderList(words) {
+  currentWords = words;
+  maxVal = getMaxVal(words);
+  const list  = document.getElementById("list");
+  const start = (currentPage - 1) * PAGE_SIZE;
+  list.innerHTML = "";
+  words.slice(start, start + PAGE_SIZE).forEach(d => list.appendChild(buildRow(d)));
+  document.getElementById("list-wrap").scrollTop = 0;
+  renderPager();
+}
+
+function renderPager() {
+  const totalPages = Math.ceil(currentWords.length / PAGE_SIZE);
+  const pager = document.getElementById("pager");
+  pager.style.display = totalPages > 1 ? "flex" : "none";
+  document.getElementById("pg-info").textContent = `${currentPage} / ${totalPages}`;
+  document.getElementById("pg-prev").disabled = currentPage <= 1;
+  document.getElementById("pg-next").disabled = currentPage >= totalPages;
+}
+
+document.getElementById("pg-prev").addEventListener("click", () => {
+  if (currentPage > 1) { currentPage--; renderList(currentWords); }
+});
+document.getElementById("pg-next").addEventListener("click", () => {
+  if (currentPage < Math.ceil(currentWords.length / PAGE_SIZE)) { currentPage++; renderList(currentWords); }
+});
 
 function openPanel(d, row) {
   document.querySelectorAll(".row.selected").forEach(r => r.classList.remove("selected"));
@@ -143,6 +175,7 @@ function openPanel(d, row) {
 document.getElementById("search").addEventListener("input", function() {
   const q = this.value.trim().toLowerCase();
   const filtered = q ? allWords.filter(w => w.word.toLowerCase().includes(q)) : allWords;
+  currentPage = 1;
   renderList(getSorted(filtered));
 });
 
@@ -151,7 +184,8 @@ document.querySelectorAll(".sort-btn").forEach(btn => {
     sortKey = btn.dataset.sort;
     document.querySelectorAll(".sort-btn").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
-    renderList(getSorted(allWords));
+    currentPage = 1;
+    renderList(getSorted(currentWords));
   });
 });
 
