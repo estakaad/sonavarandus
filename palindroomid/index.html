@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+<meta charset="UTF-8">
+<title>Palindroomid</title>
+<link rel="stylesheet" href="../css/main.css">
+<style>
+  body { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+  #body { display: flex; flex: 1; overflow: hidden; background: var(--bg); }
+  #list-wrap { flex: 1; overflow-y: auto; padding: 16px 24px 40px; }
+
+  .length-group { margin-bottom: 28px; }
+
+  .length-heading {
+    display: flex; align-items: baseline; gap: 10px;
+    margin-bottom: 10px;
+  }
+  .length-badge {
+    font-size: 20px; font-weight: 300; color: var(--text);
+    letter-spacing: 1px;
+  }
+  .length-count {
+    font-size: 12px; color: var(--text-muted);
+  }
+
+  .word-pill {
+    display: inline-block; margin: 3px 4px 3px 0;
+    padding: 5px 14px; border-radius: 20px; font-size: 14px;
+    background: var(--surface-alt); color: var(--text-sec);
+    cursor: default; transition: background .1s, color .1s;
+    letter-spacing: 1px;
+  }
+  .word-pill:hover {
+    background: var(--accent-light); color: var(--accent);
+  }
+  .word-pill.dim { opacity: 0.3; }
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#body">Hüppa põhisisu juurde</a>
+
+<div class="app-header">
+  <nav class="breadcrumb" aria-label="Navigatsioon">
+    <a class="breadcrumb-home" href="../index.html">Keele peal</a>
+    <span class="breadcrumb-sep" aria-hidden="true">›</span>
+    <span class="breadcrumb-current">Palindroomid</span>
+  </nav>
+  <div class="header-end">
+    <span id="info" class="header-info"></span>
+    <input id="search" class="text-input" type="text" placeholder="Otsi…"
+           style="width:160px" autocomplete="off" spellcheck="false">
+  </div>
+</div>
+
+<div id="body">
+  <div id="list-wrap">
+    <div id="list"></div>
+  </div>
+</div>
+
+<script>
+let allGroups = [];
+
+function render(query) {
+  const q = query.trim().toLowerCase();
+  const list = document.getElementById("list");
+  list.innerHTML = "";
+
+  let totalVisible = 0;
+
+  allGroups.forEach(g => {
+    const matched = q
+      ? g.words.filter(w => w.toLowerCase().includes(q))
+      : g.words;
+    if (!matched.length && q) return;
+
+    totalVisible += matched.length;
+
+    const section = document.createElement("div");
+    section.className = "length-group";
+
+    const heading = document.createElement("div");
+    heading.className = "length-heading";
+    heading.innerHTML = `
+      <span class="length-badge">${g.length}-tähelised</span>
+      <span class="length-count">${matched.length}</span>`;
+    section.appendChild(heading);
+
+    const pills = document.createElement("div");
+    g.words.forEach(w => {
+      const pill = document.createElement("span");
+      pill.className = "word-pill" + (q && !matched.includes(w) ? " dim" : "");
+      pill.textContent = w;
+      pills.appendChild(pill);
+    });
+    section.appendChild(pills);
+    list.appendChild(section);
+  });
+
+  document.getElementById("info").textContent =
+    q ? `${totalVisible} vastet` : `${allGroups.reduce((s,g) => s + g.words.length, 0)} palindroomi`;
+}
+
+document.getElementById("search").addEventListener("input", function() {
+  render(this.value);
+});
+
+fetch("data/palindromes.json")
+  .then(r => r.json())
+  .then(data => {
+    allGroups = data.groups;
+    render("");
+  })
+  .catch(() => {
+    document.getElementById("list").textContent =
+      "⚠ palindromes.json puudub — käivita prepare_data.py";
+  });
+</script>
+</body>
+</html>

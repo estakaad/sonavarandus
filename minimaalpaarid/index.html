@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+<meta charset="UTF-8">
+<title>Minimaalpaarid</title>
+<link rel="stylesheet" href="../css/main.css">
+<style>
+  body { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+  #body { display: flex; flex: 1; overflow: hidden; background: var(--bg); }
+  #list-wrap { flex: 1; overflow-y: auto; padding: 16px 24px 40px; }
+
+  .row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 5px 8px; border-radius: var(--radius-sm);
+    transition: background .1s;
+  }
+  .row:hover { background: var(--row-hover); }
+
+  .len-badge {
+    flex-shrink: 0; width: 26px; height: 20px;
+    background: var(--surface-alt); color: var(--text-muted);
+    font-size: 11px; font-weight: 600; border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .pair { display: flex; align-items: center; gap: 8px; flex: 1; }
+  .pair-word { font-size: 14px; color: var(--text); letter-spacing: 1px; font-family: monospace; }
+  .diff { color: var(--accent); font-weight: 700; }
+  .slash { font-size: 13px; color: var(--text-ghost); }
+
+  #pager {
+    display: none; align-items: center; justify-content: center;
+    gap: 12px; padding: 16px 0 8px;
+  }
+  #pg-info { font-size: 12px; color: var(--text-muted); min-width: 60px; text-align: center; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#body">Hüppa põhisisu juurde</a>
+<div class="app-header">
+  <nav class="breadcrumb" aria-label="Navigatsioon">
+    <a class="breadcrumb-home" href="../index.html">Keele peal</a>
+    <span class="breadcrumb-sep" aria-hidden="true">›</span>
+    <span class="breadcrumb-current">Minimaalpaarid</span>
+  </nav>
+  <div class="header-end">
+    <span id="info" class="header-info"></span>
+    <input id="search" class="text-input" type="text" placeholder="Otsi sõna…"
+           style="width:180px" autocomplete="off" spellcheck="false">
+  </div>
+</div>
+<div id="body">
+  <div id="list-wrap">
+    <div id="list"></div>
+    <div id="pager">
+      <button type="button" class="btn btn-sm" id="pg-prev">← Eelmine</button>
+      <span id="pg-info"></span>
+      <button type="button" class="btn btn-sm" id="pg-next">Järgmine →</button>
+    </div>
+  </div>
+</div>
+<script>
+const PAGE_SIZE = 60;
+let allPairs = [], currentPairs = [], currentPage = 1;
+
+function highlight(word, pos) {
+  return word.slice(0, pos)
+    + `<span class="diff">${word[pos]}</span>`
+    + word.slice(pos + 1);
+}
+
+function buildRow(p) {
+  const row = document.createElement("div");
+  row.className = "row";
+  row.innerHTML = `
+    <span class="len-badge">${p.length}</span>
+    <div class="pair">
+      <span class="pair-word">${highlight(p.a, p.pos)}</span>
+      <span class="slash">/</span>
+      <span class="pair-word">${highlight(p.b, p.pos)}</span>
+    </div>`;
+  return row;
+}
+
+function renderList(pairs) {
+  currentPairs = pairs;
+  const list  = document.getElementById("list");
+  const start = (currentPage - 1) * PAGE_SIZE;
+  list.innerHTML = "";
+  pairs.slice(start, start + PAGE_SIZE).forEach(p => list.appendChild(buildRow(p)));
+  document.getElementById("list-wrap").scrollTop = 0;
+  renderPager();
+}
+
+function renderPager() {
+  const total = Math.ceil(currentPairs.length / PAGE_SIZE);
+  const pager = document.getElementById("pager");
+  pager.style.display = total > 1 ? "flex" : "none";
+  document.getElementById("pg-info").textContent = `${currentPage} / ${total}`;
+  document.getElementById("pg-prev").disabled = currentPage <= 1;
+  document.getElementById("pg-next").disabled = currentPage >= total;
+}
+
+document.getElementById("pg-prev").addEventListener("click", () => { if (currentPage > 1) { currentPage--; renderList(currentPairs); } });
+document.getElementById("pg-next").addEventListener("click", () => { if (currentPage < Math.ceil(currentPairs.length / PAGE_SIZE)) { currentPage++; renderList(currentPairs); } });
+
+document.getElementById("search").addEventListener("input", function() {
+  const q = this.value.trim().toLowerCase();
+  const filtered = q ? allPairs.filter(p => p.a.includes(q) || p.b.includes(q)) : allPairs;
+  currentPage = 1; renderList(filtered);
+  document.getElementById("info").textContent = q ? `${filtered.length} vastet` : `${allPairs.length} paari`;
+});
+
+fetch("data/minimalpairs.json").then(r=>r.json()).then(data => {
+  allPairs = data.pairs;
+  document.getElementById("info").textContent = `${allPairs.length} paari`;
+  renderList(allPairs);
+}).catch(() => { document.getElementById("list").textContent = "⚠ minimalpairs.json puudub — käivita prepare_data.py"; });
+</script>
+</body>
+</html>

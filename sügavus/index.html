@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+<meta charset="UTF-8">
+<title>Liitsõnade sügavus</title>
+<link rel="stylesheet" href="../css/main.css">
+<style>
+  body { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+  #body { display: flex; flex: 1; overflow: hidden; background: var(--bg); }
+  #list-wrap { flex: 1; overflow-y: auto; padding: 16px 24px 40px; }
+
+  /* ── ahela rida ── */
+  .chain-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 7px 8px; border-radius: var(--radius-sm);
+    cursor: pointer; transition: background .1s;
+  }
+  .chain-row:hover    { background: var(--row-hover); }
+  .chain-row.selected { background: var(--row-selected); }
+
+  .depth-badge {
+    flex-shrink: 0; width: 28px; height: 20px;
+    background: var(--accent-light); color: var(--accent);
+    font-size: 11px; font-weight: 700;
+    border-radius: 4px; display: flex; align-items: center; justify-content: center;
+  }
+  .chain-pills { display: flex; align-items: center; flex-wrap: wrap; gap: 0; flex: 1; }
+  .chain-pill {
+    font-size: 13px; color: var(--text-sec);
+    padding: 2px 8px; border-radius: 4px;
+    transition: color .1s, background .1s;
+  }
+  .chain-pill:hover  { color: var(--accent); background: var(--accent-light); }
+  .chain-pill.first  { font-weight: 600; color: var(--text-dim); }
+  .chain-pill.last   { font-weight: 700; color: var(--text); }
+  .chain-arrow { font-size: 11px; color: var(--text-ghost); padding: 0 1px; }
+
+  /* ── paneel ── */
+  #p-word  { font-size: 24px; font-weight: 300; color: var(--text); margin-bottom: 2px; }
+  #p-meta  { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
+  .sep     { height: 1px; background: var(--surface-alt); margin: 12px 0; }
+  .p-label { font-size: 10px; color: var(--text-muted); letter-spacing: 1px;
+             text-transform: uppercase; margin-bottom: 10px; }
+
+  /* ── puu ── */
+  .tree-node { display: flex; flex-direction: column; }
+  .tree-row  {
+    display: flex; align-items: center; gap: 6px;
+    padding: 3px 4px; border-radius: 4px; cursor: pointer;
+    transition: background .1s;
+  }
+  .tree-row:hover { background: var(--row-hover); }
+  .tree-toggle {
+    width: 14px; flex-shrink: 0; font-size: 10px;
+    color: var(--text-ghost); text-align: center;
+    transition: transform .15s;
+  }
+  .tree-toggle.open { transform: rotate(90deg); }
+  .tree-word  { font-size: 13px; color: var(--text); }
+  .tree-count { font-size: 11px; color: var(--text-ghost); }
+  .tree-children {
+    padding-left: 20px;
+    border-left: 1px solid var(--border);
+    margin-left: 6px; margin-top: 1px;
+    display: none;
+  }
+  .tree-children.open { display: block; }
+
+  #pager {
+    display: none; align-items: center; justify-content: center;
+    gap: 12px; padding: 16px 0 8px;
+  }
+  #pg-info { font-size: 12px; color: var(--text-muted); min-width: 60px; text-align: center; }
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#body">Hüppa põhisisu juurde</a>
+
+<div class="app-header">
+  <nav class="breadcrumb" aria-label="Navigatsioon">
+    <a class="breadcrumb-home" href="../index.html">Keele peal</a>
+    <span class="breadcrumb-sep" aria-hidden="true">›</span>
+    <span class="breadcrumb-current">Liitsõnade sügavus</span>
+  </nav>
+  <div class="header-end">
+    <span id="info" class="header-info"></span>
+    <input id="search" class="text-input" type="text" placeholder="Otsi sõna…"
+           style="width:180px" autocomplete="off" spellcheck="false">
+  </div>
+</div>
+
+<div id="body">
+  <div id="list-wrap">
+    <div id="list"></div>
+    <div id="pager">
+      <button type="button" class="btn btn-sm" id="pg-prev">← Eelmine</button>
+      <span id="pg-info"></span>
+      <button type="button" class="btn btn-sm" id="pg-next">Järgmine →</button>
+    </div>
+  </div>
+
+  <div id="panel" class="side-panel">
+    <div id="panel-inner" class="side-panel__inner">
+      <div id="p-word"></div>
+      <div id="p-meta"></div>
+      <div class="sep"></div>
+      <div class="p-label">Liitsõnade puu</div>
+      <div id="p-tree"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const PAGE_SIZE = 50;
+let allChains = [], currentChains = [], compoundMap = {}, currentPage = 1;
+
+// ── ahela ridade ehitamine ─────────────────────────────────
+function buildRow(item) {
+  const row = document.createElement("div");
+  row.className = "chain-row";
+
+  const badge = document.createElement("span");
+  badge.className = "depth-badge";
+  badge.textContent = item.depth;
+  row.appendChild(badge);
+
+  const pills = document.createElement("div");
+  pills.className = "chain-pills";
+
+  item.chain.forEach((word, i) => {
+    if (i > 0) {
+      const arr = document.createElement("span");
+      arr.className = "chain-arrow";
+      arr.textContent = "→";
+      pills.appendChild(arr);
+    }
+    const pill = document.createElement("span");
+    pill.className = "chain-pill" +
+      (i === 0 ? " first" : "") +
+      (i === item.chain.length - 1 ? " last" : "");
+    pill.textContent = word;
+    pill.addEventListener("click", e => { e.stopPropagation(); openPanel(word); });
+    pills.appendChild(pill);
+  });
+  row.appendChild(pills);
+
+  row.addEventListener("click", () => openPanel(item.chain[item.chain.length - 1]));
+  return row;
+}
+
+function renderList(chains) {
+  currentChains = chains;
+  const list = document.getElementById("list");
+  const start = (currentPage - 1) * PAGE_SIZE;
+  list.innerHTML = "";
+  chains.slice(start, start + PAGE_SIZE).forEach(item => list.appendChild(buildRow(item)));
+  document.getElementById("list-wrap").scrollTop = 0;
+  renderPager();
+}
+
+function renderPager() {
+  const total = Math.ceil(currentChains.length / PAGE_SIZE);
+  const pager = document.getElementById("pager");
+  pager.style.display = total > 1 ? "flex" : "none";
+  document.getElementById("pg-info").textContent = `${currentPage} / ${total}`;
+  document.getElementById("pg-prev").disabled = currentPage <= 1;
+  document.getElementById("pg-next").disabled = currentPage >= total;
+}
+
+document.getElementById("pg-prev").addEventListener("click", () => {
+  if (currentPage > 1) { currentPage--; renderList(currentChains); }
+});
+document.getElementById("pg-next").addEventListener("click", () => {
+  if (currentPage < Math.ceil(currentChains.length / PAGE_SIZE)) { currentPage++; renderList(currentChains); }
+});
+
+// ── puu ehitamine ──────────────────────────────────────────
+function buildTreeNode(word, depth = 0) {
+  const children = compoundMap[word] || [];
+  const node = document.createElement("div");
+  node.className = "tree-node";
+
+  const rowEl = document.createElement("div");
+  rowEl.className = "tree-row";
+
+  const toggle = document.createElement("span");
+  toggle.className = "tree-toggle";
+  toggle.textContent = children.length ? "▶" : "";
+  rowEl.appendChild(toggle);
+
+  const wordEl = document.createElement("span");
+  wordEl.className = "tree-word";
+  wordEl.textContent = word;
+  wordEl.addEventListener("click", e => { e.stopPropagation(); openPanel(word); });
+  rowEl.appendChild(wordEl);
+
+  if (children.length) {
+    const cnt = document.createElement("span");
+    cnt.className = "tree-count";
+    cnt.textContent = `(${children.length})`;
+    rowEl.appendChild(cnt);
+  }
+
+  node.appendChild(rowEl);
+
+  if (children.length) {
+    const childWrap = document.createElement("div");
+    childWrap.className = "tree-children";
+
+    let built = false;
+    rowEl.addEventListener("click", () => {
+      const open = childWrap.classList.toggle("open");
+      toggle.classList.toggle("open", open);
+      if (open && !built) {
+        children.forEach(child => childWrap.appendChild(buildTreeNode(child, depth + 1)));
+        built = true;
+      }
+    });
+    node.appendChild(childWrap);
+  }
+
+  return node;
+}
+
+// ── paneel ────────────────────────────────────────────────
+function openPanel(word) {
+  document.querySelectorAll(".chain-row.selected").forEach(r => r.classList.remove("selected"));
+
+  const children = compoundMap[word] || [];
+  document.getElementById("p-word").textContent = word;
+  document.getElementById("p-meta").textContent =
+    children.length
+      ? `esineb ${children.length} liitsõna komponendina`
+      : "ei esine ühengi teise liitsõna komponendina";
+
+  const tree = document.getElementById("p-tree");
+  tree.innerHTML = "";
+  const rootNode = buildTreeNode(word);
+  // ava esimene tase automaatselt
+  const firstRow = rootNode.querySelector(".tree-row");
+  if (firstRow && children.length) firstRow.click();
+  tree.appendChild(rootNode);
+
+  document.getElementById("panel").classList.add("open");
+}
+
+// ── otsing ────────────────────────────────────────────────
+document.getElementById("search").addEventListener("input", function() {
+  const q = this.value.trim().toLowerCase();
+  if (!q) {
+    currentPage = 1;
+    renderList(allChains);
+    document.getElementById("info").textContent = `${allChains.length} ahelat`;
+    return;
+  }
+  // Otsi ahelatest mis sisaldavad seda sõna
+  const filtered = allChains.filter(item =>
+    item.chain.some(w => w.toLowerCase().includes(q))
+  );
+  currentPage = 1;
+  renderList(filtered);
+  document.getElementById("info").textContent = `${filtered.length} ahelat`;
+
+  // Kui täpne vaste, ava paneel
+  const exact = Object.keys(compoundMap).find(w => w.toLowerCase() === q);
+  if (exact) openPanel(exact);
+});
+
+// ── lae andmed ────────────────────────────────────────────
+fetch("data/depth.json")
+  .then(r => r.json())
+  .then(data => {
+    allChains    = data.top_chains;
+    compoundMap  = data.compound_map;
+    const maxD   = allChains[0]?.depth ?? 0;
+    document.getElementById("info").textContent =
+      `${allChains.length} ahelat · max sügavus ${maxD}`;
+    renderList(allChains);
+  })
+  .catch(() => {
+    document.getElementById("list").textContent =
+      "⚠ depth.json puudub — käivita prepare_data.py";
+  });
+</script>
+</body>
+</html>

@@ -44,10 +44,11 @@
       flex-shrink: 0;
       border-bottom: 1px solid var(--border);
     }
-    .header-back { font-size: 12px; color: var(--muted); text-decoration: none; transition: color .2s; padding-right: 14px; }
-    .header-back:hover { color: var(--accent); }
-    .header-back::after { content: ''; display: inline-block; width: 1px; height: 14px; background: var(--border); margin-left: 14px; vertical-align: middle; }
-    header h1 { font-size: 13px; font-weight: 400; letter-spacing: 1.5px; color: #334155; }
+    .breadcrumb { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+    .breadcrumb-home { font-size: 14px; color: #64748b; text-decoration: none; transition: color .2s; }
+    .breadcrumb-home:hover { color: var(--accent); }
+    .breadcrumb-sep { font-size: 14px; color: #cbd5e1; user-select: none; }
+    .breadcrumb-current { font-size: 14px; font-weight: 600; color: var(--text); }
     header .subtitle { display: none; }
     header .actions { margin-left: auto; display: flex; gap: 8px; }
 
@@ -418,11 +419,11 @@
 <body>
 
 <header>
-  <a class="header-back" href="../index.html">← Keele peal</a>
-  <div>
-    <h1>Sugulussõnad</h1>
-    <div class="subtitle">Eesti haruldased sugulasterminid</div>
-  </div>
+  <nav class="breadcrumb" aria-label="Navigatsioon">
+    <a class="breadcrumb-home" href="../index.html">Keele peal</a>
+    <span class="breadcrumb-sep" aria-hidden="true">›</span>
+    <span class="breadcrumb-current">Sugulussõnad</span>
+  </nav>
   <div class="actions">
     <button class="btn btn-secondary" onclick="showShareModal()">🔗 Jaga</button>
   </div>

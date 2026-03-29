@@ -79,29 +79,28 @@ input:focus:not(:focus-visible) {
   background: var(--surface);
   border-bottom: 1px solid var(--border);
 }
-.header-back {
-  font-size: 12px;
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+.breadcrumb-home {
+  font-size: 14px;
   color: var(--text-dim);
   text-decoration: none;
   transition: color .2s;
-  white-space: nowrap;
-  padding-right: 14px;
 }
-.header-back:hover { color: var(--accent); }
-.header-back::after {
-  content: '';
-  display: inline-block;
-  width: 1px;
-  height: 14px;
-  background: var(--border);
-  margin-left: 14px;
-  vertical-align: middle;
+.breadcrumb-home:hover { color: var(--accent); }
+.breadcrumb-sep {
+  font-size: 14px;
+  color: var(--text-ghost);
+  user-select: none;
 }
-.header-title {
-  font-size: 13px;
-  letter-spacing: 1.5px;
-  color: var(--text-sec);
-  white-space: nowrap;
+.breadcrumb-current {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
 }
 .header-end {
   margin-left: auto;
