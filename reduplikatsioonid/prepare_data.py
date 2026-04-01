@@ -9,8 +9,8 @@ Väljund: data/reduplications.json
 import csv, json
 from collections import defaultdict
 
-INPUT_CSV   = '../anagrammid/data/anagrams_raw.csv'
-OUTPUT_JSON = 'data/reduplications.json'
+INPUT_CSV   = '../data/words_raw.csv'
+OUTPUT_JSON = '../data/reduplications.json'
 
 by_length = defaultdict(list)
 

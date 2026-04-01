@@ -17,51 +17,77 @@
   /* ── sisestusalad ── */
   #inputs { display: flex; align-items: flex-start; gap: 16px; }
   .input-group { position: relative; display: flex; flex-direction: column; gap: 6px; }
-  .input-label { font-size: 11px; letter-spacing: 1px; color: var(--text-muted); text-align: center; }
-  .word-input { width: 220px; font-size: 16px; padding: 10px 18px; }
+  .input-label { font-size: 13px; letter-spacing: 1px; color: var(--text-muted); text-align: center; }
+  .word-input { width: 240px; font-size: 16px; padding: 10px 18px; }
+  #btn-row .btn { font-size: 16px; padding: 9px 22px; }
 
   .suggestions {
-    position: absolute; top: calc(100% + 2px); left: 0; width: 220px;
+    position: absolute; top: calc(100% + 2px); left: 0; width: 240px;
     background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
     overflow: hidden; display: none; z-index: 50;
     box-shadow: 0 4px 16px rgba(0,0,0,0.08);
   }
-  .sug-item { padding: 7px 16px; cursor: pointer; font-size: 14px; color: var(--text-sec); transition: background .1s; }
+  .sug-item { padding: 7px 16px; cursor: pointer; font-size: 16px; color: var(--text-sec); transition: background .1s; }
   .sug-item:hover, .sug-item.active { background: var(--row-hover); color: var(--accent); }
 
-  .arrow-mid { font-size: 22px; color: var(--text-ghost); margin-top: 32px; flex-shrink: 0; }
+  .arrow-mid { font-size: 20px; color: var(--text-ghost); margin-top: 30px; flex-shrink: 0; }
 
   /* ── nupud ── */
   #btn-row { display: flex; gap: 10px; }
 
   /* ── tulemus ── */
-  #result { min-height: 100px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
-  #msg { font-size: 14px; color: var(--text-muted); text-align: center; line-height: 1.6; }
+  #result { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%; max-width: 480px; }
+  #msg { font-size: 16px; color: var(--text-muted); text-align: center; line-height: 1.6; }
+  #path-len { font-size: 15px; color: var(--text-muted); letter-spacing: .5px; }
 
-  /* ── tee ── */
-  #chain {
-    display: flex; align-items: center; flex-wrap: wrap;
-    justify-content: center; gap: 0; max-width: 900px;
+  /* ── tee (vertikaalne, raudteestiiliga) ── */
+  #chain-wrap {
+    position: relative; width: 100%;
+    padding-left: 28px;
   }
+  /* ühendav raudtee */
+  #chain-wrap::before {
+    content: '';
+    position: absolute; left: 7px; top: 18px; bottom: 18px;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--accent), var(--border));
+    border-radius: 1px;
+  }
+
+  #chain { display: flex; flex-direction: column; align-items: flex-start; gap: 0; width: 100%; }
+
   .chain-node {
+    position: relative;
     background: var(--surface); border: 1px solid var(--border);
-    border-radius: 10px; padding: 10px 18px;
+    border-radius: 10px; padding: 10px 22px;
     font-size: 16px; color: var(--text); white-space: nowrap;
     animation: fadeIn .3s ease both;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
   }
-  .chain-node.start, .chain-node.end {
-    border-color: var(--border-focus);
-    box-shadow: 0 0 0 3px var(--accent-ring);
+  /* täpp raudteel */
+  .chain-node::before {
+    content: '';
+    position: absolute; left: -24px; top: 50%; transform: translateY(-50%);
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--border); border: 2px solid var(--bg); z-index: 1;
   }
+  .chain-node.start {
+    background: var(--accent); color: #fff; border-color: var(--accent);
+    font-size: 17px; font-weight: 600;
+  }
+  .chain-node.start::before { background: var(--accent); width: 12px; height: 12px; left: -26px; }
+  .chain-node.end {
+    background: var(--accent-light); color: var(--accent);
+    border-color: var(--accent); font-size: 17px; font-weight: 600;
+  }
+  .chain-node.end::before { background: var(--accent); width: 12px; height: 12px; left: -26px; }
+
   .chain-edge {
-    display: flex; flex-direction: column;
-    align-items: center; padding: 0 4px;
+    display: flex; align-items: center; gap: 6px;
+    padding: 3px 0 3px 6px;
     animation: fadeIn .3s ease both;
   }
-  .edge-line { width: 32px; height: 1px; background: var(--text-ghost); }
-  .edge-type { font-size: 10px; color: var(--text-muted); margin-top: 4px; white-space: nowrap; }
-  #path-len { font-size: 12px; color: var(--text-muted); letter-spacing: 1px; }
+  .edge-arrow { font-size: 12px; color: var(--text-ghost); }
+  .edge-type  { font-size: 13px; white-space: nowrap; }
 
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(6px); }
@@ -103,15 +129,15 @@
 
   <div id="result">
     <div id="msg">Sisesta kaks sõna ja vajuta "Leia tee"</div>
-    <div id="chain"></div>
     <div id="path-len"></div>
+    <div id="chain-wrap" style="display:none"><div id="chain"></div></div>
   </div>
 </div>
 
 <script>
 let adjacency = {}, allWords = [];
 
-fetch("../galaktika/data/graph.json")
+fetch("../data/graph.json")
   .then(r => r.json())
   .then(data => {
     adjacency = data.adjacency;
@@ -147,6 +173,7 @@ const REL_COLORS = {
 };
 
 function showPath(path) {
+  document.getElementById("chain-wrap").style.display = "";
   const chain = document.getElementById("chain");
   const lenEl = document.getElementById("path-len");
   chain.innerHTML = "";
@@ -162,20 +189,23 @@ function showPath(path) {
       const edge = document.createElement("div");
       edge.className = "chain-edge";
       edge.style.animationDelay = `${i * 80 + 40}ms`;
-      const color = REL_COLORS[nextType] || "rgba(100,160,255,0.5)";
+      const color = REL_COLORS[nextType] || "var(--text-ghost)";
       edge.innerHTML = `
-        <div class="edge-line" style="background:${color}"></div>
-        <div class="edge-type" style="color:${color}">${nextType || ""}</div>`;
+        <span class="edge-arrow" style="color:${color}">↓</span>
+        <span class="edge-type" style="color:${color}">${nextType || ""}</span>`;
       chain.appendChild(edge);
     }
   });
-  lenEl.textContent = steps === 1 ? "otsene seos" : `${steps} sammu`;
+  lenEl.textContent = steps === 1 ? "otsene seos"
+    : steps === 0 ? ""
+    : `${path[0].word} → ${path[path.length-1].word} · ${steps} sammu`;
 }
 
 function setMsg(txt) {
   document.getElementById("msg").textContent = txt;
   document.getElementById("chain").innerHTML = "";
   document.getElementById("path-len").textContent = "";
+  document.getElementById("chain-wrap").style.display = "none";
 }
 
 document.getElementById("btn-find").addEventListener("click", () => {

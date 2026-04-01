@@ -34,7 +34,7 @@
 </div>
 <div id="body"></div>
 <script>
-fetch("data/reduplications.json").then(r=>r.json()).then(data => {
+fetch("../data/reduplications.json").then(r=>r.json()).then(data => {
   const body = document.getElementById("body");
   data.groups.forEach(g => {
     const sec = document.createElement("div");

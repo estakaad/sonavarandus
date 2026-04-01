@@ -40,8 +40,8 @@ SQL Dbeaveris (ekspordi CSV-na nimega polysemy_raw.csv):
 import csv, json
 from collections import defaultdict, OrderedDict
 
-CSV_FILE = "data/polysemy_raw.csv"
-JSON_FILE = "data/polysemy.json"
+CSV_FILE = "../data/polysemy_raw.csv"
+JSON_FILE = "../data/polysemy.json"
 
 words = defaultdict(lambda: {"meanings": OrderedDict()})
 

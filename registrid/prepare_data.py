@@ -26,8 +26,8 @@ SQL Dbeaveris (ekspordi CSV-na nimega registers_raw.csv):
 import csv, json
 from collections import defaultdict
 
-CSV_FILE = "data/registers_raw.csv"
-JSON_FILE = "data/registers.json"
+CSV_FILE = "../data/registers_raw.csv"
+JSON_FILE = "../data/registers.json"
 
 # lekseemi → {word, registers: set}
 lexemes = {}

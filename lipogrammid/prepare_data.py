@@ -10,8 +10,8 @@ Väljund: data/lipograms.json
 import csv, json
 from collections import defaultdict
 
-INPUT_CSV   = '../anagrammid/data/anagrams_raw.csv'
-OUTPUT_JSON = 'data/lipograms.json'
+INPUT_CSV   = '../data/words_raw.csv'
+OUTPUT_JSON = '../data/lipograms.json'
 BANNED_LETTERS = ['a', 'e', 'i']
 MIN_LENGTH = 6   # lühemad ei ole huvitavad
 TOP_PER_LENGTH = 200

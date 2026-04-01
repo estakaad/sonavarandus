@@ -13,8 +13,8 @@ from collections import defaultdict
 
 sys.setrecursionlimit(300000)
 
-INPUT_CSV   = '../liitsõnasild/data/compounds_raw.csv'
-OUTPUT_JSON = 'data/depth.json'
+INPUT_CSV   = '../data/compounds_raw.csv'
+OUTPUT_JSON = '../data/depth.json'
 TOP_N       = 300   # sügavaimate ahelate arv väljundis
 MAX_CHILDREN = 60  # max järglasi ühe sõna kohta puu-kaardis
 

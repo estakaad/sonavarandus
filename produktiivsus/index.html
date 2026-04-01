@@ -192,7 +192,7 @@ document.querySelectorAll(".sort-btn").forEach(btn => {
   });
 });
 
-fetch("data/productivity.json")
+fetch("../data/productivity.json")
   .then(r => r.json())
   .then(data => {
     allWords = data.words;

@@ -15,8 +15,8 @@ Sünonüümiandmed on olemas — sama fail mida kasutab sünonüümitiheduse moo
 import csv, json
 from collections import defaultdict
 
-INPUT_CSV   = '../sünonüümid/data/synonyms_raw.csv'
-OUTPUT_JSON = 'data/kangaroo.json'
+INPUT_CSV   = '../data/synonyms_raw.csv'
+OUTPUT_JSON = '../data/kangaroo.json'
 MIN_DIFF    = 2   # kangaroo peab olema vähemalt 2 tähte pikem
 
 def is_subsequence(short, long):

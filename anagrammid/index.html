@@ -63,6 +63,7 @@
   </div>
 </div>
 
+<script src="../js/utils.js"></script>
 <script>
 let allGroups = [];
 
@@ -86,9 +87,7 @@ function buildChip(g, q) {
       sep.textContent = "=";
       chip.appendChild(sep);
     }
-    const word = document.createElement("span");
-    word.className = "chip-word" + (q && w.includes(q) ? " match" : "");
-    word.textContent = w;
+    const word = wordLink(w, "chip-word" + (q && w.includes(q) ? " match" : ""));
     chip.appendChild(word);
   });
   return chip;
@@ -130,7 +129,7 @@ document.getElementById("search").addEventListener("input", function() {
   render(this.value.trim().toLowerCase());
 });
 
-fetch("data/anagrams.json")
+fetch("../data/anagrams.json")
   .then(r => r.json())
   .then(data => {
     allGroups = data.groups;

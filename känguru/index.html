@@ -105,7 +105,7 @@ document.getElementById("search").addEventListener("input", function() {
   document.getElementById("info").textContent = q ? `${filtered.length} vastet` : `${allPairs.length} sõna`;
 });
 
-fetch("data/kangaroo.json").then(r=>r.json()).then(data => {
+fetch("../data/kangaroo.json").then(r=>r.json()).then(data => {
   allPairs = data.pairs;
   document.getElementById("info").textContent = `${allPairs.length} sõna`;
   renderList(allPairs);

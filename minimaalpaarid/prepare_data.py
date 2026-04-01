@@ -9,8 +9,8 @@ Väljund: data/minimalpairs.json
 import csv, json
 from collections import defaultdict
 
-INPUT_CSV   = '../anagrammid/data/anagrams_raw.csv'
-OUTPUT_JSON = 'data/minimalpairs.json'
+INPUT_CSV   = '../data/words_raw.csv'
+OUTPUT_JSON = '../data/minimalpairs.json'
 MIN_LENGTH  = 4    # lühemad ei ole huvitavad
 MAX_PAIRS   = 3000
 

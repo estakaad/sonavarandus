@@ -53,6 +53,7 @@
     <div id="list"></div>
   </div>
 </div>
+<script src="../js/utils.js"></script>
 <script>
 let allCategories = [], activeIdx = 0;
 
@@ -74,9 +75,7 @@ function renderCategory(idx, q) {
       <span class="length-count">${matched.length}</span></div>`;
     const pills = document.createElement("div");
     g.words.forEach(w => {
-      const pill = document.createElement("span");
-      pill.className = "word-pill" + (q && !matched.includes(w) ? " dim" : "");
-      pill.textContent = w;
+      const pill = wordLink(w, "word-pill" + (q && !matched.includes(w) ? " dim" : ""));
       pills.appendChild(pill);
     });
     sec.appendChild(pills);
@@ -94,7 +93,7 @@ document.getElementById("search").addEventListener("input", function() {
   renderCategory(activeIdx, this.value.trim().toLowerCase());
 });
 
-fetch("data/univocals.json").then(r=>r.json()).then(data => {
+fetch("../data/univocals.json").then(r=>r.json()).then(data => {
   allCategories = data.categories;
   const bar = document.getElementById("tab-bar");
   allCategories.forEach((cat, i) => {

@@ -21,8 +21,8 @@ SQL eksport (DBeaveris):
 import csv, json
 from collections import defaultdict  # buckets jaoks
 
-INPUT_CSV   = 'data/anagrams_raw.csv'
-OUTPUT_JSON = 'data/anagrams.json'
+INPUT_CSV   = '../data/words_raw.csv'
+OUTPUT_JSON = '../data/anagrams.json'
 
 def anagram_key(word):
     return ''.join(sorted(word.lower()))

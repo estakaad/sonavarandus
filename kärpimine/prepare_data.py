@@ -9,8 +9,8 @@ Väljund: data/beheadments.json
 
 import csv, json
 
-INPUT_CSV   = '../anagrammid/data/anagrams_raw.csv'
-OUTPUT_JSON = 'data/beheadments.json'
+INPUT_CSV   = '../data/words_raw.csv'
+OUTPUT_JSON = '../data/beheadments.json'
 MIN_CHAIN   = 3   # minimaalne ahela pikkus
 TOP_N       = 300
 

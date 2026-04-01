@@ -20,9 +20,9 @@ SQL eksport:
 import csv, json
 from collections import defaultdict
 
-DATA_DIR   = "data"
+DATA_DIR   = "../data"
 INPUT_CSV  = f"{DATA_DIR}/derivation_raw.csv"
-OUTPUT_JSON = f"{DATA_DIR}/derivation.json"
+OUTPUT_JSON = "data/derivation.json"
 MIN_COUNT  = 5   # minimaalne tuletiste arv sufiksi kuvamiseks
 MAX_EXAMPLES = 80  # maksimaalne näidete arv paneelis
 

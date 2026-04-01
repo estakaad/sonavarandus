@@ -35,8 +35,8 @@ Tähevaartused: Eesti Scrabble (vt https://www.scrabble.ee/)
 
 import csv, json, re
 
-INPUT_CSV   = 'data/words_raw.csv'
-OUTPUT_JSON = 'data/scrabble.json'
+INPUT_CSV   = '../data/words_raw.csv'
+OUTPUT_JSON = '../data/scrabble.json'
 TOP_N       = 500
 
 # Eesti Scrabble ametlikud tähevaartused

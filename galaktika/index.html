@@ -462,7 +462,7 @@ function pick(i) {
 }
 
 // --- lae andmed ---
-fetch("data/graph.json")
+fetch("../data/graph.json")
   .then(r => r.json())
   .then(data => {
     adjacency = data.adjacency;

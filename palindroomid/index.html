@@ -59,6 +59,7 @@
   </div>
 </div>
 
+<script src="../js/utils.js"></script>
 <script>
 let allGroups = [];
 
@@ -89,9 +90,7 @@ function render(query) {
 
     const pills = document.createElement("div");
     g.words.forEach(w => {
-      const pill = document.createElement("span");
-      pill.className = "word-pill" + (q && !matched.includes(w) ? " dim" : "");
-      pill.textContent = w;
+      const pill = wordLink(w, "word-pill" + (q && !matched.includes(w) ? " dim" : ""));
       pills.appendChild(pill);
     });
     section.appendChild(pills);
@@ -106,7 +105,7 @@ document.getElementById("search").addEventListener("input", function() {
   render(this.value);
 });
 
-fetch("data/palindromes.json")
+fetch("../data/palindromes.json")
   .then(r => r.json())
   .then(data => {
     allGroups = data.groups;

@@ -51,7 +51,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 <script>
-fetch("data/registers.json")
+fetch("../data/registers.json")
   .then(r => r.json())
   .then(draw)
   .catch(() => {
@@ -194,7 +194,7 @@ function openPanel(r1, r2, count, words) {
   document.getElementById("p-count").textContent =
     isDiag ? `${count} lekseemi selle registriga` : `${count} lekseemi mõlema registriga`;
   document.getElementById("p-words").innerHTML = words.length
-    ? words.map(w => `<span class="w-item${isDiag ? " diagonal" : ""}">${w}</span>`).join("")
+    ? words.map(w => `<a class="w-item${isDiag ? " diagonal" : ""}" href="https://sonaveeb.ee/search/unif/dlall/dsall/${encodeURIComponent(w)}/1/est" target="_blank" rel="noopener">${w}</a>`).join("")
     : '<span style="color:#94a3b8;font-size:12px">näitesõnad puuduvad</span>';
   document.getElementById("panel").classList.add("open");
 }

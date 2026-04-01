@@ -178,7 +178,7 @@
 // ── andmed ────────────────────────────────────────────────────
 let graph = {}, playable = [];
 
-fetch("data/compounds.json")
+fetch("../data/compounds.json")
   .then(r => r.json())
   .then(d => {
     graph    = d.graph;
@@ -249,12 +249,25 @@ function renderChain() {
       arr.textContent = "→";
       chain.appendChild(arr);
     }
-    const node = document.createElement("span");
-    const isDone = step.word === target && i === path.length - 1;
-    node.className = "ch-word" +
-      (i === path.length - 1 && !isDone ? " current" : "") +
-      (isDone ? " done" : "");
-    node.textContent = step.word;
+    const node = i === 0 ?
+      (() => {
+        const a = document.createElement("a");
+        a.href = `https://sonaveeb.ee/search/unif/dlall/dsall/${encodeURIComponent(step.word)}/1/est`;
+        a.target = "_blank";
+        a.rel = "noopener";
+        a.className = "ch-word";
+        a.textContent = step.word;
+        return a;
+      })()
+      : (() => {
+        const span = document.createElement("span");
+        const isDone = step.word === target && i === path.length - 1;
+        span.className = "ch-word" +
+          (i === path.length - 1 && !isDone ? " current" : "") +
+          (isDone ? " done" : "");
+        span.textContent = step.word;
+        return span;
+      })();
     chain.appendChild(node);
   });
   // sihtmärk (kui pole veel jõutud)
@@ -263,7 +276,10 @@ function renderChain() {
     dots.className = "ch-arrow";
     dots.textContent = " … ";
     chain.appendChild(dots);
-    const tgt = document.createElement("span");
+    const tgt = document.createElement("a");
+    tgt.href = `https://sonaveeb.ee/search/unif/dlall/dsall/${encodeURIComponent(target)}/1/est`;
+    tgt.target = "_blank";
+    tgt.rel = "noopener";
     tgt.className = "ch-word target";
     tgt.textContent = target;
     chain.appendChild(tgt);

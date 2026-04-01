@@ -146,7 +146,7 @@ function openPanel(d, row) {
   document.getElementById("p-count").textContent = `${d.count} sünonüümi`;
   document.getElementById("p-def").textContent   = d.definition || "";
   document.getElementById("p-words").innerHTML   = d.words
-    .map(w => `<a class="word-pill" href="https://sonaveeb.ee/search/unif/dlall/eki/${encodeURIComponent(w)}/1/est" target="_blank" rel="noopener">${w}</a>`)
+    .map(w => `<a class="word-pill" href="https://sonaveeb.ee/search/unif/dlall/dsall/${encodeURIComponent(w)}/1/est" target="_blank" rel="noopener">${w}</a>`)
     .join("");
 
   document.getElementById("panel").classList.add("open");
@@ -162,7 +162,7 @@ document.getElementById("search").addEventListener("input", function() {
   document.getElementById("info").textContent = `${filtered.length} tähendust`;
 });
 
-fetch("data/synonyms.json")
+fetch("../data/synonyms.json")
   .then(r => r.json())
   .then(data => {
     allMeanings = data.meanings;

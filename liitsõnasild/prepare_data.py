@@ -25,8 +25,8 @@ Väljund: data/compounds.json
 import csv, json
 from collections import defaultdict
 
-CSV_FILE = "data/compounds_raw.csv"
-JSON_FILE = "data/compounds.json"
+CSV_FILE = "../data/compounds_raw.csv"
+JSON_FILE = "../data/compounds.json"
 
 # word -> set of (via, to) tuples
 raw = defaultdict(set)

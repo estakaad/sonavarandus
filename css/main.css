@@ -302,3 +302,29 @@ input:focus:not(:focus-visible) {
   color: var(--border);
   user-select: none;
 }
+
+/* ── Sõna lingid (sõnaveebi) ─────────────────────────────── */
+a.word-pill,
+a.chip-word,
+a.chain-pill,
+a.pair-word,
+a.w-item,
+a.word,
+a.ladder-node,
+a.ch-word {
+  text-decoration: none;
+  color: inherit;
+  transition: color .15s;
+}
+
+a.word-pill:hover,
+a.chip-word:hover,
+a.chain-pill:hover,
+a.pair-word:hover,
+a.w-item:hover,
+a.word:hover,
+a.ladder-node:hover,
+a.ch-word:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}

@@ -146,7 +146,7 @@ document.getElementById("search").addEventListener("input", function() {
   document.getElementById("count-info").textContent = `${filtered.length} sõna`;
 });
 
-fetch("data/polysemy.json")
+fetch("../data/polysemy.json")
   .then(r => r.json())
   .then(data => {
     allWords = data.words.filter(w => w.count >= 2);

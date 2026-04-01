@@ -29,8 +29,8 @@ SQL eksport (DBeaveris):
 import csv, json
 from collections import defaultdict
 
-INPUT_CSV   = 'data/synonyms_raw.csv'
-OUTPUT_JSON = 'data/synonyms.json'
+INPUT_CSV   = '../data/synonyms_raw.csv'
+OUTPUT_JSON = '../data/synonyms.json'
 MAX_EXAMPLES = 80  # sõnade arv loendi reas (preview)
 
 # ── loe ja grupeeri tähenduse järgi ──────────────────────────

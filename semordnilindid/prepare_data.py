@@ -24,8 +24,8 @@ Sama SQL eksport mis anagrammid/data/words_raw.csv:
 
 import csv, json
 
-INPUT_CSV   = '../anagrammid/data/anagrams_raw.csv'
-OUTPUT_JSON = 'data/semordnilindid.json'
+INPUT_CSV   = '../data/words_raw.csv'
+OUTPUT_JSON = '../data/semordnilindid.json'
 
 words = set()
 with open(INPUT_CSV, encoding='utf-8') as f:

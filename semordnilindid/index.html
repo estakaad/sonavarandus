@@ -68,9 +68,9 @@ function buildRow(p) {
   row.innerHTML = `
     <span class="len-badge">${p.length}</span>
     <div class="pair">
-      <span class="pair-word">${p.a}</span>
+      <a class="pair-word" href="https://sonaveeb.ee/search/unif/dlall/dsall/${encodeURIComponent(p.a)}/1/est" target="_blank" rel="noopener">${p.a}</a>
       <span class="mirror-arrow">↔</span>
-      <span class="pair-word rev">${p.b}</span>
+      <a class="pair-word rev" href="https://sonaveeb.ee/search/unif/dlall/dsall/${encodeURIComponent(p.b)}/1/est" target="_blank" rel="noopener">${p.b}</a>
     </div>`;
   return row;
 }
@@ -104,7 +104,7 @@ document.getElementById("search").addEventListener("input", function() {
   document.getElementById("info").textContent = q ? `${filtered.length} vastet` : `${allPairs.length} paari`;
 });
 
-fetch("data/semordnilindid.json").then(r=>r.json()).then(data => {
+fetch("../data/semordnilindid.json").then(r=>r.json()).then(data => {
   allPairs = data.pairs;
   document.getElementById("info").textContent = `${allPairs.length} paari`;
   renderList(allPairs);

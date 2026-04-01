@@ -22,8 +22,8 @@ SQL eksport (DBeaveris):
 import csv, json
 from collections import defaultdict
 
-INPUT_CSV   = 'data/palindromes_raw.csv'
-OUTPUT_JSON = 'data/palindromes.json'
+INPUT_CSV   = '../data/palindromes_raw.csv'
+OUTPUT_JSON = '../data/palindromes.json'
 
 by_length = defaultdict(list)
 

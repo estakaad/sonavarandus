@@ -64,6 +64,7 @@
     </div>
   </div>
 </div>
+<script src="../js/utils.js"></script>
 <script>
 const PAGE_SIZE = 60;
 let allChains = [], currentChains = [], currentPage = 1;
@@ -87,11 +88,9 @@ function buildRow(item) {
       arr.textContent = "→";
       pills.appendChild(arr);
     }
-    const pill = document.createElement("span");
-    pill.className = "chain-pill"
+    const pill = wordLink(word, "chain-pill"
       + (i === 0 ? " first" : "")
-      + (i === item.chain.length - 1 ? " last" : "");
-    pill.textContent = word;
+      + (i === item.chain.length - 1 ? " last" : ""));
     pills.appendChild(pill);
   });
   row.appendChild(pills);
@@ -127,7 +126,7 @@ document.getElementById("search").addEventListener("input", function() {
   document.getElementById("info").textContent = q ? `${filtered.length} ahelat` : `${allChains.length} ahelat`;
 });
 
-fetch("data/beheadments.json").then(r=>r.json()).then(data => {
+fetch("../data/beheadments.json").then(r=>r.json()).then(data => {
   allChains = data.chains;
   const maxD = allChains[0]?.depth ?? 0;
   document.getElementById("info").textContent = `${allChains.length} ahelat · max ${maxD}`;

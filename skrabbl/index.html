@@ -138,7 +138,7 @@ function buildRow(d, rank) {
   const pct = (d.score / maxScore * 100).toFixed(1);
   row.innerHTML = `
     <span class="rank">${rank}</span>
-    <span class="word">${d.word}</span>
+    <a class="word" href="https://sonaveeb.ee/search/unif/dlall/dsall/${encodeURIComponent(d.word)}/1/est" target="_blank" rel="noopener">${d.word}</a>
     <div class="bar-wrap"><div class="bar" style="width:${pct}%"></div></div>
     <span class="pts">${d.score}</span>`;
   row.addEventListener("click", () => openPanel(d, row));
@@ -231,7 +231,7 @@ document.getElementById("search").addEventListener("input", function() {
 });
 
 // ── lae andmed ───────────────────────────────────────────────
-fetch("data/scrabble.json")
+fetch("../data/scrabble.json")
   .then(r => r.json())
   .then(data => {
     allWords  = data.words;

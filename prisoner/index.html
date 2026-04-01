@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prisoner's Constraint</title>
+<link rel="stylesheet" href="../css/main.css">
+<style>
+  body { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+  #body { display: flex; flex: 1; overflow: hidden; flex-direction: column; background: var(--bg); }
+  #wrap { flex: 1; overflow-y: auto; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; }
+
+  .intro { max-width: 600px; margin-bottom: 32px; text-align: center; color: var(--text-sec); line-height: 1.6; }
+
+  .groups { display: flex; flex-direction: column; gap: 24px; width: 100%; max-width: 800px; }
+
+  .group { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+  .group-header { font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+  .group-words { display: flex; flex-wrap: wrap; gap: 8px; }
+  .word { background: var(--bg); padding: 6px 12px; border-radius: 6px; font-size: 14px; border: 1px solid var(--border); }
+
+  #info { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#body">Hüppa põhisisu juurde</a>
+
+<div class="app-header">
+  <a class="header-back" href="../index.html">← Keele peal</a>
+  <span class="header-title">Prisoner's Constraint</span>
+  <div class="header-end">
+    <span id="info" class="header-info"></span>
+  </div>
+</div>
+
+<div id="body">
+  <div id="wrap">
+    <div class="intro">
+      <p><strong>Prisoner's constraint</strong> (ka <em>Macao constraint</em>) on lipogrammi liik.</p>
+      <p>Välistatud tähed: <code>b, d, f, g, h, j, k, l, p, q, t, y</code></p>
+      <p>Need on tähed, millel on <strong>ascenderid</strong> (üles ulatuvad) ja <strong>descenderid</strong> (alla ulatuvad).</p>
+    </div>
+
+    <div id="info"></div>
+
+    <div class="groups" id="groups"></div>
+  </div>
+</div>
+
+<footer class="app-footer">
+  <a class="footer-link" href="../info.html">Info</a>
+  <span class="footer-sep" aria-hidden="true">·</span>
+  <a class="footer-link" href="../kontakt.html">Kontakt</a>
+</footer>
+
+<script src="../js/utils.js"></script>
+<script>
+fetch("data/prisoner.json")
+  .then(r => r.json())
+  .then(data => {
+    document.getElementById("info").textContent =
+      `${data.total_words} sõna · ${data.groups.length} pikkusegruppi`;
+
+    const container = document.getElementById("groups");
+    data.groups.forEach(group => {
+      const div = document.createElement("div");
+      div.className = "group";
+
+      const header = document.createElement("div");
+      header.className = "group-header";
+      header.textContent = `${group.length} täht · ${group.count} sõna`;
+
+      const words = document.createElement("div");
+      words.className = "group-words";
+      group.words.forEach(word => {
+        const link = wordLink(word, "word");
+        words.appendChild(link);
+      });
+
+      div.appendChild(header);
+      div.appendChild(words);
+      container.appendChild(div);
+    });
+  })
+  .catch(() => {
+    document.getElementById("info").textContent =
+      "⚠ prisoner.json puudub — käivita prepare_data.py";
+  });
+</script>
+
+</body>
+</html>

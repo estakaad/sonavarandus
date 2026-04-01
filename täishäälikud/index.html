@@ -36,6 +36,7 @@
   </div>
 </div>
 <div id="body"></div>
+<script src="../js/utils.js"></script>
 <script>
 let allGroups = [];
 
@@ -54,9 +55,7 @@ function render(q) {
       <span class="length-count">${matched.length}</span></div>`;
     const pills = document.createElement("div");
     g.words.forEach(w => {
-      const pill = document.createElement("span");
-      pill.className = "word-pill" + (q && !matched.includes(w) ? " dim" : "");
-      pill.textContent = w;
+      const pill = wordLink(w, "word-pill" + (q && !matched.includes(w) ? " dim" : ""));
       pills.appendChild(pill);
     });
     sec.appendChild(pills);
@@ -68,7 +67,7 @@ function render(q) {
 
 document.getElementById("search").addEventListener("input", function() { render(this.value.trim().toLowerCase()); });
 
-fetch("data/vowelwords.json").then(r=>r.json()).then(data => {
+fetch("../data/vowelwords.json").then(r=>r.json()).then(data => {
   allGroups = data.groups; render("");
 }).catch(() => { document.getElementById("body").textContent = "⚠ vowelwords.json puudub — käivita prepare_data.py"; });
 </script>

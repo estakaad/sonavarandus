@@ -268,7 +268,7 @@ document.getElementById("search").addEventListener("input", function() {
 });
 
 // ── lae andmed ────────────────────────────────────────────
-fetch("data/depth.json")
+fetch("../data/depth.json")
   .then(r => r.json())
   .then(data => {
     allChains    = data.top_chains;

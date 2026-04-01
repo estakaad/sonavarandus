@@ -9,8 +9,8 @@ Väljund: data/univocals.json
 import csv, json
 from collections import defaultdict
 
-INPUT_CSV   = '../anagrammid/data/anagrams_raw.csv'
-OUTPUT_JSON = 'data/univocals.json'
+INPUT_CSV   = '../data/words_raw.csv'
+OUTPUT_JSON = '../data/univocals.json'
 
 VOWELS = set('aeiouõäöü')
 MIN_LENGTH = 3
