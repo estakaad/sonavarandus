@@ -1,5 +1,5 @@
 // Sidebar menüü rendering
-document.addEventListener('DOMContentLoaded', function() {
+function renderNavSidebar() {
   const navContainer = document.getElementById('nav-sidebar');
   if (!navContainer) return;
 
@@ -46,4 +46,11 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   navContainer.appendChild(sidebar);
-});
+}
+
+// Run immediately if DOM is ready, otherwise wait
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', renderNavSidebar);
+} else {
+  renderNavSidebar();
+}
