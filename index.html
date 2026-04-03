@@ -167,7 +167,7 @@ function renderMenu() {
       <div class="menu-items" data-cat="${catIdx}">
         ${cat.cards.map((card, cardIdx) => `
           <div class="menu-item" data-cat="${catIdx}" data-card="${cardIdx}">
-            ${card.icon} ${card.name}
+            ${card.name}
           </div>
         `).join('')}
       </div>
@@ -210,7 +210,6 @@ function openPanel(card) {
   const panel = document.getElementById('panel');
 
   panelInner.innerHTML = `
-    <div style="font-size: 32px; margin-bottom: 12px;">${card.icon}</div>
     <div class="panel-title">${card.name}</div>
     <div class="panel-desc">${card.desc}</div>
     <a class="panel-button" href="${card.href}">Avamine →</a>
