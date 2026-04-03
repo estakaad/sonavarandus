@@ -23,15 +23,10 @@
 
       const catHeader = document.createElement('div');
       catHeader.className = 'nav-category-header';
-      catHeader.innerHTML = `
-        <span>${cat.name}</span>
-        <span class="nav-toggle">▶</span>
-      `;
+      catHeader.innerHTML = `${cat.name}`;
       catHeader.addEventListener('click', () => {
         const items = catDiv.querySelector('.nav-items');
-        const toggle = catHeader.querySelector('.nav-toggle');
         items.classList.toggle('open');
-        toggle.classList.toggle('open');
       });
       catDiv.appendChild(catHeader);
 
