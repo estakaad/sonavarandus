@@ -6,129 +6,115 @@
 <link rel="stylesheet" href="../css/main.css">
 <style>
   body { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-  #body { margin-left: 240px; display: flex; flex: 1; overflow: hidden; background: #050a14; position: relative; }
+  #body { margin-left: 240px; display: flex; flex: 1; overflow: hidden; background: var(--bg); position: relative; }
 
   #svg { width: 100%; height: 100%; display: block; }
 
   #search-wrap {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    position: absolute;
+    top: 16px;
+    left: 16px;
     text-align: center;
-    transition: all 0.5s ease;
     z-index: 20;
   }
-  #search-wrap.top {
-    top: calc(50px + 16px);
-    left: 260px;
-    transform: none;
-  }
-  #search-wrap h1 {
-    font-size: 28px;
-    font-weight: 300;
-    letter-spacing: 4px;
-    color: rgba(180, 210, 255, 0.7);
-    margin-bottom: 6px;
-  }
-  #search-wrap p {
-    font-size: 13px;
-    color: rgba(160, 195, 240, 0.75);
-    margin-bottom: 20px;
-  }
-  #search-wrap.top h1,
-  #search-wrap.top p { display: none; }
+  #search-wrap h1,
+  #search-wrap p { display: none; }
 
   #search {
-    background: rgba(10, 25, 60, 0.9);
-    border: 1px solid rgba(100, 160, 255, 0.4);
-    border-radius: 10px;
-    padding: 10px 18px;
-    color: #e0ecff;
-    font-size: 16px;
-    width: 280px;
+    padding: 8px 16px;
+    font-size: 14px;
+    width: 200px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
     outline: none;
     transition: border-color 0.2s, box-shadow 0.2s;
   }
   #search:focus {
-    border-color: rgba(100, 160, 255, 0.9);
-    box-shadow: 0 0 20px rgba(80, 140, 255, 0.2);
+    border-color: var(--accent);
+    box-shadow: 0 0 8px rgba(37, 99, 235, 0.2);
   }
-  #search::placeholder { color: rgba(160, 195, 240, 0.6); }
+  #search::placeholder { color: var(--text-muted); }
 
   #suggestions {
     position: absolute;
     top: calc(100% + 4px);
     left: 0;
-    width: 280px;
-    background: rgba(10, 25, 60, 0.97);
-    border: 1px solid rgba(100, 160, 255, 0.25);
-    border-radius: 8px;
+    width: 200px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
     overflow: hidden;
     display: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   }
   .suggestion {
     padding: 8px 16px;
     cursor: pointer;
-    font-size: 14px;
-    color: rgba(200, 220, 255, 0.85);
+    font-size: 13px;
+    color: var(--text-sec);
     transition: background 0.1s;
   }
   .suggestion:hover, .suggestion.active {
-    background: rgba(100, 160, 255, 0.15);
-    color: #fff;
+    background: var(--row-hover);
+    color: var(--accent);
   }
 
   #info {
     position: fixed;
     bottom: 24px;
     left: 264px;
-    background: rgba(10, 25, 60, 0.9);
-    border: 1px solid rgba(100, 160, 255, 0.2);
-    border-radius: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
     padding: 12px 16px;
     font-size: 12px;
     line-height: 1.8;
     min-width: 200px;
     display: none;
     z-index: 10;
-    color: rgba(225, 238, 255, 0.9);
+    color: var(--text);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   }
   #info.visible { display: block; }
-  #info-word { font-size: 18px; font-weight: 600; color: #e8f4ff; }
-  #info-count { color: rgba(170, 200, 240, 0.85); font-size: 12px; margin-bottom: 8px; }
-  .rel-row { display: flex; align-items: center; gap: 8px; margin: 2px 0; }
-  .rel-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .rel-name { color: rgba(210, 230, 255, 0.9); }
-  .rel-count { color: rgba(170, 200, 240, 0.75); font-size: 11px; }
+  #info-word { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+  #info-count { color: var(--text-muted); font-size: 11px; margin-bottom: 8px; }
+  .rel-row { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+  .rel-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .rel-name { color: var(--text-sec); font-size: 12px; }
+  .rel-count { color: var(--text-muted); font-size: 10px; }
 
   #hint {
     position: fixed;
     bottom: 24px;
     right: 24px;
-    color: rgba(160, 195, 240, 0.75);
+    color: var(--text-muted);
     font-size: 11px;
     text-align: right;
-    line-height: 1.7;
+    line-height: 1.6;
     z-index: 10;
-    background: rgba(5, 10, 20, 0.5);
+    background: var(--surface);
+    border: 1px solid var(--border);
     padding: 8px 12px;
-    border-radius: 8px;
+    border-radius: var(--radius);
     display: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
   }
 
   .tooltip {
     position: fixed;
-    background: rgba(10, 25, 60, 0.95);
-    border: 1px solid rgba(100, 160, 255, 0.3);
-    border-radius: 6px;
-    padding: 5px 12px;
-    font-size: 13px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 6px 12px;
+    font-size: 12px;
     pointer-events: none;
     display: none;
     z-index: 30;
     white-space: nowrap;
-    color: rgba(225, 238, 255, 0.9);
+    color: var(--text);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   }
 </style>
 </head>
@@ -176,23 +162,23 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 <script>
 const REL_COLORS = {
-  "sarnane":          "#4a9eff",
-  "antonüüm":         "#ff4466",
-  "vastand":          "#ff7733",
-  "ülemmõiste":       "#cc88ff",
-  "alammõiste":       "#33ddbb",
-  "kaashüponüüm":     "#55bbff",
-  "seotud mõiste":    "#77dd77",
-  "soomõiste":        "#bb66ff",
-  "liigimõiste":      "#44ccee",
-  "tervikumõiste":    "#ffcc44",
-  "osamõiste":        "#ffaa22",
-  "põhjus":           "#ff6688",
-  "tagajärg":         "#ff8866",
-  "üldmõiste":        "#aabbff",
-  "ainikmõiste":      "#ffbbee",
+  "sarnane":          "#2563eb",
+  "antonüüm":         "#dc2626",
+  "vastand":          "#ea580c",
+  "ülemmõiste":       "#7c3aed",
+  "alammõiste":       "#0891b2",
+  "kaashüponüüm":     "#0284c7",
+  "seotud mõiste":    "#16a34a",
+  "soomõiste":        "#9333ea",
+  "liigimõiste":      "#06b6d4",
+  "tervikumõiste":    "#ca8a04",
+  "osamõiste":        "#ea580c",
+  "põhjus":           "#be123c",
+  "tagajärg":         "#d97706",
+  "üldmõiste":        "#3b82f6",
+  "ainikmõiste":      "#db2777",
 };
-const DEFAULT_COLOR = "#4a6080";
+const DEFAULT_COLOR = "#9ca3af";
 
 function rc(type) { return REL_COLORS[type] || DEFAULT_COLOR; }
 
@@ -204,21 +190,10 @@ const svg = d3.select(svgEl).attr("viewBox", [0, 0, W, H]);
 const defs = svg.append("defs");
 const filt = defs.append("filter").attr("id", "glow")
   .attr("x", "-80%").attr("y", "-80%").attr("width", "260%").attr("height", "260%");
-filt.append("feGaussianBlur").attr("stdDeviation", "6").attr("result", "blur");
+filt.append("feGaussianBlur").attr("stdDeviation", "3").attr("result", "blur");
 const fm = filt.append("feMerge");
 fm.append("feMergeNode").attr("in", "blur");
-fm.append("feMergeNode").attr("in", "blur");
 fm.append("feMergeNode").attr("in", "SourceGraphic");
-
-// tähefon
-const stars = svg.append("g");
-for (let i = 0; i < 250; i++) {
-  stars.append("circle")
-    .attr("cx", Math.random() * W).attr("cy", Math.random() * H)
-    .attr("r", Math.random() * 0.9 + 0.1)
-    .attr("fill", "white")
-    .attr("opacity", Math.random() * 0.4 + 0.05);
-}
 
 const zoomG = svg.append("g");
 svg.call(d3.zoom().scaleExtent([0.05, 10]).on("zoom", e => zoomG.attr("transform", e.transform)));
@@ -269,7 +244,9 @@ function update() {
   const enter = nodeSel.enter().append("circle")
     .attr("r", 0)
     .attr("fill", d => nodeColor(d))
-    .attr("fill-opacity", 0.9)
+    .attr("fill-opacity", 0.85)
+    .attr("stroke", "#fff")
+    .attr("stroke-width", 1.5)
     .attr("filter", "url(#glow)")
     .style("cursor", "pointer")
     .on("click", onNodeClick)
@@ -289,14 +266,15 @@ function update() {
   labelSel.enter().append("text")
     .text(d => d.id)
     .attr("text-anchor", "middle")
-    .attr("font-size", d => Math.min(11 + nodeR(d) * 0.3, 15))
-    .attr("fill", "rgba(225,238,255,0.9)")
+    .attr("font-size", d => Math.min(11 + nodeR(d) * 0.3, 14))
+    .attr("fill", "#1f2937")
+    .attr("font-weight", 600)
     .attr("opacity", 0)
     .style("pointer-events", "none")
     .style("user-select", "none")
     .style("paint-order", "stroke")
-    .style("stroke", "rgba(6,10,20,0.95)")
-    .style("stroke-width", "3px")
+    .style("stroke", "#fff")
+    .style("stroke-width", "2px")
     .transition().duration(500).attr("opacity", 1);
   labelSel.exit().remove();
   labelSel = labelG.selectAll("text");
@@ -358,8 +336,8 @@ function expandWord(word, cx, cy) {
   showInfo(word);
 
   nodeG.selectAll("circle")
-    .attr("stroke", d => expanded.has(d.id) ? "rgba(255,255,255,0.5)" : "none")
-    .attr("stroke-width", 1.5);
+    .attr("stroke", d => expanded.has(d.id) ? "#2563eb" : "#fff")
+    .attr("stroke-width", d => expanded.has(d.id) ? 2.5 : 1.5);
 }
 
 // --- info paneel ---
