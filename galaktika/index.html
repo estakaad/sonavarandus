@@ -5,32 +5,10 @@
 <title>Sõnagalaktika</title>
 <link rel="stylesheet" href="../css/main.css">
 <style>
-  /* dark override — galaktika säilitab kosmose teema */
-  body {
-    background: #050a14;
-    color: rgba(225, 238, 255, 0.9);
-    overflow: hidden; width: 100vw; height: 100vh;
-  }
-  #svg { width: 100%; height: 100%; }
+  body { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+  #body { margin-left: 240px; display: flex; flex: 1; overflow: hidden; background: #050a14; position: relative; }
 
-  #back {
-    position: fixed;
-    top: 14px;
-    left: 20px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    z-index: 25;
-    background: rgba(5, 10, 20, 0.6);
-    padding: 6px 14px;
-    border-radius: 8px;
-    border: 1px solid rgba(100, 160, 255, 0.15);
-  }
-  #back .bc-home { font-size: 14px; color: rgba(160, 195, 240, 0.8); transition: color .2s; }
-  #back .bc-sep  { font-size: 14px; color: rgba(100, 140, 200, 0.4); }
-  #back .bc-cur  { font-size: 14px; font-weight: 600; color: rgba(210, 230, 255, 0.95); }
-  #back:hover .bc-home { color: #fff; }
+  #svg { width: 100%; height: 100%; display: block; }
 
   #search-wrap {
     position: fixed;
@@ -42,8 +20,8 @@
     z-index: 20;
   }
   #search-wrap.top {
-    top: 28px;
-    left: 20px;
+    top: calc(50px + 16px);
+    left: 260px;
     transform: none;
   }
   #search-wrap h1 {
@@ -104,7 +82,7 @@
   #info {
     position: fixed;
     bottom: 24px;
-    left: 24px;
+    left: 264px;
     background: rgba(10, 25, 60, 0.9);
     border: 1px solid rgba(100, 160, 255, 0.2);
     border-radius: 10px;
@@ -114,6 +92,7 @@
     min-width: 200px;
     display: none;
     z-index: 10;
+    color: rgba(225, 238, 255, 0.9);
   }
   #info.visible { display: block; }
   #info-word { font-size: 18px; font-weight: 600; color: #e8f4ff; }
@@ -149,6 +128,7 @@
     display: none;
     z-index: 30;
     white-space: nowrap;
+    color: rgba(225, 238, 255, 0.9);
   }
 </style>
 </head>
@@ -156,22 +136,27 @@
 
 <div id="nav-sidebar"></div>
 
+<a class="skip-link" href="#body">Hüppa põhisisu juurde</a>
 
-<svg id="svg"></svg>
+<div class="app-header">
+  <nav class="breadcrumb" aria-label="Navigatsioon">
+    <a class="breadcrumb-home" href="../index.html">Keele peal</a>
+    <span class="breadcrumb-sep" aria-hidden="true">›</span>
+    <span class="breadcrumb-current">Sõnavõrgustik</span>
+  </nav>
+</div>
 
-<a id="back" href="../index.html">
-  <span class="bc-home">Keele peal</span>
-  <span class="bc-sep" aria-hidden="true">›</span>
-  <span class="bc-cur">Sõnagalaktika</span>
-</a>
+<div id="body">
+  <svg id="svg"></svg>
 
-<div id="search-wrap">
+  <div id="search-wrap">
   <h1>Sõnagalaktika</h1>
   <p>Avasta eesti keele semantilisi seoseid</p>
   <div style="position:relative">
     <input id="search" type="text" placeholder="Sisesta sõna…" autocomplete="off" spellcheck="false">
     <div id="suggestions"></div>
   </div>
+</div>
 </div>
 
 <div id="info">
@@ -213,7 +198,7 @@ function rc(type) { return REL_COLORS[type] || DEFAULT_COLOR; }
 
 // --- setup ---
 const svgEl = document.getElementById("svg");
-const W = window.innerWidth, H = window.innerHeight;
+const W = window.innerWidth - 240, H = window.innerHeight - 50;
 const svg = d3.select(svgEl).attr("viewBox", [0, 0, W, H]);
 
 const defs = svg.append("defs");
