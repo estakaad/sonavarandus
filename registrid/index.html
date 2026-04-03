@@ -13,9 +13,13 @@
   .cell.selected { stroke: var(--text); stroke-width: 2; }
   #p-regs  { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 4px; line-height: 1.4; }
   #p-count { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
-  #p-words { font-size: 13px; }
+  #p-words { font-size: 13px; max-height: calc(100vh - 320px); overflow-y: auto; margin-bottom: 12px; }
   .w-item { display: inline-block; margin: 3px 4px 3px 0; padding: 3px 10px; border-radius: 20px; background: var(--surface-alt); color: var(--text-sec); font-size: 12px; }
   .w-item.diagonal { background: var(--accent-light); color: var(--accent); }
+  #p-pagination { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 12px; color: var(--text-muted); }
+  #p-pagination button { padding: 4px 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text-sec); border-radius: 4px; cursor: pointer; font-size: 11px; }
+  #p-pagination button:hover { background: var(--surface-alt); border-color: var(--accent); }
+  #p-pagination button:disabled { opacity: 0.3; cursor: not-allowed; }
   .sep { height: 1px; background: var(--surface-alt); margin: 14px 0; }
   .p-label { font-size: 10px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
 </style>
@@ -45,6 +49,7 @@
       <div class="sep"></div>
       <div class="p-label">Näitesõnad</div>
       <div id="p-words"></div>
+      <div id="p-pagination"></div>
     </div>
   </div>
 </div>
@@ -188,16 +193,61 @@ function draw(data) {
 }
 
 // ── paneel ────────────────────────────────────────────────────
+const PAGE_SIZE = 20;
+let currentWords = [];
+let currentDiag = false;
+let currentPage = 1;
+
+function renderWordsPage(page) {
+  const start = (page - 1) * PAGE_SIZE;
+  const end = start + PAGE_SIZE;
+  const pageWords = currentWords.slice(start, end);
+
+  document.getElementById("p-words").innerHTML = pageWords.length
+    ? pageWords.map(w => `<a class="w-item${currentDiag ? " diagonal" : ""}" href="https://sonaveeb.ee/search/unif/dlall/dsall/${encodeURIComponent(w)}/1/est" target="_blank" rel="noopener">${w}</a>`).join("")
+    : '<span style="color:#94a3b8;font-size:12px">näitesõnad puuduvad</span>';
+
+  // Pagination buttons
+  const totalPages = Math.ceil(currentWords.length / PAGE_SIZE);
+  const paginationDiv = document.getElementById("p-pagination");
+
+  if (totalPages > 1) {
+    paginationDiv.innerHTML = `
+      <button id="pg-prev" onclick="renderWordsPage(currentPage - 1)" ${page === 1 ? 'disabled' : ''}>←</button>
+      <span>${page} / ${totalPages}</span>
+      <button id="pg-next" onclick="renderWordsPage(currentPage + 1)" ${page === totalPages ? 'disabled' : ''}>→</button>
+    `;
+  } else {
+    paginationDiv.innerHTML = '';
+  }
+
+  currentPage = page;
+}
+
 function openPanel(r1, r2, count, words) {
   const isDiag = r1 === r2;
   document.getElementById("p-regs").textContent = isDiag ? label(r1) : `${label(r1)} × ${label(r2)}`;
   document.getElementById("p-count").textContent =
     isDiag ? `${count} lekseemi selle registriga` : `${count} lekseemi mõlema registriga`;
-  document.getElementById("p-words").innerHTML = words.length
-    ? words.map(w => `<a class="w-item${isDiag ? " diagonal" : ""}" href="https://sonaveeb.ee/search/unif/dlall/dsall/${encodeURIComponent(w)}/1/est" target="_blank" rel="noopener">${w}</a>`).join("")
-    : '<span style="color:#94a3b8;font-size:12px">näitesõnad puuduvad</span>';
+
+  currentWords = words;
+  currentDiag = isDiag;
+  currentPage = 1;
+  renderWordsPage(1);
+
   document.getElementById("panel").classList.add("open");
 }
 </script>
+
+<div id="source">
+  <strong>EKI ühendsõnastik 2026</strong> Koostanud ja toimetanud: Langemets, Margit; Hein, Indrek; Jürviste, Madis; Kallas, Jelena; Kiisla, Olga; Koppel, Kristina; Kuusk, Külli; Leemets, Tiina; Mäearu, Sirje; Paet, Tiina; Päll, Peeter; Raadik, Maire; Risberg, Lydia; Rehemaa, Tuuli; Tiits, Mai; Tsepelina, Katrin; Tuulik, Maria; Uibo, Udo; Valdre, Tiia; Viks, Ülle; Dovgan, Ellen; Näreinen, Hanna; Karmo, Juula; Luhakivi, Liisa; Mardisoo, Ingrid; Ossiptšuk, Inna; Sai, Edgar; Smirnova, Alina; Tubin, Valentina; Volkova, Dona. Eesti Keele Instituut. <a href="https://sonaveeb.ee/" target="_blank" style="color:var(--accent);text-decoration:none">Sõnaveeb 2026</a>. (09.03.2026)
+</div>
+
+<footer class="app-footer">
+  <a class="footer-link" href="../info.html">Info</a>
+  <span class="footer-sep" aria-hidden="true">·</span>
+  <a class="footer-link" href="../kontakt.html">Kontakt</a>
+</footer>
+
 </body>
 </html>

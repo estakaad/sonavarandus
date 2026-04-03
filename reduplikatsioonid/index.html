@@ -16,6 +16,7 @@
     padding: 5px 14px; border-radius: 20px; font-size: 14px;
     background: var(--surface-alt); color: var(--text-sec);
     letter-spacing: 2px; transition: background .1s, color .1s;
+    text-decoration: none;
   }
   .word-pill:hover { background: var(--accent-light); color: var(--accent); }
 </style>
@@ -44,7 +45,10 @@ fetch("../data/reduplications.json").then(r=>r.json()).then(data => {
       <span class="length-count">${g.words.length}</span></div>`;
     const pills = document.createElement("div");
     g.words.forEach(w => {
-      const pill = document.createElement("span");
+      const pill = document.createElement("a");
+      pill.href = `https://sonaveeb.ee/search/unif/dlall/dsall/${encodeURIComponent(w)}/1/est`;
+      pill.target = "_blank";
+      pill.rel = "noopener";
       pill.className = "word-pill";
       // Erista pooli: esimene pool + teine pool erinevalt
       const half = w.length / 2;
@@ -57,5 +61,16 @@ fetch("../data/reduplications.json").then(r=>r.json()).then(data => {
   document.getElementById("info").textContent = `${data.total} sõna`;
 }).catch(() => { document.getElementById("body").textContent = "⚠ reduplications.json puudub — käivita prepare_data.py"; });
 </script>
+
+<div id="source">
+  <strong>EKI ühendsõnastik 2026</strong> Koostanud ja toimetanud: Langemets, Margit; Hein, Indrek; Jürviste, Madis; Kallas, Jelena; Kiisla, Olga; Koppel, Kristina; Kuusk, Külli; Leemets, Tiina; Mäearu, Sirje; Paet, Tiina; Päll, Peeter; Raadik, Maire; Risberg, Lydia; Rehemaa, Tuuli; Tiits, Mai; Tsepelina, Katrin; Tuulik, Maria; Uibo, Udo; Valdre, Tiia; Viks, Ülle; Dovgan, Ellen; Näreinen, Hanna; Karmo, Juula; Luhakivi, Liisa; Mardisoo, Ingrid; Ossiptšuk, Inna; Sai, Edgar; Smirnova, Alina; Tubin, Valentina; Volkova, Dona. Eesti Keele Instituut. <a href="https://sonaveeb.ee/" target="_blank" style="color:var(--accent);text-decoration:none">Sõnaveeb 2026</a>. (09.03.2026)
+</div>
+
+<footer class="app-footer">
+  <a class="footer-link" href="../info.html">Info</a>
+  <span class="footer-sep" aria-hidden="true">·</span>
+  <a class="footer-link" href="../kontakt.html">Kontakt</a>
+</footer>
+
 </body>
 </html>

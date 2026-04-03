@@ -57,7 +57,7 @@
   <div class="header-end">
     <span id="info" class="header-info"></span>
     <button type="button" class="btn sort-btn active" data-sort="total">Kokku</button>
-    <button type="button" class="btn sort-btn" data-sort="esiosa">Eesosana</button>
+    <button type="button" class="btn sort-btn" data-sort="esiosa">Esiosana</button>
     <button type="button" class="btn sort-btn" data-sort="jarelosa">Järelosana</button>
     <input id="search" class="text-input" type="text" placeholder="Otsi sõna…"
            style="width:160px" autocomplete="off" spellcheck="false">
@@ -67,7 +67,7 @@
 <div id="body">
   <div id="list-wrap">
     <div id="legend">
-      <span><span class="leg-dot leg-esiosa"></span>Eesosana</span>
+      <span><span class="leg-dot leg-esiosa"></span>Esiosana</span>
       <span><span class="leg-dot leg-jarelosa"></span>Järelosana</span>
     </div>
     <div id="list"></div>
@@ -85,7 +85,7 @@
       <div class="sep"></div>
       <div class="p-section">
         <div class="p-label">
-          <span class="p-label-dot" style="background:#3b82f6"></span>Eesosana
+          <span class="p-label-dot" style="background:#3b82f6"></span>Esiosana
         </div>
         <div id="p-esiosa-ex"></div>
       </div>
@@ -164,11 +164,11 @@ document.getElementById("pg-next").addEventListener("click", () => {
 function openPanel(d, row) {
   document.querySelectorAll(".row.selected").forEach(r => r.classList.remove("selected"));
   if (row) row.classList.add("selected");
-  document.getElementById("p-word").textContent = d.word;
+  document.getElementById("p-word").innerHTML = `<a href="https://sonaveeb.ee/search/unif/dlall/dsall/${encodeURIComponent(d.word)}/1/est" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">${d.word}</a>`;
   document.getElementById("p-stats").textContent =
-    `${d.esiosa} × eesosana · ${d.jarelosa} × järelosana · kokku ${d.esiosa + d.jarelosa} liitsõna`;
+    `${d.esiosa} × esiosana · ${d.jarelosa} × järelosana · kokku ${d.esiosa + d.jarelosa} liitsõna`;
   const exFn = (items, cls) => items.length
-    ? items.map(w => `<span class="ex-item ${cls}">${w}</span>`).join("")
+    ? items.map(w => `<a class="ex-item ${cls}" href="https://sonaveeb.ee/search/unif/dlall/dsall/${encodeURIComponent(w)}/1/est" target="_blank" rel="noopener">${w}</a>`).join("")
     : '<span style="color:var(--text-ghost);font-size:12px">näited puuduvad</span>';
   document.getElementById("p-esiosa-ex").innerHTML  = exFn(d.esiosa_ex,  "e");
   document.getElementById("p-jarelosa-ex").innerHTML = exFn(d.jarelosa_ex, "j");
@@ -205,5 +205,16 @@ fetch("../data/productivity.json")
       "⚠ productivity.json puudub — käivita prepare_data.py";
   });
 </script>
+
+<div id="source">
+  <strong>EKI ühendsõnastik 2026</strong> Koostanud ja toimetanud: Langemets, Margit; Hein, Indrek; Jürviste, Madis; Kallas, Jelena; Kiisla, Olga; Koppel, Kristina; Kuusk, Külli; Leemets, Tiina; Mäearu, Sirje; Paet, Tiina; Päll, Peeter; Raadik, Maire; Risberg, Lydia; Rehemaa, Tuuli; Tiits, Mai; Tsepelina, Katrin; Tuulik, Maria; Uibo, Udo; Valdre, Tiia; Viks, Ülle; Dovgan, Ellen; Näreinen, Hanna; Karmo, Juula; Luhakivi, Liisa; Mardisoo, Ingrid; Ossiptšuk, Inna; Sai, Edgar; Smirnova, Alina; Tubin, Valentina; Volkova, Dona. Eesti Keele Instituut. <a href="https://sonaveeb.ee/" target="_blank" style="color:var(--accent);text-decoration:none">Sõnaveeb 2026</a>. (09.03.2026)
+</div>
+
+<footer class="app-footer">
+  <a class="footer-link" href="../info.html">Info</a>
+  <span class="footer-sep" aria-hidden="true">·</span>
+  <a class="footer-link" href="../kontakt.html">Kontakt</a>
+</footer>
+
 </body>
 </html>

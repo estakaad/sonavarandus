@@ -29,22 +29,28 @@ from collections import defaultdict
 CSV_FILE = "../data/registers_raw.csv"
 JSON_FILE = "../data/registers.json"
 
+# Välja jäetavad registrid (kohanimega seotud, ajalooline ja ametlik)
+EXCLUDE = {"koh", "mta", "teg", "aja", "ame"}  # kohalik, mitteametlik, tegelik (de facto), ajalooline, ametlik
+
 # lekseemi → {word, registers: set}
 lexemes = {}
 
 with open(CSV_FILE, encoding="utf-8") as f:
     reader = csv.DictReader(f)
     for row in reader:
+        reg_code = row["register_code"].strip()
+        if reg_code in EXCLUDE:
+            continue
         lid = row["lexeme_id"]
         if lid not in lexemes:
             lexemes[lid] = {"word": row["word"], "registers": set()}
-        lexemes[lid]["registers"].add(row["register_code"].strip())
+        lexemes[lid]["registers"].add(reg_code)
 
 # registrite kogusummad
 totals = defaultdict(int)
 # koosesinemine: (reg1, reg2) → count
 cooc   = defaultdict(int)
-# näitesõnad paari kohta (max 30)
+# näitesõnad paari kohta (max 100)
 pairs  = defaultdict(list)
 
 for lid, data in lexemes.items():
@@ -56,7 +62,7 @@ for lid, data in lexemes.items():
         for r2 in regs[i:]:
             key = f"{r1}|{r2}"
             cooc[key] += 1
-            if len(pairs[key]) < 30:
+            if len(pairs[key]) < 100:
                 pairs[key].append(word)
 
 # registrid sageduse järjekorras

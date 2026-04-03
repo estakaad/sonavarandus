@@ -29,6 +29,7 @@
     font-size: 13px; color: var(--text-sec);
     padding: 2px 8px; border-radius: 4px;
     transition: color .1s, background .1s;
+    text-decoration: none;
   }
   .chain-pill:hover  { color: var(--accent); background: var(--accent-light); }
   .chain-pill.first  { font-weight: 600; color: var(--text-dim); }
@@ -56,7 +57,8 @@
     transition: transform .15s;
   }
   .tree-toggle.open { transform: rotate(90deg); }
-  .tree-word  { font-size: 13px; color: var(--text); }
+  .tree-word  { font-size: 13px; color: var(--accent); text-decoration: none; transition: color .1s; }
+  .tree-word:hover { color: var(--accent-hover); text-decoration: underline; }
   .tree-count { font-size: 11px; color: var(--text-ghost); }
   .tree-children {
     padding-left: 20px;
@@ -140,6 +142,7 @@ function buildRow(item) {
       (i === 0 ? " first" : "") +
       (i === item.chain.length - 1 ? " last" : "");
     pill.textContent = word;
+    pill.style.cursor = "pointer";
     pill.addEventListener("click", e => { e.stopPropagation(); openPanel(word); });
     pills.appendChild(pill);
   });
@@ -187,12 +190,17 @@ function buildTreeNode(word, depth = 0) {
   const toggle = document.createElement("span");
   toggle.className = "tree-toggle";
   toggle.textContent = children.length ? "▶" : "";
+  if (children.length) {
+    toggle.style.cursor = "pointer";
+  }
   rowEl.appendChild(toggle);
 
-  const wordEl = document.createElement("span");
+  const wordEl = document.createElement("a");
+  wordEl.href = `https://sonaveeb.ee/search/unif/dlall/dsall/${encodeURIComponent(word)}/1/est`;
+  wordEl.target = "_blank";
+  wordEl.rel = "noopener";
   wordEl.className = "tree-word";
   wordEl.textContent = word;
-  wordEl.addEventListener("click", e => { e.stopPropagation(); openPanel(word); });
   rowEl.appendChild(wordEl);
 
   if (children.length) {
@@ -209,7 +217,8 @@ function buildTreeNode(word, depth = 0) {
     childWrap.className = "tree-children";
 
     let built = false;
-    rowEl.addEventListener("click", () => {
+    toggle.addEventListener("click", e => {
+      e.stopPropagation();
       const open = childWrap.classList.toggle("open");
       toggle.classList.toggle("open", open);
       if (open && !built) {
@@ -283,5 +292,16 @@ fetch("../data/depth.json")
       "⚠ depth.json puudub — käivita prepare_data.py";
   });
 </script>
+
+<div id="source">
+  <strong>EKI ühendsõnastik 2026</strong> Koostanud ja toimetanud: Langemets, Margit; Hein, Indrek; Jürviste, Madis; Kallas, Jelena; Kiisla, Olga; Koppel, Kristina; Kuusk, Külli; Leemets, Tiina; Mäearu, Sirje; Paet, Tiina; Päll, Peeter; Raadik, Maire; Risberg, Lydia; Rehemaa, Tuuli; Tiits, Mai; Tsepelina, Katrin; Tuulik, Maria; Uibo, Udo; Valdre, Tiia; Viks, Ülle; Dovgan, Ellen; Näreinen, Hanna; Karmo, Juula; Luhakivi, Liisa; Mardisoo, Ingrid; Ossiptšuk, Inna; Sai, Edgar; Smirnova, Alina; Tubin, Valentina; Volkova, Dona. Eesti Keele Instituut. <a href="https://sonaveeb.ee/" target="_blank" style="color:var(--accent);text-decoration:none">Sõnaveeb 2026</a>. (09.03.2026)
+</div>
+
+<footer class="app-footer">
+  <a class="footer-link" href="../info.html">Info</a>
+  <span class="footer-sep" aria-hidden="true">·</span>
+  <a class="footer-link" href="../kontakt.html">Kontakt</a>
+</footer>
+
 </body>
 </html>

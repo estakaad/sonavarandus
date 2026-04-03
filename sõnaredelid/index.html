@@ -55,28 +55,36 @@
   #chain {
     display: flex;
     align-items: center;
-    flex-wrap: wrap;
     justify-content: center;
-    gap: 0;
-    max-width: 900px;
-    margin-bottom: 12px;
+    gap: 8px;
+    max-width: 100%;
+    overflow-x: auto;
+    padding: 16px 20px;
+    background: var(--surface-alt);
+    border-radius: 8px;
+    margin-bottom: 16px;
+    white-space: nowrap;
   }
+  #chain::-webkit-scrollbar { height: 4px; }
+  #chain::-webkit-scrollbar-thumb { background: var(--text-ghost); border-radius: 2px; }
 
   .ladder-node {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 10px 20px;
-    font-size: 18px;
+    border-radius: 6px;
+    padding: 7px 14px;
+    font-size: 14px;
     font-family: monospace;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
     white-space: nowrap;
     animation: fadeIn .3s ease both;
-    box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    flex-shrink: 0;
   }
   .ladder-node.start,
   .ladder-node.end {
-    box-shadow: 0 0 0 3px var(--accent-ring);
+    background: var(--accent-light);
+    border-color: var(--accent);
+    color: var(--accent);
   }
 
   .ladder-node .diff-letter {
@@ -85,9 +93,9 @@
   }
 
   .ladder-arrow {
-    font-size: 18px;
-    color: var(--text-ghost);
-    padding: 0 6px;
+    font-size: 14px;
+    color: var(--text-muted);
+    padding: 0 4px;
     animation: fadeIn .3s ease both;
     flex-shrink: 0;
   }
@@ -132,8 +140,11 @@
 <a class="skip-link" href="#body">Hüppa põhisisu juurde</a>
 
 <div class="app-header">
-  <a class="header-back" href="../index.html">← Keele peal</a>
-  <span class="header-title">Sõnaredelid</span>
+  <nav class="breadcrumb" aria-label="Navigatsioon">
+    <a class="breadcrumb-home" href="../index.html">Keele peal</a>
+    <span class="breadcrumb-sep" aria-hidden="true">›</span>
+    <span class="breadcrumb-current">Sõnaredelid</span>
+  </nav>
   <div class="header-end">
     <span id="info" class="header-info"></span>
   </div>
@@ -170,6 +181,10 @@
       <div id="longest-len"></div>
     </div>
   </div>
+</div>
+
+<div id="source">
+  <strong>EKI ühendsõnastik 2026</strong> Koostanud ja toimetanud: Langemets, Margit; Hein, Indrek; Jürviste, Madis; Kallas, Jelena; Kiisla, Olga; Koppel, Kristina; Kuusk, Külli; Leemets, Tiina; Mäearu, Sirje; Paet, Tiina; Päll, Peeter; Raadik, Maire; Risberg, Lydia; Rehemaa, Tuuli; Tiits, Mai; Tsepelina, Katrin; Tuulik, Maria; Uibo, Udo; Valdre, Tiia; Viks, Ülle; Dovgan, Ellen; Näreinen, Hanna; Karmo, Juula; Luhakivi, Liisa; Mardisoo, Ingrid; Ossiptšuk, Inna; Sai, Edgar; Smirnova, Alina; Tubin, Valentina; Volkova, Dona. Eesti Keele Instituut. <a href="https://sonaveeb.ee/" target="_blank" style="color:var(--accent);text-decoration:none">Sõnaveeb 2026</a>. (09.03.2026)
 </div>
 
 <footer class="app-footer">

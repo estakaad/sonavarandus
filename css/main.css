@@ -233,18 +233,18 @@ input:focus:not(:focus-visible) {
 
 /* ── Hero (avaleht) ────────────────────────────────────────── */
 .hero {
-  padding: 56px 28px 12px;
+  padding: 28px 28px 8px;
   text-align: center;
 }
 .hero h1 {
-  font-size: 38px;
+  font-size: 32px;
   font-weight: 300;
-  letter-spacing: 5px;
+  letter-spacing: 4px;
   color: var(--text);
-  margin-bottom: 10px;
+  margin-bottom: 4px;
 }
 .hero p {
-  font-size: 14px;
+  font-size: 12px;
   color: var(--text-muted);
   letter-spacing: 0.5px;
 }
@@ -254,7 +254,7 @@ input:focus:not(:focus-visible) {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
   gap: 18px;
-  padding: 32px 28px 48px;
+  padding: 16px 28px 32px;
   max-width: 920px;
   margin: 0 auto;
 }
@@ -262,7 +262,7 @@ input:focus:not(:focus-visible) {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 22px 20px;
+  padding: 16px 16px;
   text-decoration: none;
   color: var(--text);
   transition: border-color .2s, box-shadow .2s, transform .15s;
@@ -273,10 +273,10 @@ input:focus:not(:focus-visible) {
   box-shadow: 0 4px 20px rgba(37, 99, 235, 0.1);
   transform: translateY(-2px);
 }
-.card-icon { font-size: 26px; margin-bottom: 12px; }
-.card-name { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.card-icon { font-size: 22px; margin-bottom: 8px; }
+.card-name { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
 /* #5c6b79 valgel taustal: 4.8:1 ✓ */
-.card-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+.card-desc { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
 
 /* ── Jalus ──────────────────────────────────────────────────── */
 .app-footer {
@@ -326,5 +326,26 @@ a.word:hover,
 a.ladder-node:hover,
 a.ch-word:hover {
   color: var(--accent);
+  text-decoration: underline;
+}
+
+/* ── Andmeallika viide ────────────────────────────────────── */
+#source {
+  padding: 24px;
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  border-top: 1px solid var(--border);
+  background: var(--surface-alt);
+}
+#source strong {
+  color: var(--text-sec);
+  font-weight: 600;
+}
+#source a {
+  color: var(--accent);
+  text-decoration: none;
+}
+#source a:hover {
   text-decoration: underline;
 }
