@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="../css/main.css">
 <style>
   body { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-  #body { display: flex; flex: 1; overflow: hidden; background: var(--bg); }
+  #body { margin-left: 240px; display: flex; flex: 1; overflow: hidden; background: var(--bg); }
   #matrix-wrap { flex: 1; overflow: auto; padding: 24px; }
   .cell { cursor: pointer; transition: opacity .1s; }
   .cell:hover { opacity: 0.75; }
@@ -25,6 +25,9 @@
 </style>
 </head>
 <body>
+
+<div id="nav-sidebar"></div>
+
 
 <div class="app-header">
   <nav class="breadcrumb" aria-label="Navigatsioon">
@@ -249,5 +252,7 @@ function openPanel(r1, r2, count, words) {
   <a class="footer-link" href="../kontakt.html">Kontakt</a>
 </footer>
 
+<script src="../js/nav-config.js"></script>
+<script src="../js/nav-render.js"></script>
 </body>
 </html>

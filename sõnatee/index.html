@@ -5,7 +5,7 @@
 <title>Kiirtee</title>
 <link rel="stylesheet" href="../css/main.css">
 <style>
-  body { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+  body { margin-left: 240px; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
   #wrap {
     flex: 1; display: flex; flex-direction: column;
@@ -96,6 +96,9 @@
 </style>
 </head>
 <body>
+
+<div id="nav-sidebar"></div>
+
 
 <a class="skip-link" href="#wrap">Hüppa põhisisu juurde</a>
 
@@ -286,5 +289,7 @@ document.getElementById("w1").addEventListener("keydown", e => {
   <a class="footer-link" href="../kontakt.html">Kontakt</a>
 </footer>
 
+<script src="../js/nav-config.js"></script>
+<script src="../js/nav-render.js"></script>
 </body>
 </html>

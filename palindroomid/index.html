@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="../css/main.css">
 <style>
   body { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-  #body { display: flex; flex: 1; overflow: hidden; background: var(--bg); }
+  #body { display: flex; flex: 1; overflow: hidden; background: var(--bg); margin-left: 240px; }
   #list-wrap { flex: 1; overflow-y: auto; padding: 16px 24px 40px; }
 
   .length-group { margin-bottom: 28px; }
@@ -39,6 +39,8 @@
 <body>
 
 <a class="skip-link" href="#body">Hüppa põhisisu juurde</a>
+
+<div id="nav-sidebar"></div>
 
 <div class="app-header">
   <nav class="breadcrumb" aria-label="Navigatsioon">
@@ -116,6 +118,9 @@ fetch("../data/palindromes.json")
       "⚠ palindromes.json puudub — käivita prepare_data.py";
   });
 </script>
+
+<script src="../js/nav-config.js"></script>
+<script src="../js/nav-render.js"></script>
 
 <div id="source">
   <strong>EKI ühendsõnastik 2026</strong> Koostanud ja toimetanud: Langemets, Margit; Hein, Indrek; Jürviste, Madis; Kallas, Jelena; Kiisla, Olga; Koppel, Kristina; Kuusk, Külli; Leemets, Tiina; Mäearu, Sirje; Paet, Tiina; Päll, Peeter; Raadik, Maire; Risberg, Lydia; Rehemaa, Tuuli; Tiits, Mai; Tsepelina, Katrin; Tuulik, Maria; Uibo, Udo; Valdre, Tiia; Viks, Ülle; Dovgan, Ellen; Näreinen, Hanna; Karmo, Juula; Luhakivi, Liisa; Mardisoo, Ingrid; Ossiptšuk, Inna; Sai, Edgar; Smirnova, Alina; Tubin, Valentina; Volkova, Dona. Eesti Keele Instituut. <a href="https://sonaveeb.ee/" target="_blank" style="color:var(--accent);text-decoration:none">Sõnaveeb 2026</a>. (09.03.2026)

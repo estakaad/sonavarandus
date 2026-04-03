@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="../css/main.css">
 <style>
   body { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-  #body { display: flex; flex: 1; overflow: hidden; flex-direction: column; background: var(--bg); }
+  #body { margin-left: 240px; display: flex; flex: 1; overflow: hidden; flex-direction: column; background: var(--bg); }
   #wrap { flex: 1; overflow-y: auto; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; }
 
   /* ── Sisendid ─────────────────────────────────────────── */
@@ -136,6 +136,9 @@
 </style>
 </head>
 <body>
+
+<div id="nav-sidebar"></div>
+
 
 <a class="skip-link" href="#body">Hüppa põhisisu juurde</a>
 
@@ -494,5 +497,7 @@ function renderLongest() {
 }
 </script>
 
+<script src="../js/nav-config.js"></script>
+<script src="../js/nav-render.js"></script>
 </body>
 </html>

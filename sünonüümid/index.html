@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="../css/main.css">
 <style>
   body { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-  #body { display: flex; flex: 1; overflow: hidden; background: var(--bg); }
+  #body { margin-left: 240px; display: flex; flex: 1; overflow: hidden; background: var(--bg); }
   #list-wrap { flex: 1; overflow-y: auto; padding: 16px 24px 40px; }
 
   .row {
@@ -51,6 +51,9 @@
 </style>
 </head>
 <body>
+
+<div id="nav-sidebar"></div>
+
 
 <a class="skip-link" href="#body">Hüppa põhisisu juurde</a>
 
@@ -190,5 +193,7 @@ fetch("../data/synonyms.json")
   <a class="footer-link" href="../kontakt.html">Kontakt</a>
 </footer>
 
+<script src="../js/nav-config.js"></script>
+<script src="../js/nav-render.js"></script>
 </body>
 </html>

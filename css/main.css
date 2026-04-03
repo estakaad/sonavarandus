@@ -237,17 +237,19 @@ input:focus:not(:focus-visible) {
   text-align: center;
 }
 .hero h1 {
-  font-size: 32px;
+  font-size: 38px;
   font-weight: 300;
-  letter-spacing: 4px;
-  color: var(--text);
-  margin-bottom: 4px;
+  letter-spacing: 6px;
+  color: var(--accent);
+  margin-bottom: 6px;
 }
 .hero p {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-muted);
   letter-spacing: 0.5px;
+  font-style: italic;
 }
+
 
 /* ── Kaardimaatriks (avaleht) ──────────────────────────────── */
 .cards-grid {
@@ -260,23 +262,48 @@ input:focus:not(:focus-visible) {
 }
 .card {
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 2px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 16px 16px;
   text-decoration: none;
   color: var(--text);
-  transition: border-color .2s, box-shadow .2s, transform .15s;
+  transition: border-color .25s, box-shadow .25s, transform .2s;
   display: block;
 }
 .card:hover {
   border-color: var(--accent);
-  box-shadow: 0 4px 20px rgba(37, 99, 235, 0.1);
-  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(37, 99, 235, 0.15);
+  transform: translateY(-4px) scale(1.02);
 }
-.card-icon { font-size: 22px; margin-bottom: 8px; }
-.card-name { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.card-icon {
+  font-size: 28px;
+  margin-bottom: 10px;
+  display: inline-block;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.card:hover .card-icon {
+  transform: scale(1.2) rotate(10deg);
+}
+.card-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+  transition: color .25s;
+}
+.card:hover .card-name {
+  color: var(--accent);
+}
 /* #5c6b79 valgel taustal: 4.8:1 ✓ */
-.card-desc { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
+.card-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  transition: color .25s;
+}
+.card:hover .card-desc {
+  color: var(--text-sec);
+}
 
 /* ── Jalus ──────────────────────────────────────────────────── */
 .app-footer {
@@ -284,8 +311,8 @@ input:focus:not(:focus-visible) {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 14px 20px;
+  gap: 8px;
+  padding: 16px 20px;
   border-top: 1px solid var(--border);
   background: var(--surface);
 }
@@ -293,13 +320,19 @@ input:focus:not(:focus-visible) {
   font-size: 12px;
   color: var(--text-dim);
   text-decoration: none;
-  padding: 2px 0;
-  transition: color .2s;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all .2s;
+  font-weight: 500;
 }
-.footer-link:hover { color: var(--accent); }
+.footer-link:hover {
+  color: var(--accent);
+  background: var(--accent-light);
+  transform: scale(1.05);
+}
 .footer-sep {
   font-size: 12px;
-  color: var(--border);
+  color: var(--text-ghost);
   user-select: none;
 }
 
@@ -349,3 +382,48 @@ a.ch-word:hover {
 #source a:hover {
   text-decoration: underline;
 }
+
+/* ── Navigatsioon sidebar (moodulites) ──────────────────── */
+#nav-sidebar { position: fixed; left: 0; top: 50px; width: 240px; height: calc(100vh - 50px - 48px); overflow-y: auto; background: var(--surface-alt); border-right: 1px solid var(--border); padding: 0; z-index: 100; }
+#nav-sidebar::-webkit-scrollbar { width: 4px; }
+#nav-sidebar::-webkit-scrollbar-thumb { background: var(--text-ghost); border-radius: 2px; }
+
+.nav-sidebar { display: flex; flex-direction: column; padding: 0; }
+
+.nav-logo { padding: 16px; border-bottom: 1px solid var(--border); }
+.nav-logo a { font-size: 12px; color: var(--text-dim); text-decoration: none; font-weight: 600; transition: color .2s; }
+.nav-logo a:hover { color: var(--accent); }
+
+.nav-category { border-bottom: 1px solid var(--border); }
+.nav-category-header {
+  padding: 12px 16px;
+  cursor: pointer;
+  font-size: 11px;
+  color: var(--text);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background .2s;
+  user-select: none;
+}
+.nav-category-header:hover { background: var(--bg); color: var(--accent); }
+.nav-toggle { font-size: 10px; transition: transform .2s; }
+.nav-toggle.open { transform: rotate(90deg); }
+
+.nav-items { display: none; padding: 0; }
+.nav-items.open { display: block; }
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 24px;
+  font-size: 12px;
+  color: var(--text-sec);
+  text-decoration: none;
+  transition: all .2s;
+  border-left: 2px solid transparent;
+}
+.nav-item:hover { background: var(--bg); color: var(--accent); border-left-color: var(--accent); padding-left: 22px; }
