@@ -10,12 +10,6 @@
     const sidebar = document.createElement('div');
     sidebar.className = 'nav-sidebar';
 
-    // Logo/home button
-    const logo = document.createElement('div');
-    logo.className = 'nav-logo';
-    logo.innerHTML = '<a href="../index.html">⬅ Keele peal</a>';
-    sidebar.appendChild(logo);
-
     // Categories
     NAV_CATEGORIES.forEach((cat, catIdx) => {
       const catDiv = document.createElement('div');
