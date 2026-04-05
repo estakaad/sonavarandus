@@ -41,6 +41,22 @@
 </div>
 <div id="body">
   <div id="list-wrap">
+    <div class="page-info-accordion" style="margin-left: 0; margin-right: 0; width: 100%; margin-bottom: 16px;">
+      <div class="page-info-header">
+        <span class="page-info-icon">ℹ</span>
+        <span class="page-info-title">Känguru</span>
+        <span class="page-info-toggle">−</span>
+      </div>
+      <div class="page-info-body" style="display: block;">
+        <p class="page-info-desc">Sõnad, milles on peidetud teised sõnad. Näiteks sõnas 'känguru' on peidetud sõnad 'känn', 'käng', 'uurid' jne.</p>
+        <div class="page-info-stats">
+          <div class="stat-row">
+            <span class="stat-label">Kokku</span>
+            <span class="stat-value" id="accordion-stat"></span>
+          </div>
+        </div>
+      </div>
+    </div>
     <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; justify-content: space-between;">
       <div id="info" class="header-info" style="font-size: 12px; color: var(--text-muted);"></div>
       <input id="search" class="text-input" type="text" placeholder="Otsi…" style="width: 200px;" autocomplete="off" spellcheck="false">
@@ -105,9 +121,26 @@ document.getElementById("search").addEventListener("input", function() {
   document.getElementById("info").textContent = q ? `${filtered.length} vastet` : `${allPairs.length} sõna`;
 });
 
+// Accordion funktionaalsus
+const accordion = document.querySelector('.page-info-accordion');
+const header = accordion.querySelector('.page-info-header');
+const body = accordion.querySelector('.page-info-body');
+const toggle = accordion.querySelector('.page-info-toggle');
+
+// Accordion on avatud vaikimisi
+body.style.display = 'block';
+toggle.textContent = '−';
+
+header.addEventListener('click', () => {
+  const isOpen = body.style.display === 'block';
+  body.style.display = isOpen ? 'none' : 'block';
+  toggle.textContent = isOpen ? '+' : '−';
+});
+
 fetch("../data/kangaroo.json").then(r=>r.json()).then(data => {
   allPairs = data.pairs;
   document.getElementById("info").textContent = `${allPairs.length} sõna`;
+  document.getElementById("accordion-stat").textContent = `${allPairs.length} paari`;
   renderList(allPairs);
 }).catch(() => { document.getElementById("list").textContent = "⚠ kangaroo.json puudub — käivita prepare_data.py"; });
 </script>
