@@ -58,6 +58,19 @@
 
 <div id="body">
   <div id="list-wrap">
+    <div class="page-info-accordion">
+      <div class="page-info-header">
+        <span class="page-info-icon">ℹ</span>
+        <span class="page-info-title">Produktiivsed liitujad</span>
+        <span class="page-info-toggle">−</span>
+      </div>
+      <div class="page-info-body">
+        <p class="page-info-desc">Millised sõnad moodustavad kõige rohkem liitsõnu?</p>
+        <div class="page-info-stats" id="page-stats">
+          <div class="stat-row"><span class="stat-label">Kokku</span><span class="stat-value" id="stat-total">–</span></div>
+        </div>
+      </div>
+    </div>
     <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; justify-content: space-between;">
       <div id="info" class="header-info" style="font-size: 12px; color: var(--text-muted);"></div>
       <input id="search" class="text-input" type="text" placeholder="Otsi…" style="width: 200px;" autocomplete="off" spellcheck="false">
@@ -98,6 +111,14 @@
 <script>
 const PAGE_SIZE = 50;
 let allWords = [], currentWords = [], sortKey = "total", maxVal = 1, currentPage = 1;
+
+// Accordion toggle
+document.querySelector(".page-info-header").addEventListener("click", function() {
+  const body = this.nextElementSibling;
+  const toggle = this.querySelector(".page-info-toggle");
+  body.style.display = body.style.display === "none" ? "block" : "none";
+  toggle.textContent = body.style.display === "none" ? "+" : "−";
+});
 
 function buildRow(d) {
   const row = document.createElement("div");
@@ -192,8 +213,13 @@ fetch("../data/productivity.json")
   .then(r => r.json())
   .then(data => {
     allWords = data.words;
+    const totalWords = allWords.length;
+    const totalCompounds = allWords.reduce((s, w) => s + w.esiosa + w.jarelosa, 0);
+
     document.getElementById("info").textContent =
-      `${allWords.length} sõna · ${allWords.reduce((s, w) => s + w.esiosa + w.jarelosa, 0)} liitsõna`;
+      `${totalWords} sõna · ${totalCompounds} liitsõna`;
+    document.getElementById("stat-total").textContent = totalWords.toLocaleString("et-EE");
+
     renderList(getSorted(allWords));
   })
   .catch(() => {

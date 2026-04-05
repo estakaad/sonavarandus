@@ -46,6 +46,20 @@
 </div>
 <div id="body">
   <div id="list-wrap">
+    <div class="page-info-accordion">
+      <div class="page-info-header">
+        <span class="page-info-icon">ℹ</span>
+        <span class="page-info-title">Minimaalpaarid</span>
+        <span class="page-info-toggle">−</span>
+      </div>
+      <div class="page-info-body">
+        <p class="page-info-desc">Sõnapaarid mis erinevad täpselt ühe tähe poolest.</p>
+        <div class="page-info-stats">
+          <div class="stat-row"><span class="stat-label">Paarid</span><span class="stat-value" id="stat-total">–</span></div>
+          <div class="stat-row"><span class="stat-label">Sõnad</span><span class="stat-value" id="stat-words">–</span></div>
+        </div>
+      </div>
+    </div>
     <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; justify-content: space-between;">
       <div id="info" class="header-info" style="font-size: 12px; color: var(--text-muted);"></div>
       <input id="search" class="text-input" type="text" placeholder="Otsi…" style="width: 200px;" autocomplete="off" spellcheck="false">
@@ -61,6 +75,14 @@
 <script>
 const PAGE_SIZE = 60;
 let allPairs = [], currentPairs = [], currentPage = 1;
+
+// Accordion toggle
+document.querySelector(".page-info-header").addEventListener("click", function() {
+  const body = this.nextElementSibling;
+  const toggle = this.querySelector(".page-info-toggle");
+  body.style.display = body.style.display === "none" ? "block" : "none";
+  toggle.textContent = body.style.display === "none" ? "+" : "−";
+});
 
 function highlight(word, pos) {
   return word.slice(0, pos)
@@ -112,6 +134,19 @@ document.getElementById("search").addEventListener("input", function() {
 
 fetch("../data/minimalpairs.json").then(r=>r.json()).then(data => {
   allPairs = data.pairs;
+
+  // Arvuta statistikat
+  const totalPairs = allPairs.length;
+  const uniqueWords = new Set();
+  allPairs.forEach(p => {
+    uniqueWords.add(p.a);
+    uniqueWords.add(p.b);
+  });
+  const totalWords = uniqueWords.size;
+
+  document.getElementById("stat-total").textContent = totalPairs.toLocaleString("et-EE");
+  document.getElementById("stat-words").textContent = totalWords.toLocaleString("et-EE");
+
   document.getElementById("info").textContent = `${allPairs.length} paari`;
   renderList(allPairs);
 }).catch(() => { document.getElementById("list").textContent = "⚠ minimalpairs.json puudub — käivita prepare_data.py"; });

@@ -148,10 +148,20 @@
 </div>
 
 <div id="body">
-  <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; justify-content: space-between; padding: 16px 24px 0 24px;">
-    <div id="info" class="header-info" style="font-size: 12px; color: var(--text-muted);"></div>
-  </div>
   <div id="wrap">
+    <div class="page-info-accordion">
+      <div class="page-info-header">
+        <span class="page-info-icon">ℹ</span>
+        <span class="page-info-title">Sõnaredelid</span>
+        <span class="page-info-toggle">−</span>
+      </div>
+      <div class="page-info-body">
+        <p class="page-info-desc">Muuda sõnas üht tähte, et saada teine sõna.</p>
+        <div class="page-info-stats" id="page-stats">
+          <div class="stat-row"><span class="stat-label">Kokku</span><span class="stat-value" id="stat-total">–</span></div>
+        </div>
+      </div>
+    </div>
     <div id="inputs">
       <div class="input-group">
         <input id="w1" class="text-input" type="text" placeholder="Algussõna…"
@@ -196,14 +206,22 @@ fetch("data/ladder.json")
     graph = data.graph;
     words = data.words;
     longestData = data.longest;
-    document.getElementById("info").textContent =
-      `${data.stats.total_words} sõna · ${data.stats.edges} seost`;
+    document.getElementById("stat-total").textContent =
+      data.words.length.toLocaleString("et-EE");
     renderLongest();
   })
   .catch(() => {
     document.getElementById("msg").textContent =
       "⚠ ladder.json puudub — käivita prepare_data.py";
   });
+
+// Accordion toggle
+document.querySelector(".page-info-header").addEventListener("click", function() {
+  const body = this.nextElementSibling;
+  const toggle = this.querySelector(".page-info-toggle");
+  body.style.display = body.style.display === "none" ? "block" : "none";
+  toggle.textContent = body.style.display === "none" ? "+" : "−";
+});
 
 // ── Automaattäiendus ──────────────────────────────────
 

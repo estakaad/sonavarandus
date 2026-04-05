@@ -31,13 +31,43 @@
     <a href="../info.html" style="font-size: 12px; color: var(--text-dim); text-decoration: none; transition: color 0.2s;">Info</a>
   </div>
 </div>
-<div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; justify-content: space-between; padding: 16px 24px 0 24px;">
-  <div id="info" class="header-info" style="font-size: 12px; color: var(--text-muted);"></div>
-</div>
 <div id="body"></div>
 <script>
 fetch("../data/reduplications.json").then(r=>r.json()).then(data => {
   const body = document.getElementById("body");
+
+  // Arvuta statistikat
+  const totalWords = data.groups.reduce((sum, g) => sum + g.words.length, 0);
+  const minLen = Math.min(...data.groups.map(g => g.length));
+  const maxLen = Math.max(...data.groups.map(g => g.length));
+
+  // Loo accordion
+  const accordion = document.createElement("div");
+  accordion.className = "page-info-accordion";
+  accordion.innerHTML = `<div class="page-info-header">
+    <span class="page-info-icon">ℹ</span>
+    <span class="page-info-title">Reduplikatsioonid</span>
+    <span class="page-info-toggle">−</span>
+  </div>
+  <div class="page-info-body">
+    <p class="page-info-desc">Sõnad kus esimene pool kordab teist poolt.</p>
+    <div class="page-info-stats">
+      <div class="stat-row"><span class="stat-label">Kokku</span><span class="stat-value">${totalWords.toLocaleString("et-EE")}</span></div>
+      <div class="stat-row"><span class="stat-label">Pikkus</span><span class="stat-value">${minLen}–${maxLen} tähte</span></div>
+    </div>
+  </div>`;
+
+  // Accordion toggle
+  accordion.querySelector(".page-info-header").addEventListener("click", function() {
+    const bodyElem = this.nextElementSibling;
+    const toggle = this.querySelector(".page-info-toggle");
+    bodyElem.style.display = bodyElem.style.display === "none" ? "block" : "none";
+    toggle.textContent = bodyElem.style.display === "none" ? "+" : "−";
+  });
+
+  body.appendChild(accordion);
+
+  // Loo sõnade jaotused
   data.groups.forEach(g => {
     const sec = document.createElement("div");
     sec.className = "length-group";
@@ -59,7 +89,6 @@ fetch("../data/reduplications.json").then(r=>r.json()).then(data => {
     sec.appendChild(pills);
     body.appendChild(sec);
   });
-  document.getElementById("info").textContent = `${data.total} sõna`;
 }).catch(() => { document.getElementById("body").textContent = "⚠ reduplications.json puudub — käivita prepare_data.py"; });
 </script>
 

@@ -31,18 +31,42 @@
     <a href="../info.html" style="font-size: 12px; color: var(--text-dim); text-decoration: none; transition: color 0.2s;">Info</a>
   </div>
 </div>
-<div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; justify-content: space-between; padding: 16px 24px 0 24px;">
-  <div id="info" class="header-info" style="font-size: 12px; color: var(--text-muted);"></div>
-  <input id="search" class="text-input" type="text" placeholder="Otsi…" style="width: 200px;" autocomplete="off" spellcheck="false">
+<div id="body">
+  <div class="page-info-accordion">
+    <div class="page-info-header">
+      <span class="page-info-icon">ℹ</span>
+      <span class="page-info-title">Ainult täishäälikud</span>
+      <span class="page-info-toggle">−</span>
+    </div>
+    <div class="page-info-body">
+      <p class="page-info-desc">Sõnad mis koosnevad üksnes täishäälikutest.</p>
+      <div class="page-info-stats" id="page-stats">
+        <div class="stat-row"><span class="stat-label">Kokku</span><span class="stat-value" id="stat-total">–</span></div>
+        <div class="stat-row"><span class="stat-label">Pikkus</span><span class="stat-value" id="stat-range">–</span></div>
+      </div>
+    </div>
+  </div>
+  <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; justify-content: space-between;">
+    <div id="info" class="header-info" style="font-size: 12px; color: var(--text-muted);"></div>
+    <input id="search" class="text-input" type="text" placeholder="Otsi…" style="width: 200px;" autocomplete="off" spellcheck="false">
+  </div>
+  <div id="list"></div>
 </div>
-<div id="body"></div>
 <script src="../js/utils.js"></script>
 <script>
 let allGroups = [];
 
+// Accordion toggle
+document.querySelector(".page-info-header").addEventListener("click", function() {
+  const body = this.nextElementSibling;
+  const toggle = this.querySelector(".page-info-toggle");
+  body.style.display = body.style.display === "none" ? "block" : "none";
+  toggle.textContent = body.style.display === "none" ? "+" : "−";
+});
+
 function render(q) {
-  const body = document.getElementById("body");
-  body.innerHTML = "";
+  const list = document.getElementById("list");
+  list.innerHTML = "";
   let totalVisible = 0;
   allGroups.forEach(g => {
     const matched = q ? g.words.filter(w => w.includes(q)) : g.words;
@@ -59,7 +83,7 @@ function render(q) {
       pills.appendChild(pill);
     });
     sec.appendChild(pills);
-    body.appendChild(sec);
+    list.appendChild(sec);
   });
   document.getElementById("info").textContent =
     q ? `${totalVisible} vastet` : `${allGroups.reduce((s,g)=>s+g.words.length,0)} sõna`;
@@ -68,8 +92,18 @@ function render(q) {
 document.getElementById("search").addEventListener("input", function() { render(this.value.trim().toLowerCase()); });
 
 fetch("../data/vowelwords.json").then(r=>r.json()).then(data => {
-  allGroups = data.groups; render("");
-}).catch(() => { document.getElementById("body").textContent = "⚠ vowelwords.json puudub — käivita prepare_data.py"; });
+  allGroups = data.groups;
+
+  // Arvuta statistikat
+  const totalWords = allGroups.reduce((sum, g) => sum + g.words.length, 0);
+  const minLen = Math.min(...allGroups.map(g => g.length));
+  const maxLen = Math.max(...allGroups.map(g => g.length));
+
+  document.getElementById("stat-total").textContent = totalWords.toLocaleString("et-EE");
+  document.getElementById("stat-range").textContent = `${minLen}–${maxLen} tähte`;
+
+  render("");
+}).catch(() => { document.getElementById("list").textContent = "⚠ vowelwords.json puudub — käivita prepare_data.py"; });
 </script>
 
 

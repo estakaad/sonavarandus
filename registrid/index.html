@@ -7,7 +7,8 @@
 <style>
   body { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
   #body { display: flex; flex: 1; overflow: hidden; background: var(--bg); }
-  #matrix-wrap { flex: 1; overflow: auto; padding: 24px; }
+  #matrix-wrap { flex: 1; overflow: auto; padding: 24px; display: flex; flex-direction: column; }
+  #matrix-svg { flex: 1; }
   .cell { cursor: pointer; transition: opacity .1s; }
   .cell:hover { opacity: 0.75; }
   .cell.selected { stroke: var(--text); stroke-width: 2; }
@@ -35,10 +36,20 @@
 </div>
 
 <div id="body">
-  <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; justify-content: space-between; padding: 16px 24px 0 24px; position: absolute; top: 64px; left: 0; right: 0; z-index: 10; background: var(--bg);">
-    <div id="info" class="header-info" style="font-size: 12px; color: var(--text-muted);"></div>
-  </div>
   <div id="matrix-wrap">
+    <div class="page-info-accordion">
+      <div class="page-info-header">
+        <span class="page-info-icon">ℹ</span>
+        <span class="page-info-title">Registrimaatriks</span>
+        <span class="page-info-toggle">−</span>
+      </div>
+      <div class="page-info-body">
+        <p class="page-info-desc">Registrimärgendiga sõnad.</p>
+        <div class="page-info-stats" id="page-stats">
+          <div class="stat-row"><span class="stat-label">Kokku</span><span class="stat-value" id="stat-total">–</span></div>
+        </div>
+      </div>
+    </div>
     <svg id="matrix-svg"></svg>
   </div>
 
@@ -56,6 +67,14 @@
 
 <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 <script>
+// Accordion toggle
+document.querySelector(".page-info-header").addEventListener("click", function() {
+  const body = this.nextElementSibling;
+  const toggle = this.querySelector(".page-info-toggle");
+  body.style.display = body.style.display === "none" ? "block" : "none";
+  toggle.textContent = body.style.display === "none" ? "+" : "−";
+});
+
 fetch("../data/registers.json")
   .then(r => r.json())
   .then(draw)
@@ -107,8 +126,9 @@ function draw(data) {
   const codes  = regs.map(r => r.code);
   const n      = codes.length;
 
-  document.getElementById("info").textContent =
-    `${n} registrit · ${regs.reduce((s,r) => s+r.total, 0)} lekseemi`;
+  // Calculate total entries (unique lexemes)
+  const totalEntries = regs.reduce((s, r) => s + r.total, 0);
+  document.getElementById("stat-total").textContent = totalEntries.toLocaleString("et-EE");
 
   // ── mõõtmed ──────────────────────────────────────────────
   const CELL = 36;

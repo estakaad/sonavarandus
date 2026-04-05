@@ -42,6 +42,32 @@
   .tile-ch  { font-size: 18px; font-weight: 600; color: var(--text); line-height: 1; }
   .tile-pts { font-size: 10px; color: var(--accent); margin-top: 3px; font-weight: 600; }
 
+  /* ── info accordion ── */
+  .page-info-accordion {
+    margin-bottom: 24px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .page-info-header {
+    display: flex; align-items: center; gap: 10px; padding: 12px 16px;
+    cursor: pointer; user-select: none; transition: background .15s;
+  }
+  .page-info-header:hover { background: var(--surface-alt); }
+  .page-info-icon { font-size: 14px; color: var(--accent); font-weight: 700; }
+  .page-info-title { font-size: 13px; font-weight: 600; color: var(--text); flex: 1; }
+  .page-info-toggle { font-size: 18px; color: var(--text-muted); font-weight: 300; }
+
+  .page-info-body {
+    padding: 0 16px 12px; border-top: 1px solid var(--border);
+    display: none;
+  }
+  .page-info-body.open { display: block; }
+  .page-info-desc { font-size: 13px; color: var(--text-sec); line-height: 1.5; margin-bottom: 12px; }
+  .page-info-stats { display: flex; flex-wrap: wrap; gap: 20px; }
+  .stat-row { display: flex; gap: 8px; }
+  .stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat-value { font-size: 12px; color: var(--text); font-weight: 600; }
+
   /* ── reeglid ── */
   #rules-toggle {
     display: flex; align-items: center; gap: 6px;
@@ -107,6 +133,28 @@
       <div id="p-letters" class="letter-row"></div>
 
       <div class="sep"></div>
+
+      <div class="page-info-accordion">
+        <div class="page-info-header" role="button" tabindex="0"
+             aria-expanded="true" aria-controls="info-body">
+          <span class="page-info-icon">ℹ</span>
+          <span class="page-info-title">Scrabble'i punktid</span>
+          <span class="page-info-toggle">−</span>
+        </div>
+        <div class="page-info-body open" id="info-body" role="region">
+          <div class="page-info-desc">Millised eestikeelsed sõnad toovad Scrabble'is kõige rohkem punkte?</div>
+          <div class="page-info-stats">
+            <div class="stat-row">
+              <span class="stat-label">Kokku</span>
+              <span class="stat-value" id="stat-total">—</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Parim</span>
+              <span class="stat-value" id="stat-best">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div id="rules-toggle" role="button" tabindex="0"
            aria-expanded="false" aria-controls="rules-body">
@@ -216,6 +264,19 @@ function buildScoreTable(scores) {
   });
 }
 
+// ── info accordion ────────────────────────────────────────────
+const infoHeader = document.querySelector(".page-info-header");
+const infoBody = document.getElementById("info-body");
+const infoToggle = document.querySelector(".page-info-toggle");
+infoHeader.addEventListener("click", () => {
+  const open = infoBody.classList.toggle("open");
+  infoToggle.textContent = open ? "−" : "+";
+  infoHeader.setAttribute("aria-expanded", open);
+});
+infoHeader.addEventListener("keydown", e => {
+  if (e.key === "Enter" || e.key === " ") { e.preventDefault(); infoHeader.click(); }
+});
+
 // ── tähevaartuste accordion ────────────────────────────────────
 const toggle = document.getElementById("rules-toggle");
 const body   = document.getElementById("rules-body");
@@ -251,6 +312,16 @@ fetch("../data/scrabble.json")
     window.tileCounts = data.tile_counts || {};
     document.getElementById("info").textContent =
       `top ${allWords.length} / ${data.total_valid} sõnast`;
+
+    // Arvuta statistika
+    const totalValid = data.total_valid;
+    const bestWord = allWords.length > 0 ? allWords[0] : null;
+
+    document.getElementById("stat-total").textContent = totalValid.toLocaleString("et-EE");
+    if (bestWord) {
+      document.getElementById("stat-best").textContent = `${bestWord.word} (${bestWord.score} p)`;
+    }
+
     buildScoreTable(scoreMap);
     renderList(getSorted(allWords));
     if (allWords.length) openPanel(allWords[0], null);

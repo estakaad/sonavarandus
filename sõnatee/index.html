@@ -108,6 +108,20 @@
 </div>
 
 <div id="wrap">
+  <div class="page-info-accordion">
+    <div class="page-info-header">
+      <span class="page-info-icon">ℹ</span>
+      <span class="page-info-title">Tähenduste kiirtee</span>
+      <span class="page-info-toggle">−</span>
+    </div>
+    <div class="page-info-body">
+      <p class="page-info-desc">Leia tähendustevahelisi seoseid pidi liikudes lühim tee ühest sõnast teiseni.</p>
+      <div class="page-info-stats" id="page-stats">
+        <div class="stat-row"><span class="stat-label">Kokku</span><span class="stat-value" id="stat-total">–</span></div>
+      </div>
+    </div>
+  </div>
+
   <div id="inputs">
     <div class="input-group">
       <span class="input-label">Algussõna</span>
@@ -137,11 +151,23 @@
 <script>
 let adjacency = {}, allWords = [];
 
+// Accordion toggle
+document.querySelector(".page-info-header").addEventListener("click", function() {
+  const body = this.nextElementSibling;
+  const toggle = this.querySelector(".page-info-toggle");
+  body.style.display = body.style.display === "none" ? "block" : "none";
+  toggle.textContent = body.style.display === "none" ? "+" : "−";
+});
+
 fetch("../data/graph.json")
   .then(r => r.json())
   .then(data => {
     adjacency = data.adjacency;
     allWords  = Object.keys(adjacency).sort();
+
+    // Arvuta statistikat
+    const totalWords = allWords.length;
+    document.getElementById("stat-total").textContent = totalWords.toLocaleString("et-EE");
   });
 
 function findPath(start, end) {

@@ -54,6 +54,20 @@
 
 <div id="body">
   <div id="list-wrap">
+    <div class="page-info-accordion">
+      <div class="page-info-header">
+        <span class="page-info-icon">ℹ</span>
+        <span class="page-info-title">Anagrammipaarid</span>
+        <span class="page-info-toggle">−</span>
+      </div>
+      <div class="page-info-body">
+        <p class="page-info-desc">Samad tähed, eri sõnad.</p>
+        <div class="page-info-stats" id="page-stats">
+          <div class="stat-row"><span class="stat-label">Paarid</span><span class="stat-value" id="stat-total">–</span></div>
+          <div class="stat-row"><span class="stat-label">Sõnad</span><span class="stat-value" id="stat-words">–</span></div>
+        </div>
+      </div>
+    </div>
     <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; justify-content: space-between;">
       <div id="info" class="header-info" style="font-size: 12px; color: var(--text-muted);"></div>
       <input id="search" class="text-input" type="text" placeholder="Otsi…" style="width: 200px;" autocomplete="off" spellcheck="false">
@@ -65,6 +79,14 @@
 <script src="../js/utils.js"></script>
 <script>
 let allGroups = [];
+
+// Accordion toggle
+document.querySelector(".page-info-header").addEventListener("click", function() {
+  const body = this.nextElementSibling;
+  const toggle = this.querySelector(".page-info-toggle");
+  body.style.display = body.style.display === "none" ? "block" : "none";
+  toggle.textContent = body.style.display === "none" ? "+" : "−";
+});
 
 // Rühmita pikkuse järgi: { length -> [group, ...] }
 function byLength(groups) {
@@ -132,6 +154,13 @@ fetch("../data/anagrams.json")
   .then(r => r.json())
   .then(data => {
     allGroups = data.groups;
+
+    // Arvuta statistikat
+    const totalWords = allGroups.reduce((sum, g) => sum + g.words.length, 0);
+
+    document.getElementById("stat-total").textContent = allGroups.length.toLocaleString("et-EE");
+    document.getElementById("stat-words").textContent = totalWords.toLocaleString("et-EE");
+
     render("");
   })
   .catch(() => {

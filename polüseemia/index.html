@@ -57,6 +57,27 @@
 
 <div id="body">
   <div id="list-wrap">
+    <div class="page-info-accordion">
+      <div class="page-info-header" id="accordion-header" style="cursor: pointer;">
+        <div class="page-info-icon">ℹ</div>
+        <div class="page-info-title">Polüseemia</div>
+        <div class="page-info-toggle" id="accordion-toggle">−</div>
+      </div>
+      <div class="page-info-body" id="accordion-body" style="display: block;">
+        <div class="page-info-desc">Sõnad reastatud tähenduste arvu järgi.</div>
+        <div class="page-info-stats">
+          <div class="stat-row">
+            <div class="stat-label">Kokku</div>
+            <div class="stat-value" id="stat-total">—</div>
+          </div>
+          <div class="stat-row">
+            <div class="stat-label">Keskmine</div>
+            <div class="stat-value" id="stat-avg">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; justify-content: space-between;">
       <div id="count-info" style="font-size: 12px; color: var(--text-muted);"></div>
       <input id="search" class="text-input" type="text" placeholder="Otsi sõna…" style="width: 200px;" autocomplete="off" spellcheck="false">
@@ -81,6 +102,15 @@
 <script>
 const PAGE_SIZE = 50;
 let allWords = [], currentWords = [], maxCount = 1, currentPage = 1, selected = null;
+
+// Accordion toggle
+document.getElementById("accordion-header").addEventListener("click", function() {
+  const body = document.getElementById("accordion-body");
+  const toggle = document.getElementById("accordion-toggle");
+  const isOpen = body.style.display !== "none";
+  body.style.display = isOpen ? "none" : "block";
+  toggle.textContent = isOpen ? "+" : "−";
+});
 
 function buildRow(d) {
   const row = document.createElement("div");
@@ -150,6 +180,16 @@ fetch("../data/polysemy.json")
   .then(data => {
     allWords = data.words.filter(w => w.count >= 2);
     maxCount = allWords[0]?.count || 1;
+
+    // Calculate statistics
+    const totalWords = data.words.length;
+    const totalMeanings = data.words.reduce((sum, w) => sum + w.count, 0);
+    const avgMeanings = (totalMeanings / totalWords).toFixed(2);
+
+    // Display statistics in accordion
+    document.getElementById("stat-total").textContent = totalWords;
+    document.getElementById("stat-avg").textContent = avgMeanings;
+
     renderList(allWords);
     document.getElementById("count-info").textContent = `${allWords.length} sõna`;
   })
