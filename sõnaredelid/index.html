@@ -8,6 +8,21 @@
 <style>
   body { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
   #body { display: flex; flex: 1; overflow: hidden; flex-direction: column; background: var(--bg); }
+
+  .page-info-accordion {
+    flex-shrink: 0;
+    margin: 0; padding: 12px 24px;
+    border: none; border-radius: 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .page-info-accordion .page-info-body {
+    display: none;
+    padding: 12px 0;
+  }
+  .page-info-accordion .page-info-body.open {
+    display: block;
+  }
+
   #wrap { flex: 1; overflow-y: auto; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; }
 
   /* ── Sisendid ─────────────────────────────────────────── */
@@ -148,20 +163,21 @@
 </div>
 
 <div id="body">
-  <div id="wrap">
-    <div class="page-info-accordion">
-      <div class="page-info-header">
-        <span class="page-info-icon">ℹ</span>
-        <span class="page-info-title">Sõnaredelid</span>
-        <span class="page-info-toggle">−</span>
-      </div>
-      <div class="page-info-body">
-        <p class="page-info-desc">Muuda sõnas üht tähte, et saada teine sõna.</p>
-        <div class="page-info-stats" id="page-stats">
-          <div class="stat-row"><span class="stat-label">Kokku</span><span class="stat-value" id="stat-total">–</span></div>
-        </div>
+  <div class="page-info-accordion">
+    <div class="page-info-header">
+      <span class="page-info-icon">ℹ</span>
+      <span class="page-info-title">Sõnaredelid</span>
+      <span class="page-info-toggle">−</span>
+    </div>
+    <div class="page-info-body open">
+      <p class="page-info-desc">Muuda sõnas üht tähte, et saada teine sõna.</p>
+      <div class="page-info-stats" id="page-stats">
+        <div class="stat-row"><span class="stat-label">Kokku</span><span class="stat-value" id="stat-total">–</span></div>
       </div>
     </div>
+  </div>
+
+  <div id="wrap">
     <div id="inputs">
       <div class="input-group">
         <input id="w1" class="text-input" type="text" placeholder="Algussõna…"
@@ -219,8 +235,8 @@ fetch("data/ladder.json")
 document.querySelector(".page-info-header").addEventListener("click", function() {
   const body = this.nextElementSibling;
   const toggle = this.querySelector(".page-info-toggle");
-  body.style.display = body.style.display === "none" ? "block" : "none";
-  toggle.textContent = body.style.display === "none" ? "+" : "−";
+  const isOpen = body.classList.toggle("open");
+  toggle.textContent = isOpen ? "−" : "+";
 });
 
 // ── Automaattäiendus ──────────────────────────────────
