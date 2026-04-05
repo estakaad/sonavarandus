@@ -490,8 +490,6 @@ a.ch-word:hover {
 
 /* ── Lehekülje info accordion ──────────────────────────────── */
 .page-info-accordion {
-  margin-left: -24px; margin-right: -24px;
-  width: calc(100% + 48px);
   margin-bottom: 24px; background: var(--surface);
   border: 1px solid var(--border); border-radius: var(--radius);
   overflow: hidden;
