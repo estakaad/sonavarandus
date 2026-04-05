@@ -445,8 +445,7 @@ a.ch-word:hover {
   transition: opacity .15s, transform .15s;
   z-index: 200;
 }
-.top-nav__item:hover .top-nav__dropdown,
-.top-nav__item:focus-within .top-nav__dropdown {
+.top-nav__item:hover .top-nav__dropdown {
   opacity: 1;
   pointer-events: auto;
   transform: none;
