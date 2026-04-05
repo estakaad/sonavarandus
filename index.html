@@ -125,35 +125,8 @@ function initWordBackground() {
 }
 
 function renderHomepage() {
-  const main = document.getElementById('main');
-  main.innerHTML = '';
-
-  NAV_CATEGORIES.forEach(cat => {
-    const section = document.createElement('div');
-    section.className = 'category-section';
-
-    const title = document.createElement('div');
-    title.className = 'category-title';
-    title.textContent = cat.name;
-    section.appendChild(title);
-
-    const grid = document.createElement('div');
-    grid.className = 'card-grid';
-    cat.cards.forEach(card => {
-      const cardEl = document.createElement('a');
-      cardEl.className = 'card';
-      // At root level, strip the '../' prefix from hrefs
-      cardEl.href = card.href.replace('../', '');
-      cardEl.innerHTML = `
-        <span class="card-title">${card.name}</span>
-        <div class="card-desc">${card.desc || ''}</div>
-      `;
-      grid.appendChild(cardEl);
-    });
-    section.appendChild(grid);
-
-    main.appendChild(section);
-  });
+  // Homepage is now just the pulsing word background
+  // No content cards displayed
 }
 
 initWordBackground();
