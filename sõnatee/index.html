@@ -8,7 +8,7 @@
   body { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
   #wrap {
-    margin-left: 240px; flex: 1; display: flex; flex-direction: column;
+    flex: 1; display: flex; flex-direction: column;
     align-items: center; justify-content: center;
     gap: 36px; padding: 20px;
     background: var(--bg);
@@ -97,17 +97,14 @@
 </head>
 <body>
 
-<div id="nav-sidebar"></div>
-
-
 <a class="skip-link" href="#wrap">Hüppa põhisisu juurde</a>
 
 <div class="app-header">
-  <nav class="breadcrumb" aria-label="Navigatsioon">
-    <a class="breadcrumb-home" href="../index.html">Sõnavarandus</a>
-    <span class="breadcrumb-sep" aria-hidden="true">›</span>
-    <span class="breadcrumb-current">Tähenduste kiirtee</span>
-  </nav>
+  <a class="nav-brand" href="../index.html">Sõnavarandus</a>
+  <div id="top-nav-mount"></div>
+  <div class="header-end">
+    <span class="page-title">Tähenduste kiirtee</span>
+  </div>
 </div>
 
 <div id="wrap">

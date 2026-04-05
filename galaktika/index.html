@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="../css/main.css">
 <style>
   body { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-  #body { margin-left: 240px; display: flex; flex: 1; overflow: hidden; background: var(--bg); position: relative; }
+  #body { display: flex; flex: 1; overflow: hidden; background: var(--bg); position: relative; }
 
   #svg { width: 100%; height: 100%; display: block; }
 
@@ -64,7 +64,7 @@
   #info {
     position: fixed;
     bottom: 24px;
-    left: 264px;
+    left: 24px;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
@@ -120,16 +120,14 @@
 </head>
 <body>
 
-<div id="nav-sidebar"></div>
-
 <a class="skip-link" href="#body">Hüppa põhisisu juurde</a>
 
 <div class="app-header">
-  <nav class="breadcrumb" aria-label="Navigatsioon">
-    <a class="breadcrumb-home" href="../index.html">Sõnavarandus</a>
-    <span class="breadcrumb-sep" aria-hidden="true">›</span>
-    <span class="breadcrumb-current">Sõnavõrgustik</span>
-  </nav>
+  <a class="nav-brand" href="../index.html">Sõnavarandus</a>
+  <div id="top-nav-mount"></div>
+  <div class="header-end">
+    <span class="page-title">Sõnavõrgustik</span>
+  </div>
 </div>
 
 <div id="body">
@@ -184,7 +182,7 @@ function rc(type) { return REL_COLORS[type] || DEFAULT_COLOR; }
 
 // --- setup ---
 const svgEl = document.getElementById("svg");
-const W = window.innerWidth - 240, H = window.innerHeight - 50;
+const W = window.innerWidth, H = window.innerHeight - 52;
 const svg = d3.select(svgEl).attr("viewBox", [0, 0, W, H]);
 
 const defs = svg.append("defs");

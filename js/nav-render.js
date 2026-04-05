@@ -1,46 +1,45 @@
-// Sidebar menüü rendering
+// Top navigation menüü rendering
 (function() {
-  function renderNavSidebar() {
-    const navContainer = document.getElementById('nav-sidebar');
-    if (!navContainer || typeof NAV_CATEGORIES === 'undefined') {
-      setTimeout(renderNavSidebar, 100);
+  function renderTopNav() {
+    const mount = document.getElementById('top-nav-mount');
+    if (!mount || typeof NAV_CATEGORIES === 'undefined') {
+      setTimeout(renderTopNav, 100);
       return;
     }
 
-    const sidebar = document.createElement('div');
-    sidebar.className = 'nav-sidebar';
+    // Root detection: strip '../' if at root level
+    const depth = window.location.pathname.split('/').filter(Boolean).length;
+    const isRoot = depth <= 1;
 
-    // Categories
-    NAV_CATEGORIES.forEach((cat, catIdx) => {
-      const catDiv = document.createElement('div');
-      catDiv.className = 'nav-category';
+    const nav = document.createElement('nav');
+    nav.className = 'top-nav';
+    nav.setAttribute('aria-label', 'Peamenüü');
 
-      const catHeader = document.createElement('div');
-      catHeader.className = 'nav-category-header';
-      catHeader.innerHTML = `${cat.name}`;
-      catHeader.addEventListener('click', () => {
-        const items = catDiv.querySelector('.nav-items');
-        items.classList.toggle('open');
-      });
-      catDiv.appendChild(catHeader);
+    NAV_CATEGORIES.forEach(cat => {
+      const item = document.createElement('div');
+      item.className = 'top-nav__item';
 
-      const itemsDiv = document.createElement('div');
-      itemsDiv.className = 'nav-items';
+      const trigger = document.createElement('button');
+      trigger.className = 'top-nav__trigger';
+      trigger.textContent = cat.name;
+      trigger.setAttribute('aria-haspopup', 'true');
+      item.appendChild(trigger);
+
+      const dropdown = document.createElement('div');
+      dropdown.className = 'top-nav__dropdown';
       cat.cards.forEach(card => {
-        const item = document.createElement('a');
-        item.className = 'nav-item';
-        item.href = card.href;
-        item.textContent = card.name;
-        itemsDiv.appendChild(item);
+        const a = document.createElement('a');
+        a.className = 'top-nav__link';
+        a.href = isRoot ? card.href.replace('../', '') : card.href;
+        a.textContent = card.name;
+        dropdown.appendChild(a);
       });
-      catDiv.appendChild(itemsDiv);
-
-      sidebar.appendChild(catDiv);
+      item.appendChild(dropdown);
+      nav.appendChild(item);
     });
 
-    navContainer.appendChild(sidebar);
+    mount.appendChild(nav);
   }
 
-  // Try immediately
-  setTimeout(renderNavSidebar, 0);
+  setTimeout(renderTopNav, 0);
 })();

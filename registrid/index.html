@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="../css/main.css">
 <style>
   body { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-  #body { margin-left: 240px; display: flex; flex: 1; overflow: hidden; background: var(--bg); }
+  #body { display: flex; flex: 1; overflow: hidden; background: var(--bg); }
   #matrix-wrap { flex: 1; overflow: auto; padding: 24px; }
   .cell { cursor: pointer; transition: opacity .1s; }
   .cell:hover { opacity: 0.75; }
@@ -26,16 +26,11 @@
 </head>
 <body>
 
-<div id="nav-sidebar"></div>
-
-
 <div class="app-header">
-  <nav class="breadcrumb" aria-label="Navigatsioon">
-    <a class="breadcrumb-home" href="../index.html">Sõnavarandus</a>
-    <span class="breadcrumb-sep" aria-hidden="true">›</span>
-    <span class="breadcrumb-current">Registrimaatriks</span>
-  </nav>
+  <a class="nav-brand" href="../index.html">Sõnavarandus</a>
+  <div id="top-nav-mount"></div>
   <div class="header-end">
+    <span class="page-title">Registrimaatriks</span>
     <span id="info" class="header-info"></span>
   </div>
 </div>
