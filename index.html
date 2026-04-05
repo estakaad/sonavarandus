@@ -46,25 +46,19 @@
   #word-bg {
     position: fixed; top: 52px; left: 0; right: 0; bottom: 0;
     z-index: 0; pointer-events: none; overflow: hidden;
-    background: #0a0e27;
+    background: var(--bg);
   }
 
   .word-bg-item {
     position: absolute; white-space: nowrap;
-    font-weight: 700; letter-spacing: 2px;
-    text-transform: uppercase;
+    font-weight: 600; letter-spacing: 1px;
     animation: fall linear infinite;
-    filter: drop-shadow(0 0 8px currentColor);
+    opacity: 0.25;
   }
 
   @keyframes fall {
-    from { transform: translateY(-50px); opacity: 1; }
-    to { transform: translateY(100vh); opacity: 0.3; }
-  }
-
-  @keyframes neon-flicker {
-    0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
-    20%, 24%, 55% { opacity: 0.5; }
+    from { transform: translateY(-50px); opacity: 0.25; }
+    to { transform: translateY(100vh); opacity: 0.1; }
   }
 </style>
 </head>
@@ -105,14 +99,13 @@ function initWordBackground() {
     'puugipask', 'maksejõud', 'sigmasool', 'fonatsioon', 'säuk'
   ];
 
-  // Neon colors
-  const neonColors = [
-    '#00ff00',  // lime
-    '#00ffff',  // cyan
-    '#ff00ff',  // magenta
-    '#ff0080',  // hot pink
-    '#00ff80',  // spring green
-    '#0080ff'   // electric blue
+  // Color palette (using CSS variables)
+  const colors = [
+    'var(--text-dim)',
+    'var(--text-muted)',
+    'var(--accent)',
+    '#1e40af',
+    '#0f766e'
   ];
 
   let mouseX = window.innerWidth / 2;
@@ -131,7 +124,7 @@ function initWordBackground() {
     const duration = 8 + Math.random() * 6; // 8-14 seconds fall
     const delay = Math.random() * 3; // stagger starts
     const size = 16 + Math.random() * 20; // 16-36px
-    const color = neonColors[Math.floor(Math.random() * neonColors.length)];
+    const color = colors[Math.floor(Math.random() * colors.length)];
 
     const div = document.createElement('div');
     div.className = 'word-bg-item';
@@ -139,7 +132,7 @@ function initWordBackground() {
     div.style.fontSize = size + 'px';
     div.style.color = color;
     div.style.left = startX + 'px';
-    div.style.animation = `fall ${duration}s linear ${delay}s infinite, neon-flicker ${0.15 + Math.random() * 0.15}s infinite`;
+    div.style.animation = `fall ${duration}s linear ${delay}s infinite`;
 
     // Magnetic effect on mouse move
     const updatePosition = () => {
