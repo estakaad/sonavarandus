@@ -14,8 +14,10 @@
     border-bottom: 1px solid var(--border);
   }
   .page-info-accordion .page-info-body {
-    display: block !important;
     padding: 12px 0;
+  }
+  .page-info-accordion .page-info-body:not(.open) {
+    display: none;
   }
 
   #wrap {
@@ -125,7 +127,7 @@
     <span class="page-info-title">Tähenduste kiirtee</span>
     <span class="page-info-toggle">−</span>
   </div>
-  <div class="page-info-body">
+  <div class="page-info-body open">
     <p class="page-info-desc">Leia tähendustevahelisi seoseid pidi liikudes lühim tee ühest sõnast teiseni.</p>
     <div class="page-info-stats" id="page-stats">
       <div class="stat-row"><span class="stat-label">Kokku</span><span class="stat-value" id="stat-total">–</span></div>
@@ -168,8 +170,8 @@ let adjacency = {}, allWords = [];
 document.querySelector(".page-info-header").addEventListener("click", function() {
   const body = this.nextElementSibling;
   const toggle = this.querySelector(".page-info-toggle");
-  body.style.display = body.style.display === "none" ? "block" : "none";
-  toggle.textContent = body.style.display === "none" ? "+" : "−";
+  const isOpen = body.classList.toggle("open");
+  toggle.textContent = isOpen ? "−" : "+";
 });
 
 fetch("../data/graph.json")
