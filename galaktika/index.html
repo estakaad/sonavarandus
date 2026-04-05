@@ -415,6 +415,12 @@ fetch("../data/graph.json")
     adjacency = data.adjacency;
     allWords = Object.keys(adjacency).sort();
     console.log(`Laaditud: ${allWords.length} sõna`);
+    // Vaikimisi kuvamine
+    if (adjacency["tragi"]) {
+      searchEl.value = "tragi";
+      wrapEl.classList.add("top");
+      expandWord("tragi", W / 2, H / 2);
+    }
   });
 </script>
 
