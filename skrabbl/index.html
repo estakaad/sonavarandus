@@ -113,6 +113,26 @@
 
 <div id="body">
   <div id="list-wrap">
+    <div class="page-info-accordion">
+      <div class="page-info-header">
+        <span class="page-info-icon">ℹ</span>
+        <span class="page-info-title">Scrabble'i punktid</span>
+        <span class="page-info-toggle">−</span>
+      </div>
+      <div class="page-info-body open" id="info-body">
+        <p class="page-info-desc">Millised eestikeelsed sõnad toovad Scrabble'is kõige rohkem punkte?</p>
+        <div class="page-info-stats">
+          <div class="stat-row">
+            <span class="stat-label">Kokku</span>
+            <span class="stat-value" id="stat-total">—</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Parim</span>
+            <span class="stat-value" id="stat-best">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
     <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; justify-content: space-between;">
       <div id="info" class="header-info" style="font-size: 12px; color: var(--text-muted);"></div>
       <input id="search" class="text-input" type="text" placeholder="Otsi sõna…"
@@ -133,28 +153,6 @@
       <div id="p-letters" class="letter-row"></div>
 
       <div class="sep"></div>
-
-      <div class="page-info-accordion">
-        <div class="page-info-header" role="button" tabindex="0"
-             aria-expanded="true" aria-controls="info-body">
-          <span class="page-info-icon">ℹ</span>
-          <span class="page-info-title">Scrabble'i punktid</span>
-          <span class="page-info-toggle">−</span>
-        </div>
-        <div class="page-info-body open" id="info-body" role="region">
-          <div class="page-info-desc">Millised eestikeelsed sõnad toovad Scrabble'is kõige rohkem punkte?</div>
-          <div class="page-info-stats">
-            <div class="stat-row">
-              <span class="stat-label">Kokku</span>
-              <span class="stat-value" id="stat-total">—</span>
-            </div>
-            <div class="stat-row">
-              <span class="stat-label">Parim</span>
-              <span class="stat-value" id="stat-best">—</span>
-            </div>
-          </div>
-        </div>
-      </div>
 
       <div id="rules-toggle" role="button" tabindex="0"
            aria-expanded="false" aria-controls="rules-body">
