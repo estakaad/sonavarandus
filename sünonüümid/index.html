@@ -49,82 +49,6 @@
   }
   #pg-info { font-size: 12px; color: var(--text-muted); min-width: 60px; text-align: center; }
 
-  .page-info-accordion {
-    position: relative;
-    background: var(--surface-alt);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    margin-bottom: 16px;
-    overflow: hidden;
-  }
-  .page-info-accordion.open .page-info-body {
-    display: block;
-  }
-  .page-info-accordion:not(.open) .page-info-body {
-    display: none;
-  }
-  .page-info-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 16px;
-    cursor: pointer;
-    user-select: none;
-    transition: background 0.15s;
-  }
-  .page-info-header:hover {
-    background: var(--border);
-  }
-  .page-info-icon {
-    font-size: 14px;
-    color: var(--accent);
-    font-weight: 700;
-  }
-  .page-info-title {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text);
-    flex: 1;
-  }
-  .page-info-toggle {
-    font-size: 18px;
-    color: var(--text-muted);
-    font-weight: 300;
-    transition: transform 0.2s;
-  }
-  .page-info-accordion.open .page-info-toggle {
-    transform: rotate(180deg);
-  }
-  .page-info-body {
-    padding: 12px 16px;
-    border-top: 1px solid var(--border);
-  }
-  .page-info-desc {
-    font-size: 13px;
-    color: var(--text-sec);
-    line-height: 1.5;
-    margin-bottom: 12px;
-  }
-  .page-info-stats {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-  }
-  .stat-row {
-    display: flex;
-    gap: 8px;
-  }
-  .stat-label {
-    font-size: 11px;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  .stat-value {
-    font-size: 12px;
-    color: var(--text);
-    font-weight: 600;
-  }
 </style>
 </head>
 <body>
@@ -141,18 +65,13 @@
 
 <div id="body">
   <div id="list-wrap">
-    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; justify-content: space-between;">
-      <div id="info" class="header-info" style="font-size: 12px; color: var(--text-muted);"></div>
-      <input id="search" class="text-input" type="text" placeholder="Otsi…" style="width: 200px;" autocomplete="off" spellcheck="false">
-    </div>
-
     <div id="info-accordion" class="page-info-accordion open">
       <div class="page-info-header">
         <span class="page-info-icon">ℹ</span>
         <span class="page-info-title">Sünonüümitihedus</span>
-        <span class="page-info-toggle">▼</span>
+        <span class="page-info-toggle">−</span>
       </div>
-      <div class="page-info-body">
+      <div class="page-info-body open">
         <div class="page-info-desc">Sünonüümid on eri sõnad, mis on sama tähendusega.</div>
         <div class="page-info-stats">
           <div class="stat-row">
@@ -161,6 +80,11 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; justify-content: space-between;">
+      <div id="info" class="header-info" style="font-size: 12px; color: var(--text-muted);"></div>
+      <input id="search" class="text-input" type="text" placeholder="Otsi…" style="width: 200px;" autocomplete="off" spellcheck="false">
     </div>
 
     <div id="list"></div>
@@ -257,10 +181,11 @@ document.getElementById("search").addEventListener("input", function() {
 });
 
 // Accordion toggle
-document.getElementById("info-accordion").addEventListener("click", function(e) {
-  if (e.target === this || e.target.closest(".page-info-header")) {
-    this.classList.toggle("open");
-  }
+document.querySelector(".page-info-header").addEventListener("click", function() {
+  const body = this.nextElementSibling;
+  const toggle = this.querySelector(".page-info-toggle");
+  const isOpen = body.classList.toggle("open");
+  toggle.textContent = isOpen ? "−" : "+";
 });
 
 fetch("../data/synonyms.json")

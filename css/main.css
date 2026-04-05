@@ -505,6 +505,10 @@ a.ch-word:hover {
 
 .page-info-body {
   padding: 0 16px 12px; border-top: 1px solid var(--border);
+  display: none;
+}
+.page-info-body.open {
+  display: block;
 }
 .page-info-desc { font-size: 13px; color: var(--text-sec); line-height: 1.5; margin-bottom: 12px; }
 .page-info-stats { display: flex; flex-wrap: wrap; gap: 20px; }
