@@ -116,14 +116,16 @@ function initWordBackground() {
     mouseY = e.clientY;
   });
 
-  const itemCount = 30;
+  const itemCount = 50; // More words to fill screen
+  const windowHeight = window.innerHeight - 52;
 
   for (let i = 0; i < itemCount; i++) {
     const word = words[Math.floor(Math.random() * words.length)];
     const startX = Math.random() * window.innerWidth;
-    const duration = 8 + Math.random() * 6; // 8-14 seconds fall
-    const delay = Math.random() * 3; // stagger starts
-    const size = 16 + Math.random() * 20; // 16-36px
+    const startY = Math.random() * windowHeight; // Random vertical position on load
+    const duration = 10 + Math.random() * 8; // 10-18 seconds fall
+    const delay = -Math.random() * duration; // Negative delay = already mid-animation
+    const size = 14 + Math.random() * 22; // 14-36px
     const color = colors[Math.floor(Math.random() * colors.length)];
 
     const div = document.createElement('div');
@@ -132,6 +134,7 @@ function initWordBackground() {
     div.style.fontSize = size + 'px';
     div.style.color = color;
     div.style.left = startX + 'px';
+    div.style.top = startY + 'px';
     div.style.animation = `fall ${duration}s linear ${delay}s infinite`;
 
     // Magnetic effect on mouse move
