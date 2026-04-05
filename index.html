@@ -45,22 +45,17 @@
 
   #word-bg {
     position: fixed; top: 52px; left: 0; right: 0; bottom: 0;
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    grid-auto-rows: 80px; gap: 20px;
-    padding: 40px; z-index: 0;
-    pointer-events: none; overflow: hidden;
+    z-index: 0; pointer-events: none; overflow: hidden;
   }
 
   .word-bg-item {
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px; font-weight: 600; color: var(--text-muted);
-    opacity: 0.35; white-space: nowrap;
-    animation: pulse-word 3s ease-in-out infinite;
+    position: absolute; white-space: nowrap;
+    font-weight: 500;
   }
 
-  @keyframes pulse-word {
-    0%, 100% { opacity: 0.25; }
-    50% { opacity: 0.45; }
+  @keyframes drift-left {
+    from { transform: translateX(calc(100vw + 200px)); }
+    to { transform: translateX(-200px); }
   }
 </style>
 </head>
@@ -88,40 +83,57 @@
 <script src="js/nav-config.js"></script>
 
 <script>
-// Pulsing word background
+// Animated word cloud background
 function initWordBackground() {
   const wordBg = document.getElementById('word-bg');
-  const words = [];
 
-  // Collect all words from nav categories
-  NAV_CATEGORIES.forEach(cat => {
-    words.push(cat.name);
-    cat.cards.forEach(card => words.push(card.name));
-  });
-
-  // Additional words to fill up the background
-  const additionalWords = [
-    'sõna', 'täht', 'tähendus', 'keeleteadus', 'lingvistika', 'sõnavara',
-    'morfoloogia', 'süntaks', 'fonoloogia', 'semantika', 'pragmaatika',
-    'sõnamoodustus', 'liitsõna', 'tuletis', 'lühend', 'murre'
+  // Sample of diverse Estonian words
+  const words = [
+    'andetu', 'hulljulgus', 'disahhariid', 'peidutama', 'sõjafotograaf',
+    'selgejooneline', 'õhtukell', 'tänapäevane', 'lehitsema', 'bassklarnet',
+    'gigant', 'radikaalravi', 'põllusaak', 'küdema', 'ebakindlam',
+    'vereatsidoos', 'võimlemistund', 'skandaalne', 'päevarütm', 'vihmakile',
+    'orangutang', 'baribal', 'kogunemisaeg', 'salvine', 'eluke',
+    'puugipask', 'maksejõud', 'sigmasool', 'fonatsioon', 'säuk',
+    'lastebassein', 'sünkroonmootor', 'domineerivam', 'kunstnik', 'kosmonautika',
+    'abielumees', 'kooliõpilane', 'süükauss', 'metsavahi', 'kohvikus',
+    'päevaraamat', 'majaremondija', 'metsavahemik', 'kuraator', 'aktseptor'
   ];
 
-  words.push(...additionalWords);
+  // Color palette
+  const colors = [
+    'var(--text-dim)',
+    'var(--text-muted)',
+    'var(--accent)',
+    '#2563eb',
+    '#1e40af',
+    '#475569'
+  ];
 
-  // Shuffle and repeat to fill grid
-  let shuffled = [...words];
-  while (shuffled.length < 40) {
-    shuffled = shuffled.concat([...words].sort(() => Math.random() - 0.5));
-  }
-  shuffled = shuffled.slice(0, 80).sort(() => Math.random() - 0.5);
+  // Create 20-25 word cloud items
+  const itemCount = 22;
+  const windowHeight = window.innerHeight - 52;
 
-  shuffled.forEach((word, i) => {
+  for (let i = 0; i < itemCount; i++) {
+    const word = words[Math.floor(Math.random() * words.length)];
+    const duration = 20 + Math.random() * 15; // 20-35 seconds per pass
+    const delay = Math.random() * duration; // stagger starts
+    const topPercent = Math.random() * 100; // random vertical position
+    const size = 14 + Math.random() * 22; // 14-36px
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    const opacity = 0.2 + Math.random() * 0.25; // 0.2-0.45 opacity
+
     const div = document.createElement('div');
     div.className = 'word-bg-item';
     div.textContent = word;
-    div.style.animationDelay = (Math.random() * 2) + 's';
+    div.style.fontSize = size + 'px';
+    div.style.color = color;
+    div.style.opacity = opacity;
+    div.style.top = topPercent + '%';
+    div.style.animation = `drift-left ${duration}s linear ${delay}s infinite`;
+
     wordBg.appendChild(div);
-  });
+  }
 }
 
 function renderHomepage() {
