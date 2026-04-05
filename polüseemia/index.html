@@ -45,7 +45,7 @@
 </head>
 <body>
 
-<a class="skip-link" href="#main">Hüppa põhisisu juurde</a>
+<a class="skip-link" href="#body">Hüppa põhisisu juurde</a>
 
 <div class="app-header">
   <a class="nav-brand" href="../index.html">Sõnavarandus</a>
@@ -55,8 +55,12 @@
   </div>
 </div>
 
-<div id="body" id="main">
+<div id="body">
   <div id="list-wrap">
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; justify-content: space-between;">
+      <div id="count-info" style="font-size: 12px; color: var(--text-muted);"></div>
+      <input id="search" class="text-input" type="text" placeholder="Otsi sõna…" style="width: 200px;" autocomplete="off" spellcheck="false">
+    </div>
     <div id="list"></div>
     <div id="pager">
       <button type="button" class="btn btn-sm" id="pg-prev">← Eelmine</button>
