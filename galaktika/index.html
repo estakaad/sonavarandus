@@ -421,6 +421,13 @@ function pick(i) {
   searchEl.value = word;
   suggestEl.style.display = "none";
   wrapEl.classList.add("top");
+  // Tühjenda vaade enne uue sõna kuvamist
+  nodes.length = 0;
+  links.length = 0;
+  nodeMap.clear();
+  linkSet.clear();
+  expanded.clear();
+  update();
   expandWord(word, W / 2, H / 2);
   document.getElementById("hint").style.display = "block";
 }
