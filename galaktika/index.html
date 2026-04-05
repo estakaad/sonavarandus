@@ -85,23 +85,6 @@
   .rel-name { color: var(--text-sec); font-size: 12px; }
   .rel-count { color: var(--text-muted); font-size: 10px; }
 
-  #hint {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    color: var(--text-muted);
-    font-size: 11px;
-    text-align: right;
-    line-height: 1.6;
-    z-index: 10;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    padding: 8px 12px;
-    border-radius: var(--radius);
-    display: none;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  }
-
   .tooltip {
     position: fixed;
     background: var(--surface);
@@ -147,12 +130,6 @@
   <div id="info-word"></div>
   <div id="info-count"></div>
   <div id="info-rels"></div>
-</div>
-
-<div id="hint">
-  Klõps sõnal → näitab seoseid<br>
-  Teine klõps → avardab<br>
-  Kerimine → suumimine
 </div>
 
 <div class="tooltip" id="tooltip"></div>
@@ -429,7 +406,6 @@ function pick(i) {
   expanded.clear();
   update();
   expandWord(word, W / 2, H / 2);
-  document.getElementById("hint").style.display = "block";
 }
 
 // --- lae andmed ---
