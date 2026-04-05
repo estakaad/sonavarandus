@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sõnavarandus - Info</title>
+<link rel="stylesheet" href="css/main.css">
+<style>
+  body { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+  main { flex: 1; overflow-y: auto; padding: 32px 40px 40px; background: var(--bg); }
+
+  .info-container { max-width: 800px; margin: 0 auto; }
+  .info-section { margin-bottom: 40px; }
+  .info-section h2 {
+    font-size: 18px; font-weight: 700; color: var(--text);
+    margin-bottom: 16px; letter-spacing: 0.5px; text-transform: uppercase;
+  }
+  .info-section p {
+    font-size: 14px; color: var(--text-sec); line-height: 1.6;
+    margin-bottom: 12px;
+  }
+  .info-section a {
+    color: var(--accent); text-decoration: none; transition: color 0.2s;
+  }
+  .info-section a:hover { color: var(--accent-hover); text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="main">Hüppa põhisisu juurde</a>
+
+<div class="app-header">
+  <a class="nav-brand" href="index.html">Sõnavarandus</a>
+  <div id="top-nav-mount"></div>
+  <div class="header-end">
+    <span class="page-title">Info</span>
+  </div>
+</div>
+
+<main id="main">
+  <div class="info-container">
+    <div class="info-section">
+      <h2>Teave saidist</h2>
+      <p>
+        <strong>Sõnavarandus</strong> on Eesti keele uurimise ja omandamiseks mõeldud interaktiivne veebisait,
+        mis esitab erinevaid Estonian sõnade omadusi ja seoseid.
+      </p>
+      <p>
+        Sait kasutab andmeid <a href="https://sonaveeb.ee/" target="_blank" rel="noopener">EKI ühendsõnastikust 2026</a>,
+        mis on Eesti Keele Instituudi koostatud ja avaldatud.
+      </p>
+    </div>
+
+    <div class="info-section">
+      <h2>Moodulid</h2>
+      <p>
+        Saidi iga moodul uurib erinevat aspekti eestikeelsete sõnade omadustest:
+      </p>
+      <ul style="margin-left: 20px; color: var(--text-sec); font-size: 14px; line-height: 1.8;">
+        <li><strong>Tähendused:</strong> Sõnade semantilised seosed ja registrid</li>
+        <li><strong>Liitsõnad:</strong> Liitsõnade struktuur ja produktiivsus</li>
+        <li><strong>Sõnade tähed:</strong> Fonoloogilised ja tähesuhtted omadused</li>
+        <li><strong>Mängud & väljakutsed:</strong> Interaktiivsed harjutused ja mängud</li>
+      </ul>
+    </div>
+
+    <div class="info-section">
+      <h2>Allikas</h2>
+      <p>
+        <strong>EKI ühendsõnastik 2026</strong><br>
+        Koostanud ja toimetanud: Langemets, Margit; Hein, Indrek; Jürviste, Madis; Kallas, Jelena; Kiisla, Olga;
+        Koppel, Kristina; Kuusk, Külli; Leemets, Tiina; Mäearu, Sirje; Paet, Tiina; Päll, Peeter; Raadik, Maire;
+        Risberg, Lydia; Rehemaa, Tuuli; Tiits, Mai; Tsepelina, Katrin; Tuulik, Maria; Uibo, Udo; Valdre, Tiia;
+        Viks, Ülle; Dovgan, Ellen; Näreinen, Hanna; Karmo, Juula; Luhakivi, Liisa; Mardisoo, Ingrid; Ossiptšuk, Inna;
+        Sai, Edgar; Smirnova, Alina; Tubin, Valentina; Volkova, Dona.
+      </p>
+      <p>
+        Eesti Keele Instituut. <a href="https://sonaveeb.ee/" target="_blank" rel="noopener">Sõnaveeb 2026</a>.
+      </p>
+    </div>
+
+    <div class="info-section">
+      <h2>Tagasiside</h2>
+      <p>
+        Kui teil on ettepanekuid, küsimusi või leiate vea, võtke ühendust.
+      </p>
+    </div>
+  </div>
+</main>
+
+<script src="js/nav-config.js"></script>
+<script src="js/nav-render.js"></script>
+
+</body>
+</html>
