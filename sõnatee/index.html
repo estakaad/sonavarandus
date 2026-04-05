@@ -7,15 +7,23 @@
 <style>
   body { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
+  .page-info-accordion {
+    flex-shrink: 0;
+    margin: 0; padding: 12px 24px;
+    border: none; border-radius: 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .page-info-accordion .page-info-body {
+    display: block !important;
+    padding: 12px 0;
+  }
+
   #wrap {
     flex: 1; display: flex; flex-direction: column;
     align-items: center; justify-content: center;
     gap: 36px; padding: 20px;
     background: var(--bg);
-  }
-
-  #wrap .page-info-accordion {
-    align-self: stretch;
+    overflow: auto;
   }
 
   /* ── sisestusalad ── */
@@ -111,20 +119,21 @@
   </div>
 </div>
 
-<div id="wrap">
-  <div class="page-info-accordion">
-    <div class="page-info-header">
-      <span class="page-info-icon">ℹ</span>
-      <span class="page-info-title">Tähenduste kiirtee</span>
-      <span class="page-info-toggle">−</span>
-    </div>
-    <div class="page-info-body">
-      <p class="page-info-desc">Leia tähendustevahelisi seoseid pidi liikudes lühim tee ühest sõnast teiseni.</p>
-      <div class="page-info-stats" id="page-stats">
-        <div class="stat-row"><span class="stat-label">Kokku</span><span class="stat-value" id="stat-total">–</span></div>
-      </div>
+<div class="page-info-accordion">
+  <div class="page-info-header">
+    <span class="page-info-icon">ℹ</span>
+    <span class="page-info-title">Tähenduste kiirtee</span>
+    <span class="page-info-toggle">−</span>
+  </div>
+  <div class="page-info-body">
+    <p class="page-info-desc">Leia tähendustevahelisi seoseid pidi liikudes lühim tee ühest sõnast teiseni.</p>
+    <div class="page-info-stats" id="page-stats">
+      <div class="stat-row"><span class="stat-label">Kokku</span><span class="stat-value" id="stat-total">–</span></div>
     </div>
   </div>
+</div>
+
+<div id="wrap">
 
   <div id="inputs">
     <div class="input-group">
