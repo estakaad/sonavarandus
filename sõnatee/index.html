@@ -7,25 +7,13 @@
 <style>
   body { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-  .page-info-accordion {
-    flex-shrink: 0;
-    margin: 0; padding: 12px 24px;
-    border: none; border-radius: 0;
-    border-bottom: 1px solid var(--border);
-  }
-  .page-info-accordion .page-info-body {
-    padding: 12px 0;
-  }
-  .page-info-accordion .page-info-body:not(.open) {
-    display: none;
-  }
+  #body { display: flex; flex: 1; overflow: hidden; background: var(--bg); }
+  #list-wrap { flex: 1; overflow-y: auto; padding: 16px 24px 40px; }
 
   #wrap {
-    flex: 1; display: flex; flex-direction: column;
+    display: flex; flex-direction: column;
     align-items: center; justify-content: center;
     gap: 36px; padding: 20px;
-    background: var(--bg);
-    overflow: auto;
   }
 
   /* ── sisestusalad ── */
@@ -121,45 +109,48 @@
   </div>
 </div>
 
-<div class="page-info-accordion">
-  <div class="page-info-header">
-    <span class="page-info-icon">ℹ</span>
-    <span class="page-info-title">Tähenduste kiirtee</span>
-    <span class="page-info-toggle">−</span>
-  </div>
-  <div class="page-info-body open">
-    <p class="page-info-desc">Leia tähendustevahelisi seoseid pidi liikudes lühim tee ühest sõnast teiseni.</p>
-    <div class="page-info-stats" id="page-stats">
-      <div class="stat-row"><span class="stat-label">Kokku</span><span class="stat-value" id="stat-total">–</span></div>
+<div id="body">
+  <div id="list-wrap">
+    <div class="page-info-accordion">
+      <div class="page-info-header">
+        <span class="page-info-icon">ℹ</span>
+        <span class="page-info-title">Tähenduste kiirtee</span>
+        <span class="page-info-toggle">−</span>
+      </div>
+      <div class="page-info-body open">
+        <p class="page-info-desc">Leia tähendustevahelisi seoseid pidi liikudes lühim tee ühest sõnast teiseni.</p>
+        <div class="page-info-stats" id="page-stats">
+          <div class="stat-row"><span class="stat-label">Kokku</span><span class="stat-value" id="stat-total">–</span></div>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
 
-<div id="wrap">
+    <div id="wrap">
+      <div id="inputs">
+        <div class="input-group">
+          <span class="input-label">Algussõna</span>
+          <input class="text-input word-input" id="w1" type="text" placeholder="nt käsi" autocomplete="off" spellcheck="false">
+          <div class="suggestions" id="s1"></div>
+        </div>
+        <div class="arrow-mid">→</div>
+        <div class="input-group">
+          <span class="input-label">Lõppsõna</span>
+          <input class="text-input word-input" id="w2" type="text" placeholder="nt jalg" autocomplete="off" spellcheck="false">
+          <div class="suggestions" id="s2"></div>
+        </div>
+      </div>
 
-  <div id="inputs">
-    <div class="input-group">
-      <span class="input-label">Algussõna</span>
-      <input class="text-input word-input" id="w1" type="text" placeholder="nt käsi" autocomplete="off" spellcheck="false">
-      <div class="suggestions" id="s1"></div>
+      <div id="btn-row">
+        <button type="button" class="btn btn-primary" id="btn-find">Leia tee</button>
+        <button type="button" class="btn" id="btn-random">Juhuslik paar</button>
+      </div>
+
+      <div id="result">
+        <div id="msg">Sisesta kaks sõna ja vajuta "Leia tee"</div>
+        <div id="path-len"></div>
+        <div id="chain-wrap" style="display:none"><div id="chain"></div></div>
+      </div>
     </div>
-    <div class="arrow-mid">→</div>
-    <div class="input-group">
-      <span class="input-label">Lõppsõna</span>
-      <input class="text-input word-input" id="w2" type="text" placeholder="nt jalg" autocomplete="off" spellcheck="false">
-      <div class="suggestions" id="s2"></div>
-    </div>
-  </div>
-
-  <div id="btn-row">
-    <button type="button" class="btn btn-primary" id="btn-find">Leia tee</button>
-    <button type="button" class="btn" id="btn-random">Juhuslik paar</button>
-  </div>
-
-  <div id="result">
-    <div id="msg">Sisesta kaks sõna ja vajuta "Leia tee"</div>
-    <div id="path-len"></div>
-    <div id="chain-wrap" style="display:none"><div id="chain"></div></div>
   </div>
 </div>
 
