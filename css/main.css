@@ -79,7 +79,7 @@ input:focus:not(:focus-visible) {
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   position: relative;
-  z-index: 10;
+  z-index: 9999;
 }
 .breadcrumb {
   display: flex;
@@ -455,7 +455,7 @@ a.ch-word:hover {
   pointer-events: none;
   transform: translateY(-4px);
   transition: opacity .15s, transform .15s;
-  z-index: 200;
+  z-index: 10000;
 }
 .top-nav__item:hover .top-nav__dropdown {
   opacity: 1;
