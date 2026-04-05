@@ -415,8 +415,18 @@ a.ch-word:hover {
   position: relative;
 }
 
+.top-nav__item::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  right: 0;
+  height: 8px;
+  pointer-events: auto;
+}
+
 .top-nav__trigger {
-  padding: 6px 12px 14px 12px;
+  padding: 6px 12px;
   font-size: 13px;
   color: var(--text-dim);
   border-radius: var(--radius-sm);
