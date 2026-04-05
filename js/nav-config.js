@@ -26,11 +26,6 @@ const NAV_CATEGORIES = [
       { name: 'Minimaalpaarid', desc: 'Sõnapaarid mis erinevad täpselt ühe tähe poolest.', href: '../minimaalpaarid/index.html' },
       { name: 'Ainult täishäälikud', desc: 'Sõnad mis koosnevad üksnes täishäälikutest', href: '../täishäälikud/index.html' },
       { name: 'Reduplikatsioonid', desc: 'Sõnad kus esimene pool kordab teist poolt', href: '../reduplikatsioonid/index.html' },
-    ]
-  },
-  {
-    name: 'Mängud & väljakutsed',
-    cards: [
       { name: 'Sõnaredelid', desc: 'Muuda sõnas üht tähte, et saada teine sõna.', href: '../sõnaredelid/index.html' },
       { name: 'Kärpimisahelad', desc: 'Sõnad, mille esimese tähe eemaldamisel tekib uus sõna.', href: '../kärpimine/index.html' },
       { name: 'Scrabble\'i punktid', desc: 'Millised eestikeelsed sõnad toovad Scrabble\'is kõige rohkem punkte?', href: '../skrabbl/index.html' },
