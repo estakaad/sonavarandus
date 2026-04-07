@@ -39,9 +39,20 @@
 
   #pager {
     display: none; align-items: center; justify-content: center;
-    gap: 12px; padding: 16px 0 8px;
+    gap: 16px; padding: 16px 0 8px; flex-wrap: nowrap;
   }
-  #pg-info { font-size: 12px; color: var(--text-muted); min-width: 60px; text-align: center; }
+  #pg-numbers {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .pg-btn {
+    width: 36px; height: 36px; padding: 0; border: 1px solid var(--border);
+    border-radius: 50%; background: var(--bg); color: var(--text-sec);
+    font-size: 12px; cursor: pointer; transition: all .1s; display: flex;
+    align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .pg-btn:hover:not(:disabled) { background: var(--surface-alt); border-color: var(--accent); }
+  .pg-btn.current { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; }
+  .pg-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 </style>
 </head>
 <body>
@@ -82,7 +93,7 @@
     <div id="list"></div>
     <div id="pager">
       <button type="button" class="btn btn-sm" id="pg-prev">← Eelmine</button>
-      <span id="pg-info"></span>
+      <div id="pg-numbers"></div>
       <button type="button" class="btn btn-sm" id="pg-next">Järgmine →</button>
     </div>
   </div>
@@ -166,7 +177,53 @@ function renderPager() {
   const totalPages = Math.ceil(currentWords.length / PAGE_SIZE);
   const pager = document.getElementById("pager");
   pager.style.display = totalPages > 1 ? "flex" : "none";
-  document.getElementById("pg-info").textContent = `${currentPage} / ${totalPages}`;
+
+  const numbersDiv = document.getElementById("pg-numbers");
+  numbersDiv.innerHTML = "";
+
+  const range = 5;
+  let start = Math.max(1, currentPage - Math.floor(range / 2));
+  let end = Math.min(totalPages, start + range - 1);
+  if (end - start < range - 1) start = Math.max(1, end - range + 1);
+
+  if (start > 1) {
+    const btn1 = document.createElement("button");
+    btn1.className = "pg-btn";
+    btn1.textContent = "1";
+    btn1.onclick = () => { currentPage = 1; renderList(currentWords); };
+    numbersDiv.appendChild(btn1);
+
+    if (start > 2) {
+      const dots = document.createElement("span");
+      dots.textContent = "…";
+      dots.style.opacity = "0.5";
+      numbersDiv.appendChild(dots);
+    }
+  }
+
+  for (let i = start; i <= end; i++) {
+    const btn = document.createElement("button");
+    btn.className = `pg-btn ${i === currentPage ? "current" : ""}`;
+    btn.textContent = i;
+    btn.onclick = () => { currentPage = i; renderList(currentWords); };
+    numbersDiv.appendChild(btn);
+  }
+
+  if (end < totalPages) {
+    if (end < totalPages - 1) {
+      const dots = document.createElement("span");
+      dots.textContent = "…";
+      dots.style.opacity = "0.5";
+      numbersDiv.appendChild(dots);
+    }
+
+    const btnLast = document.createElement("button");
+    btnLast.className = "pg-btn";
+    btnLast.textContent = totalPages;
+    btnLast.onclick = () => { currentPage = totalPages; renderList(currentWords); };
+    numbersDiv.appendChild(btnLast);
+  }
+
   document.getElementById("pg-prev").disabled = currentPage <= 1;
   document.getElementById("pg-next").disabled = currentPage >= totalPages;
 }

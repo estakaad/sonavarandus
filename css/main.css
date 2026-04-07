@@ -81,29 +81,6 @@ input:focus:not(:focus-visible) {
   position: relative;
   z-index: 9999;
 }
-.breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  white-space: nowrap;
-}
-.breadcrumb-home {
-  font-size: 14px;
-  color: var(--text-dim);
-  text-decoration: none;
-  transition: color .2s;
-}
-.breadcrumb-home:hover { color: var(--accent); }
-.breadcrumb-sep {
-  font-size: 14px;
-  color: var(--text-ghost);
-  user-select: none;
-}
-.breadcrumb-current {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text);
-}
 .header-end {
   margin-left: auto;
   display: flex;
@@ -159,36 +136,6 @@ input:focus:not(:focus-visible) {
 /* Placeholder peab samuti läbima 4.5:1 (WCAG 1.4.3) */
 .text-input::placeholder { color: var(--text-muted); }
 
-/* ── Automaattäiendus ──────────────────────────────────────── */
-.autocomplete-wrap { position: relative; }
-
-.autocomplete-list {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  width: 100%;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-  display: none;
-  z-index: 50;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-}
-.autocomplete-item {
-  padding: 7px 16px;
-  cursor: pointer;
-  font-size: 14px;
-  color: var(--text-sec);
-  transition: background .1s;
-}
-/* #1d4ed8 (#accent-hover) #eff6ff taustal: 5.5:1 ✓ */
-.autocomplete-item:hover,
-.autocomplete-item.active {
-  background: var(--row-hover);
-  color: var(--accent-hover);
-}
-
 /* ── Slide-in paneel ───────────────────────────────────────── */
 .side-panel {
   width: 0;
@@ -210,178 +157,26 @@ input:focus:not(:focus-visible) {
 .side-panel__inner::-webkit-scrollbar { width: 4px; }
 .side-panel__inner::-webkit-scrollbar-thumb { background: var(--text-ghost); border-radius: 2px; }
 
-.panel-word  { font-size: 24px; font-weight: 300; letter-spacing: 1px; color: var(--text); margin-bottom: 4px; }
-.panel-meta  { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
-.panel-label { font-size: 10px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
-.panel-sep   { height: 1px; background: var(--surface-alt); margin: 14px 0; }
-
-/* ── Loendi rida ───────────────────────────────────────────── */
-.list-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 5px 8px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: background .12s;
-}
-.list-row:hover    { background: var(--row-hover); }
-.list-row.selected { background: var(--row-selected); }
-
 /* ── Kerimisriba ───────────────────────────────────────────── */
 ::-webkit-scrollbar        { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track  { background: transparent; }
 ::-webkit-scrollbar-thumb  { background: var(--text-ghost); border-radius: 3px; }
 
-/* ── Hero (avaleht) ────────────────────────────────────────── */
-.hero {
-  padding: 28px 28px 8px;
-  text-align: center;
-}
-.hero h1 {
-  font-size: 38px;
-  font-weight: 300;
-  letter-spacing: 6px;
-  color: var(--accent);
-  margin-bottom: 6px;
-}
-.hero p {
-  font-size: 13px;
-  color: var(--text-muted);
-  letter-spacing: 0.5px;
-  font-style: italic;
-}
-
-
-/* ── Kaardimaatriks (avaleht) ──────────────────────────────── */
-.cards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-  gap: 18px;
-  padding: 16px 28px 32px;
-  max-width: 920px;
-  margin: 0 auto;
-}
-.card {
-  background: var(--surface);
-  border: 2px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 16px 16px;
-  text-decoration: none;
-  color: var(--text);
-  transition: border-color .25s, box-shadow .25s, transform .2s;
-  display: block;
-}
-.card:hover {
-  border-color: var(--accent);
-  box-shadow: 0 8px 32px rgba(37, 99, 235, 0.15);
-  transform: translateY(-4px) scale(1.02);
-}
-.card-icon {
-  font-size: 28px;
-  margin-bottom: 10px;
-  display: inline-block;
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-.card:hover .card-icon {
-  transform: scale(1.2) rotate(10deg);
-}
-.card-name {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text);
-  margin-bottom: 4px;
-  transition: color .25s;
-}
-.card:hover .card-name {
-  color: var(--accent);
-}
-/* #5c6b79 valgel taustal: 4.8:1 ✓ */
-.card-desc {
-  font-size: 12px;
-  color: var(--text-muted);
-  line-height: 1.5;
-  transition: color .25s;
-}
-.card:hover .card-desc {
-  color: var(--text-sec);
-}
-
-/* ── Jalus ──────────────────────────────────────────────────── */
-.app-footer {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 16px 20px;
-  border-top: 1px solid var(--border);
-  background: var(--surface);
-}
-.footer-link {
-  font-size: 12px;
-  color: var(--text-dim);
-  text-decoration: none;
-  padding: 4px 8px;
-  border-radius: 4px;
-  transition: all .2s;
-  font-weight: 500;
-}
-.footer-link:hover {
-  color: var(--accent);
-  background: var(--accent-light);
-  transform: scale(1.05);
-}
-.footer-sep {
-  font-size: 12px;
-  color: var(--text-ghost);
-  user-select: none;
-}
-
 /* ── Sõna lingid (sõnaveebi) ─────────────────────────────── */
 a.word-pill,
-a.chip-word,
-a.chain-pill,
 a.pair-word,
 a.w-item,
-a.word,
-a.ladder-node,
-a.ch-word {
+a.word {
   text-decoration: none;
   color: inherit;
   transition: color .15s;
 }
 
 a.word-pill:hover,
-a.chip-word:hover,
-a.chain-pill:hover,
 a.pair-word:hover,
 a.w-item:hover,
-a.word:hover,
-a.ladder-node:hover,
-a.ch-word:hover {
+a.word:hover {
   color: var(--accent);
-  text-decoration: underline;
-}
-
-/* ── Andmeallika viide ────────────────────────────────────── */
-#source {
-  padding: 24px;
-  font-size: 11px;
-  color: var(--text-muted);
-  line-height: 1.5;
-  border-top: 1px solid var(--border);
-  background: var(--surface-alt);
-}
-#source strong {
-  color: var(--text-sec);
-  font-weight: 600;
-}
-#source a {
-  color: var(--accent);
-  text-decoration: none;
-}
-#source a:hover {
   text-decoration: underline;
 }
 

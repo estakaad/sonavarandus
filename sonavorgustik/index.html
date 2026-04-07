@@ -61,6 +61,19 @@
     color: var(--accent);
   }
 
+  #info-accordion {
+    position: fixed;
+    top: 68px;
+    left: 16px;
+    width: 340px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    z-index: 20;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+
   #info {
     position: fixed;
     bottom: 24px;
@@ -115,6 +128,23 @@
 
 <div id="body">
   <svg id="svg"></svg>
+
+  <div id="info-accordion" class="page-info-accordion">
+    <div class="page-info-header" style="cursor: pointer;">
+      <span class="page-info-icon">ℹ</span>
+      <span class="page-info-title">Sõnavõrgustik</span>
+      <span class="page-info-toggle">−</span>
+    </div>
+    <div class="page-info-body open">
+      <p class="page-info-desc">Liigu mööda tähendustevahelisi seoseid ja vaata, kuhu sedasi sattuda võib.</p>
+      <div class="page-info-stats">
+        <div class="stat-row">
+          <span class="stat-label">Kokku</span>
+          <span class="stat-value" id="stat-total">—</span>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div id="search-wrap">
   <h1>Sõnagalaktika</h1>
@@ -408,6 +438,15 @@ function pick(i) {
   expandWord(word, W / 2, H / 2);
 }
 
+// Accordion toggle
+document.querySelector("#info-accordion .page-info-header").addEventListener("click", function() {
+  const body = this.nextElementSibling;
+  const toggle = this.querySelector(".page-info-toggle");
+  const isOpen = body.style.display !== "none";
+  body.style.display = isOpen ? "none" : "block";
+  toggle.textContent = isOpen ? "+" : "−";
+});
+
 // --- lae andmed ---
 fetch("../data/graph.json")
   .then(r => r.json())
@@ -415,6 +454,10 @@ fetch("../data/graph.json")
     adjacency = data.adjacency;
     allWords = Object.keys(adjacency).sort();
     console.log(`Laaditud: ${allWords.length} sõna`);
+
+    // Update statistics
+    document.getElementById("stat-total").textContent = allWords.length;
+
     // Vaikimisi kuvamine
     if (adjacency["tragi"]) {
       searchEl.value = "tragi";

@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fraseoloogiliste väljendite klassifikaator</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f5f5f5;
+      color: #333;
+      line-height: 1.6;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    .header h1 {
+      margin: 0 0 10px;
+      font-size: 28px;
+    }
+    .header p {
+      margin: 0;
+      opacity: 0.9;
+    }
+    .stats {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+    .stat {
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 28px;
+      font-weight: bold;
+    }
+    .stat-label {
+      font-size: 12px;
+      opacity: 0.8;
+    }
+    .controls {
+      padding: 20px;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .btn {
+      padding: 8px 16px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background: white;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    .btn:hover {
+      background: #f0f0f0;
+      border-color: #999;
+    }
+    .btn.primary {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+    }
+    .btn.primary:hover {
+      background: #5568d3;
+    }
+    .btn.danger {
+      background: #f56565;
+      color: white;
+      border-color: #f56565;
+    }
+    .progress-bar {
+      height: 6px;
+      background: #eee;
+      margin: 10px 0;
+    }
+    .progress-fill {
+      height: 100%;
+      background: #667eea;
+      transition: width 0.2s;
+    }
+    .content {
+      padding: 20px;
+      max-height: calc(100vh - 400px);
+      overflow-y: auto;
+    }
+    .expression-card {
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      padding: 20px;
+      margin-bottom: 20px;
+      background: #fafafa;
+    }
+    .expression-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: #667eea;
+      margin: 0 0 8px;
+    }
+    .expression-definition {
+      font-size: 14px;
+      color: #666;
+      margin: 0 0 16px;
+      padding: 12px;
+      background: white;
+      border-left: 3px solid #667eea;
+      border-radius: 2px;
+    }
+    .suggestions {
+      margin-bottom: 16px;
+    }
+    .suggestion-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      color: #999;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    .suggestion-item {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      background: white;
+      border-radius: 4px;
+      margin-bottom: 6px;
+      border: 1px solid #ddd;
+    }
+    .suggestion-item input[type="radio"] {
+      margin-right: 12px;
+      cursor: pointer;
+    }
+    .suggestion-text {
+      flex: 1;
+      font-size: 14px;
+    }
+    .suggestion-item.suggested {
+      background: #f0f7ff;
+      border-color: #667eea;
+    }
+    .custom-input, .category-select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      margin-top: 8px;
+      font-family: inherit;
+    }
+    .category-select {
+      max-height: 300px;
+    }
+    .footer {
+      padding: 20px;
+      border-top: 1px solid #eee;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .skip-message {
+      color: #999;
+      font-size: 12px;
+      margin-top: 10px;
+    }
+    .done-message {
+      text-align: center;
+      padding: 40px 20px;
+    }
+    .done-message h2 {
+      color: #667eea;
+      margin: 0 0 20px;
+    }
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>🔤 Fraseoloogiliste väljendite klassifikaator</h1>
+    <p>Automatselt soovitatud klassifikaatsioonid ülevaatamiseks</p>
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-value" id="total-count">0</div>
+        <div class="stat-label">Kokku</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="progress-count">0</div>
+        <div class="stat-label">Ülevaadatud</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="remaining-count">0</div>
+        <div class="stat-label">Järgmised</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <select id="filter-select">
+      <option value="">Kuva kõik</option>
+      <option value="reviewed">Ülevaadatud</option>
+      <option value="pending">Ootel</option>
+    </select>
+    <button class="btn" id="prev-btn">← Eelmine</button>
+    <button class="btn primary" id="next-btn">Järgmine →</button>
+    <button class="btn danger" id="reset-btn">Taasta algne</button>
+    <span style="flex: 1;"></span>
+    <button class="btn primary" id="export-btn">⬇ Ekspordi CSV</button>
+  </div>
+
+  <div class="progress-bar">
+    <div class="progress-fill" id="progress-bar" style="width: 0%"></div>
+  </div>
+
+  <div class="content" id="content">
+    <div class="loading">Laadin andmeid...</div>
+  </div>
+
+  <div class="footer">
+    <small>Jäta vahele vajutamisega "→ Järgmine" ilma valikuta. Salvesta progress automaatselt.</small>
+  </div>
+</div>
+
+<script>
+const DATA_URL = 'fras_suggestions.json';
+const STORAGE_KEY = 'fras_classifications';
+
+let data = null;
+let expressions = [];
+let currentIndex = 0;
+let classifications = {};
+let allCategoryTypes = new Set([
+  "olek", "seis teataval ajahetkel", "üldine olukord",
+  "suhtlusüksus", "kõnetlussõna", "sõimusõna jms",
+  "sisuline omadus", "hinnang",
+  "psüühikaga seotud tegevus", "psüühikaga (tunnetega",
+  "ajalõik", "piiratud või piiramata kestus",
+  "abstr/konkr entiteet", "abstraktne entiteet",
+  "seisundiadverb", "omadus", "iseloomulik tunnus",
+  "tegevus", "tegevus/protsess üldiselt",
+  "inimolend", "isik", "indiviid",
+  "esilduva omadusega inimene", "esilduva omadusega loom",
+  "esilduva omadusega konkreetne entiteet",
+  "loom", "lind", "loomulik objekt",
+  "konkreetne entiteet", "ese", "objekt",
+  "asutus", "institutsioon", "grupp", "rühm",
+  "haiguslik seisund", "olema", "paiknema",
+  "asetsema; ka haigusseisund", "olema, paiknema, asetsema",
+  "liikuma", "mingil viisil liikuma ühest kohast teise",
+  "muutuma", "muutuma (nii et seisund muutub)", "teisenema",
+  "tegevuse tulemus", "tekib", "mis ilmneb",
+  "asjade muutumine ajas",
+  "ajaga seotud omadus", "ajaga seostuv tegevus",
+  "emotsioon", "tunne", "tajuga) seotud omadus",
+  "kuuluma", "mõtlema", "taipama)",
+  "rõhuadverb", "hüüatus)", "tõtt-öelda)",
+  "kogus (mis tahes asja)", "arv", "number", "arvuline näitaja",
+  "geopoliitiline koht", "kohanimi", "piirkond", "maa-ala",
+  "tegevusala", "valdkond", "eriala", "amet", "elukutse",
+  "sõiduvahend jt", "toorik", "tööriist", "vahend", "võttestik",
+  "söök", "toit", "toiduaine", "jook", "vedelik joomiseks",
+  "sööma", "jooma", "toiduga tegelema",
+  "pilt", "kujutis", "kunstiteos", "teos", "sõnaline (märgiline) toode",
+  "kunstilooming", "programm jm",
+  "muinasjututegelane vm", "üleloomulik olend",
+  "füüsikaline omadus", "füüsiline seisund", "heli", "kiirus",
+  "välja)", "lahti)", "sulama)", "valutama)", "kõlama",
+  "seis", "seisus", "seisunde", "seisundis olija",
+  "inhoatiivne verb",
+  "n-ö puhas kogusesõna",
+  "(nt aeglaselt, hästi)", "(nt väga, äärmiselt)",
+  "(nt nüüd, eile)", "(nt hea)",
+  "merkitseg", "märk", "sümbol", "kõnetegu",
+  "suhtlusakt", "suuline või kirjalik suhtlus jm kõneaktid",
+  "kognitiivne fakt", "mõistus", "mõttesuuna",
+  "see", "teatav üksus", "teatav süsteem", "teatava sugulussuhte esindaja",
+  "sotsiaalse staatuse esindaja", "aunimetus",
+  "keeletermin", "(grammatiline) keeleüksus",
+  "rõivas", "riietusese"
+]);
+
+async function loadData() {
+  try {
+    const response = await fetch(DATA_URL);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    data = await response.json();
+    if (!data || !data.suggestions) throw new Error('Invalid data structure');
+    expressions = Object.entries(data.suggestions).map(([keelend, suggested]) => ({
+      keelend,
+      suggested: Array.isArray(suggested) ? suggested.filter(s => s && s.trim()) : []
+    }));
+
+    // Extract all unique category types from classified data (optional, for enhanced UI)
+    try {
+      const response2 = await fetch('fras.csv');
+      if (response2.ok) {
+        const text = await response2.text();
+        const lines = text.split('\n');
+        for (let i = 1; i < lines.length; i++) {
+          const line = lines[i];
+          if (!line.trim()) continue;
+          const parts = parseCSV(line);
+          if (parts.length >= 4 && parts[3].trim() && parts[3] !== 'NULL' && parts[3] !== '{}' && parts[3] !== '{NULL}') {
+            const types = parts[3].trim().replace(/[{}]/g, '').split(',');
+            types.forEach(t => {
+              const base = t.split('(nt')[0].trim();
+              if (base) allCategoryTypes.add(base);
+            });
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('Could not load category types from CSV');
+    }
+
+    loadClassifications();
+    updateStats();
+    renderCard();
+  } catch (e) {
+    document.getElementById('content').innerHTML = `<p style="color: red;">Viga andmete laadimisega: ${e.message}</p>`;
+  }
+}
+
+function parseCSV(line) {
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"') {
+      inQuotes = !inQuotes;
+    } else if (c === ',' && !inQuotes) {
+      result.push(current.replace(/^"|"$/g, ''));
+      current = '';
+    } else {
+      current += c;
+    }
+  }
+  result.push(current.replace(/^"|"$/g, ''));
+  return result;
+}
+
+function loadClassifications() {
+  const stored = localStorage.getItem(STORAGE_KEY);
+  if (stored) {
+    classifications = JSON.parse(stored);
+  }
+}
+
+function saveClassifications() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(classifications));
+}
+
+function updateStats() {
+  const total = expressions.length;
+  const reviewed = Object.keys(classifications).length;
+  const remaining = total - reviewed;
+  document.getElementById('total-count').textContent = total;
+  document.getElementById('progress-count').textContent = reviewed;
+  document.getElementById('remaining-count').textContent = remaining;
+  document.getElementById('progress-bar').style.width = (reviewed / total * 100) + '%';
+}
+
+function renderCard() {
+  if (currentIndex >= expressions.length) {
+    document.getElementById('content').innerHTML = `
+      <div class="done-message">
+        <h2>✅ Valmis!</h2>
+        <p>Olete klassifitseerinud ${expressions.length} väljendist ${Object.keys(classifications).length}.</p>
+        <button class="btn primary" id="final-export-btn" onclick="exportCSV()">Ekspordi lõpptulemus</button>
+      </div>
+    `;
+    return;
+  }
+
+  const expr = expressions[currentIndex];
+  const selected = classifications[expr.keelend] || '';
+  const isReviewed = expr.keelend in classifications;
+
+  let categoryOptions = expr.suggested.map(cat => `
+    <div class="suggestion-item${cat === selected ? ' suggested' : ''}">
+      <input type="radio" name="category" value="${escapeHtml(cat)}"
+             ${cat === selected ? 'checked' : ''}
+             onchange="selectCategory('${escapeHtml(cat)}')">
+      <span class="suggestion-text">${escapeHtml(cat)}</span>
+    </div>
+  `).join('');
+
+  // All available categories
+  let allCategories = Array.from(allCategoryTypes).sort();
+  let selectOptions = `<option value="">-- Vali kataloogist --</option>`;
+  selectOptions += allCategories.map(cat => `
+    <option value="${escapeHtml(cat)}" ${cat === selected ? 'selected' : ''}>${escapeHtml(cat)}</option>
+  `).join('');
+
+  categoryOptions += `
+    <div style="margin-top: 16px;">
+      <div class="suggestion-label">Kõik kategooriad:</div>
+      <select id="category-select" class="category-select" onchange="selectCategory(this.value)">
+        ${selectOptions}
+      </select>
+    </div>
+    <div style="margin-top: 10px;">
+      <input type="text" id="custom-input" class="custom-input"
+             placeholder="Või kirjuta oma kategooria..."
+             value="${escapeHtml(selected)}"
+             onchange="selectCategory(this.value)"
+             onkeyup="selectCategory(this.value)">
+    </div>
+  `;
+
+  document.getElementById('content').innerHTML = `
+    <div class="expression-card">
+      <div class="expression-title">${escapeHtml(expr.keelend)}</div>
+      <div class="expression-definition" id="definition">Laadin seletust...</div>
+      <div class="suggestions">
+        <div class="suggestion-label">Automatne soovitus:</div>
+        ${categoryOptions}
+      </div>
+      <div class="skip-message">
+        💡 Jätke vahele: vajutage "→ Järgmine" klassifitseerimata |
+        Hetkel: ${currentIndex + 1} / ${expressions.length}
+      </div>
+    </div>
+  `;
+
+  // Load the explanation from CSV
+  loadExplanation(expr.keelend);
+}
+
+async function loadExplanation(keelend) {
+  try {
+    const response = await fetch('fras.csv');
+    if (!response.ok) {
+      document.getElementById('definition').textContent = '(Seletuse laadimine ebaõnnestus)';
+      return;
+    }
+    const text = await response.text();
+    const lines = text.split('\n');
+    for (let i = 1; i < lines.length; i++) {
+      if (!lines[i].trim()) continue;
+      const parts = parseCSV(lines[i]);
+      if (parts.length > 1 && parts[1] === keelend) {
+        const def = parts[4] || '(Seletust pole)';
+        const defEl = document.getElementById('definition');
+        if (defEl) defEl.textContent = def.replace(/[{}]/g, '');
+        return;
+      }
+    }
+  } catch (e) {
+    console.error('Error loading explanation:', e);
+    const defEl = document.getElementById('definition');
+    if (defEl) defEl.textContent = '(Seletuse laadimine ebaõnnestus)';
+  }
+}
+
+function selectCategory(cat) {
+  const expr = expressions[currentIndex];
+  if (cat.trim()) {
+    classifications[expr.keelend] = cat.trim();
+  } else {
+    delete classifications[expr.keelend];
+  }
+  saveClassifications();
+  updateStats();
+  renderCard();
+}
+
+function escapeHtml(text) {
+  const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+  return text.replace(/[&<>"']/g, m => map[m]);
+}
+
+document.getElementById('prev-btn').onclick = () => {
+  if (currentIndex > 0) {
+    currentIndex--;
+    renderCard();
+  }
+};
+
+document.getElementById('next-btn').onclick = () => {
+  if (currentIndex < expressions.length - 1) {
+    currentIndex++;
+    renderCard();
+  }
+};
+
+document.getElementById('reset-btn').onclick = () => {
+  if (confirm('Taastada kõik klassifikaatsioonid?')) {
+    classifications = {};
+    localStorage.removeItem(STORAGE_KEY);
+    currentIndex = 0;
+    updateStats();
+    renderCard();
+  }
+};
+
+document.getElementById('export-btn').onclick = exportCSV;
+
+function exportCSV() {
+  // Load original CSV, add classifications
+  fetch('fras.csv')
+    .then(r => {
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return r.text();
+    })
+    .then(text => {
+      const lines = text.split('\n');
+      const header = lines[0];
+      let csv = header + '\n';
+
+      for (let i = 1; i < lines.length; i++) {
+        if (!lines[i].trim()) continue;
+        const parts = parseCSV(lines[i]);
+        if (parts.length < 5) continue;
+
+        const keelend = parts[1];
+        const oldType = parts[3];
+        const oldTypeNorm = oldType.trim();
+        const isUnclassified = oldTypeNorm === 'NULL' || oldTypeNorm === '{}' || oldTypeNorm === '{NULL}' || oldTypeNorm === '';
+
+        // If it was unclassified and we have a classification, use it
+        if (isUnclassified && classifications[keelend]) {
+          parts[3] = `{${classifications[keelend]}}`;
+        }
+
+        // Reconstruct CSV line with proper quoting
+        csv += parts.map(p => `"${p.replace(/"/g, '""')}"`).join(',') + '\n';
+      }
+
+      // Download
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'fras_classified.csv';
+      link.click();
+      alert('Ekspordi valmis! Fail fras_classified.csv laaditi alla.');
+    })
+    .catch(e => {
+      alert('Viga eksportimisel: ' + e.message);
+    });
+}
+
+loadData();
+</script>
+
+</body>
+</html>

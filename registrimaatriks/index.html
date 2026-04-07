@@ -17,10 +17,14 @@
   #p-words { font-size: 13px; max-height: calc(100vh - 320px); overflow-y: auto; margin-bottom: 12px; }
   .w-item { display: inline-block; margin: 3px 4px 3px 0; padding: 3px 10px; border-radius: 20px; background: var(--surface-alt); color: var(--text-sec); font-size: 12px; }
   .w-item.diagonal { background: var(--accent-light); color: var(--accent); }
-  #p-pagination { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 12px; color: var(--text-muted); }
-  #p-pagination button { padding: 4px 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text-sec); border-radius: 4px; cursor: pointer; font-size: 11px; }
-  #p-pagination button:hover { background: var(--surface-alt); border-color: var(--accent); }
-  #p-pagination button:disabled { opacity: 0.3; cursor: not-allowed; }
+  #p-pagination { display: flex; align-items: center; justify-content: center; gap: 16px; font-size: 12px; color: var(--text-muted); flex-wrap: nowrap; }
+  .pg-nums { display: flex; align-items: center; gap: 8px; }
+  #p-pagination button.pg-nav { padding: 4px 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text-sec); border-radius: 4px; cursor: pointer; font-size: 11px; flex-shrink: 0; }
+  #p-pagination button.pg-nav:hover { background: var(--surface-alt); border-color: var(--accent); }
+  #p-pagination button.pg-nav:disabled { opacity: 0.3; cursor: not-allowed; }
+  #p-pagination button.pg-num { width: 36px; height: 36px; padding: 0; border: 1px solid var(--border); border-radius: 50%; background: var(--bg); color: var(--text-sec); font-size: 11px; cursor: pointer; transition: all .1s; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  #p-pagination button.pg-num:hover { background: var(--surface-alt); border-color: var(--accent); }
+  #p-pagination button.pg-num.current { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; }
   .sep { height: 1px; background: var(--surface-alt); margin: 14px 0; }
   .p-label { font-size: 10px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
 </style>
@@ -232,11 +236,35 @@ function renderWordsPage(page) {
   const paginationDiv = document.getElementById("p-pagination");
 
   if (totalPages > 1) {
-    paginationDiv.innerHTML = `
-      <button id="pg-prev" onclick="renderWordsPage(currentPage - 1)" ${page === 1 ? 'disabled' : ''}>←</button>
-      <span>${page} / ${totalPages}</span>
-      <button id="pg-next" onclick="renderWordsPage(currentPage + 1)" ${page === totalPages ? 'disabled' : ''}>→</button>
-    `;
+    const html = ['<button class="pg-nav" onclick="renderWordsPage(currentPage - 1)" ' + (page === 1 ? 'disabled' : '') + '>←</button>', '<div class="pg-nums">'];
+
+    const range = 5;
+    let pageStart = Math.max(1, page - Math.floor(range / 2));
+    let pageEnd = Math.min(totalPages, pageStart + range - 1);
+    if (pageEnd - pageStart < range - 1) pageStart = Math.max(1, pageEnd - range + 1);
+
+    // Always show page 1
+    if (pageStart > 1) {
+      html.push('<button class="pg-num" onclick="renderWordsPage(1)">1</button>');
+      if (pageStart > 2) {
+        html.push('<span style="opacity:0.5">…</span>');
+      }
+    }
+
+    for (let i = pageStart; i <= pageEnd; i++) {
+      html.push(`<button class="pg-num${i === page ? ' current' : ''}" onclick="renderWordsPage(${i})">${i}</button>`);
+    }
+
+    // Always show last page
+    if (pageEnd < totalPages) {
+      if (pageEnd < totalPages - 1) {
+        html.push('<span style="opacity:0.5">…</span>');
+      }
+      html.push(`<button class="pg-num" onclick="renderWordsPage(${totalPages})">${totalPages}</button>`);
+    }
+
+    html.push('</div>', '<button class="pg-nav" onclick="renderWordsPage(currentPage + 1)" ' + (page === totalPages ? 'disabled' : '') + '>→</button>');
+    paginationDiv.innerHTML = html.join('');
   } else {
     paginationDiv.innerHTML = '';
   }

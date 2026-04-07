@@ -50,7 +50,7 @@ with open(CSV_FILE, encoding="utf-8") as f:
 totals = defaultdict(int)
 # koosesinemine: (reg1, reg2) → count
 cooc   = defaultdict(int)
-# näitesõnad paari kohta (max 100)
+# sõnad paari kohta (kõik sõnad)
 pairs  = defaultdict(list)
 
 for lid, data in lexemes.items():
@@ -62,8 +62,7 @@ for lid, data in lexemes.items():
         for r2 in regs[i:]:
             key = f"{r1}|{r2}"
             cooc[key] += 1
-            if len(pairs[key]) < 100:
-                pairs[key].append(word)
+            pairs[key].append(word)
 
 # registrid sageduse järjekorras
 registers = sorted(totals.keys(), key=lambda r: -totals[r])

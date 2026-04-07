@@ -2,8 +2,13 @@
 Reduplikatsioonide ettevalmistus.
 Reduplikatsioon: sõna kus esimene pool = teine pool (nt kuku, papa, tiptop).
 
-Sisend:  ../anagrammid/data/anagrams_raw.csv  (veerg: value)
+Sisend:  data/words_raw.csv
 Väljund: data/reduplications.json
+
+Filtreerimine:
+- Ei kuva nimesid (pos_codes sisaldab 'prop')
+- Ei kuva lühendeid (word_type_codes sisaldab 'l')
+- Ei kuva tähiseid sisaldavaid sõnu
 """
 
 import csv, json
@@ -17,6 +22,13 @@ by_length = defaultdict(list)
 with open(INPUT_CSV, encoding='utf-8') as f:
     for row in csv.DictReader(f):
         w = row['value'].strip().lower()
+        pos = row.get('pos_codes', '').strip()
+        word_type = row.get('word_type_codes', '').strip()
+
+        # Skip nimed ja lühendid
+        if 'prop' in pos or 'l' in word_type:
+            continue
+
         n = len(w)
         if n >= 4 and n % 2 == 0:
             half = n // 2

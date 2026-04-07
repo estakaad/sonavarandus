@@ -2,8 +2,11 @@
 Minimaalpaaride ettevalmistus.
 Minimaalpar: kaks sama pikkusega sõna mis erinevad täpselt ühel positsioonil.
 
-Sisend:  ../anagrammid/data/anagrams_raw.csv  (veerg: value)
+Sisend:  data/words_raw.csv
 Väljund: data/minimalpairs.json
+
+Filtreerimine:
+- Eemaldab paarid, kus sõnad on sama tüvega (esimesed 3 tähte on samad)
 """
 
 import csv, json
@@ -37,6 +40,12 @@ for length in sorted(words_by_length.keys(), reverse=True):
             pos = pattern.index('_')
             for i in range(len(group)):
                 for j in range(i + 1, len(group)):
+                    # Skip paarid, kus sõnad on sama tüvega (esimesed 3 tähte)
+                    stem_a = group[i][:3] if len(group[i]) >= 3 else group[i]
+                    stem_b = group[j][:3] if len(group[j]) >= 3 else group[j]
+                    if stem_a == stem_b:
+                        continue
+
                     pairs.append({
                         'a': group[i], 'b': group[j],
                         'pos': pos, 'length': length

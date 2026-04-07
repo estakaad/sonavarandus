@@ -3,8 +3,13 @@ Kärpimisahelate ettevalmistus.
 Beheadment: sõna mille esimese tähe mahavõtmine annab uue sõna, ja nii edasi.
 Nt: kraad → raad → aad
 
-Sisend:  ../anagrammid/data/anagrams_raw.csv  (veerg: value)
+Sisend:  data/words_raw.csv
 Väljund: data/beheadments.json
+
+Filtreerimine:
+- Ei kuva kohanimesid (pos_codes sisaldab 'prop')
+- Ei kuva lühendeid (word_type_codes sisaldab 'l')
+- Ei kuva tähiseid sisaldavaid sõnu
 """
 
 import csv, json
@@ -18,6 +23,13 @@ words = set()
 with open(INPUT_CSV, encoding='utf-8') as f:
     for row in csv.DictReader(f):
         w = row['value'].strip().lower()
+        pos = row.get('pos_codes', '').strip()
+        word_type = row.get('word_type_codes', '').strip()
+
+        # Skip kohanimesid, lühendid ja tähiseid
+        if 'prop' in pos or 'l' in word_type:
+            continue
+
         if w:
             words.add(w)
 
