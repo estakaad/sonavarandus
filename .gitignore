@@ -1,6 +1,9 @@
 # Andmefailid – ei laadita GitHubi
 **/data/
 
+# Claude Code
+CLAUDE.md
+
 # Python
 __pycache__/
 *.pyc
