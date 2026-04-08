@@ -6,7 +6,7 @@ Mõlemad suunad, duplikaadid eemaldatud.
 import csv, json
 from collections import defaultdict
 
-CSV_FILE = "../data/relations_raw.csv"
+CSV_FILE = "../data/sonavorgustik.csv"
 JSON_FILE = "../data/graph.json"
 
 adjacency = defaultdict(list)
