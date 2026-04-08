@@ -2,7 +2,7 @@
 <html lang="et">
 <head>
 <meta charset="UTF-8">
-<title>Sõnavarandus - Tähenduste kiirtee</title>
+<title>Sõnavarandus - Lühiühendus</title>
 <link rel="stylesheet" href="../css/main.css">
 <style>
   body { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
@@ -114,14 +114,11 @@
     <div class="page-info-accordion">
       <div class="page-info-header">
         <span class="page-info-icon">ℹ</span>
-        <span class="page-info-title">Tähenduste kiirtee</span>
+        <span class="page-info-title">Lühiühendus</span>
         <span class="page-info-toggle">−</span>
       </div>
       <div class="page-info-body open">
         <p class="page-info-desc">Leia tähendustevahelisi seoseid pidi liikudes lühim tee ühest sõnast teiseni.</p>
-        <div class="page-info-stats" id="page-stats">
-          <div class="stat-row"><span class="stat-label">Kokku</span><span class="stat-value" id="stat-total">–</span></div>
-        </div>
       </div>
     </div>
 
@@ -171,9 +168,6 @@ fetch("../data/graph.json")
     adjacency = data.adjacency;
     allWords  = Object.keys(adjacency).sort();
 
-    // Arvuta statistikat
-    const totalWords = allWords.length;
-    document.getElementById("stat-total").textContent = totalWords.toLocaleString("et-EE");
   });
 
 function findPath(start, end) {
