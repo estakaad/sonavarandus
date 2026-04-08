@@ -138,12 +138,6 @@
       </div>
       <div class="page-info-body open">
         <p class="page-info-desc">Sõnadel on tähendused ja tähenduste vahel on seosed. Mõni sõna on tähenduse poolest sarnane, mõni sõna on tähenduse poolest risti vastupidine. Klõpsa sõnadel ja vaata, kuhu tähendusipidi satud.</p>
-        <div class="page-info-stats">
-          <div class="stat-row">
-            <span class="stat-label">Kokku</span>
-            <span class="stat-value" id="stat-total">—</span>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -460,9 +454,6 @@ fetch("../data/graph.json")
     adjacency = data.adjacency;
     allWords = Object.keys(adjacency).sort();
     console.log(`Laaditud: ${allWords.length} sõna`);
-
-    // Update statistics
-    document.getElementById("stat-total").textContent = allWords.length;
 
     // Vaikimisi kuvamine
     if (adjacency["tragi"]) {
