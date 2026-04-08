@@ -1,47 +1,19 @@
 """
 Töötleb polüseemia andmeid: sõnad → tähendused → semantilised tüübid + seletused.
 
-Sisend: data/polysemy_raw.csv
-  Veerud: word, meaning_id, semantic_types (koma-eraldatud), definition
+Sisend: data/polyseemia.csv
+  Veerud: word, meaning_id, level1, level2, semantic_type_code, definition
+  Üks rida iga (tähendus, semantiline tüüp) kombinatsiooni kohta.
+  SQL: data/polyseemia.sql
 
-Väljund: data/polysemy.json
-
-SQL Dbeaveris (ekspordi CSV-na nimega polysemy_raw.csv):
-
-  Iga rida = üks tähendus (meaning_id). Skript loeb kokku mitu tähendust sõnal on.
-  meaning_count on ainult kontrolliks — skript arvutab selle ise ümber.
-
-    SELECT
-        w.value AS word,
-        l.meaning_id,
-        COUNT(*) OVER (PARTITION BY w.value) AS meaning_count,
-        string_agg(mst.semantic_type_code, ',' ORDER BY mst.order_by) AS semantic_types,
-        (SELECT d.value
-         FROM definition d
-         JOIN definition_dataset dd ON dd.definition_id = d.id AND dd.dataset_code = 'eki'
-         WHERE d.meaning_id = l.meaning_id
-           AND d.lang = 'est'
-           AND d.is_public = true
-         ORDER BY d.order_by
-         LIMIT 1) AS definition
-    FROM word w
-    JOIN lexeme l ON l.word_id = w.id
-        AND l.dataset_code = 'eki'
-        AND l.is_public = true
-        AND l.is_collocation IS NOT TRUE
-    LEFT JOIN meaning_semantic_type mst ON mst.meaning_id = l.meaning_id
-    WHERE w.lang = 'est'
-      AND w.is_public = true
-      AND w.value NOT LIKE '% %'
-    GROUP BY w.value, l.meaning_id
-    ORDER BY meaning_count DESC, w.value, l.meaning_id;
+Väljund: data/polyseemia.json
 """
 
 import csv, json
 from collections import defaultdict, OrderedDict
 
-CSV_FILE = "../data/polysemy_raw.csv"
-JSON_FILE = "../data/polysemy.json"
+CSV_FILE = "../data/polyseemia.csv"
+JSON_FILE = "../data/polyseemia.json"
 
 words = defaultdict(lambda: {"meanings": OrderedDict()})
 
@@ -50,12 +22,23 @@ with open(CSV_FILE, encoding="utf-8") as f:
     for row in reader:
         word = row["word"].strip()
         meaning_id = row["meaning_id"].strip()
-        types_raw = row.get("semantic_types", "").strip()
-        types = [t.strip() for t in types_raw.split(",") if t.strip()] if types_raw else []
+        level1 = int(row.get("level1", 1) or 1)
+        level2 = int(row.get("level2", 0) or 0)
+        type_code = row.get("semantic_type_code", "").strip()
         definition = row.get("definition", "").strip()
 
         if meaning_id not in words[word]["meanings"]:
-            words[word]["meanings"][meaning_id] = {"types": types, "def": definition}
+            words[word]["meanings"][meaning_id] = {
+                "level1": level1,
+                "level2": level2,
+                "types": [],
+                "def": definition
+            }
+
+        if type_code:
+            types = words[word]["meanings"][meaning_id]["types"]
+            if type_code not in types:
+                types.append(type_code)
 
 result = []
 all_types = set()

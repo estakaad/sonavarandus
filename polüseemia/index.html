@@ -76,21 +76,10 @@
       </div>
       <div class="page-info-body" id="accordion-body" style="display: block;">
         <div class="page-info-desc">Sõnad reastatud tähenduste arvu järgi.</div>
-        <div class="page-info-stats">
-          <div class="stat-row">
-            <div class="stat-label">Kokku</div>
-            <div class="stat-value" id="stat-total">—</div>
-          </div>
-          <div class="stat-row">
-            <div class="stat-label">Keskmine</div>
-            <div class="stat-value" id="stat-avg">—</div>
-          </div>
-        </div>
       </div>
     </div>
 
-    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; justify-content: space-between;">
-      <div id="count-info" style="font-size: 12px; color: var(--text-muted);"></div>
+    <div style="margin-bottom: 16px;">
       <input id="search" class="text-input" type="text" placeholder="Otsi sõna…" style="width: 200px;" autocomplete="off" spellcheck="false">
     </div>
     <div id="list"></div>
@@ -219,11 +208,14 @@ function openPanel(d, row) {
   selected = d.word;
   document.getElementById("p-word").innerHTML = `<a href="https://sonaveeb.ee/search/unif/dlall/dsall/${encodeURIComponent(d.word)}/1/est" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;">${d.word}</a>`;
   document.getElementById("p-count").textContent = `${d.count} tähendust`;
-  document.getElementById("p-defs").innerHTML = d.meanings.map((m, i) => `
+  document.getElementById("p-defs").innerHTML = d.meanings.map(m => {
+    const num = m.level2 > 1 ? `${m.level1}.${m.level2 - 1}` : `${m.level1}.`;
+    return `
     <div class="m-item">
-      <div class="m-num">tähendus ${i + 1}</div>
+      <div class="m-num">${num}</div>
       <div class="m-def${m.def ? "" : " empty"}">${m.def || "seletus puudub"}</div>
-    </div>`).join("");
+    </div>`;
+  }).join("");
   document.getElementById("panel").classList.add("open");
 }
 
@@ -232,29 +224,18 @@ document.getElementById("search").addEventListener("input", function() {
   const filtered = q ? allWords.filter(w => w.word.toLowerCase().includes(q)) : allWords;
   currentPage = 1;
   renderList(filtered);
-  document.getElementById("count-info").textContent = `${filtered.length} sõna`;
 });
 
-fetch("../data/polysemy.json")
+fetch("../data/polyseemia.json")
   .then(r => r.json())
   .then(data => {
     allWords = data.words.filter(w => w.count >= 2);
     maxCount = allWords[0]?.count || 1;
 
-    // Calculate statistics
-    const totalWords = data.words.length;
-    const totalMeanings = data.words.reduce((sum, w) => sum + w.count, 0);
-    const avgMeanings = (totalMeanings / totalWords).toFixed(2);
-
-    // Display statistics in accordion
-    document.getElementById("stat-total").textContent = totalWords;
-    document.getElementById("stat-avg").textContent = avgMeanings;
-
     renderList(allWords);
-    document.getElementById("count-info").textContent = `${allWords.length} sõna`;
   })
   .catch(() => {
-    document.getElementById("list").textContent = "⚠ polysemy.json puudub — käivita prepare_data.py";
+    document.getElementById("list").textContent = "⚠ polyseemia.json puudub — käivita prepare_data.py";
   });
 </script>
 
