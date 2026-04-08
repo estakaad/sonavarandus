@@ -34,8 +34,16 @@ jobs:
       - name: Run prepare_data.py scripts
         run: |
           for dir in */; do
-            [ -f "$dir/prepare_data.py" ] && (cd "$dir" && python prepare_data.py)
+            if [ -f "$dir/prepare_data.py" ]; then
+              echo "Running $dir/prepare_data.py"
+              (cd "$dir" && python prepare_data.py) || echo "WARNING: $dir/prepare_data.py failed"
+            fi
           done
+          echo "Generated JSON files:"
+          ls data/*.json 2>/dev/null || echo "No JSON files found!"
+
+      - name: Disable Jekyll
+        run: touch .nojekyll
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
