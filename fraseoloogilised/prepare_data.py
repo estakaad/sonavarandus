@@ -1,87 +1,69 @@
-#!/usr/bin/env python3
 """
-Prepare fraseological expressions data for treemap visualization.
-Filters to only classified expressions, groups by category.
+Fraseoloogiliste väljendite andmete ettevalmistus.
+
+Sisend: data/fras.csv
+  Veerud: word_id, keelend, semantic_type_code, semantic_type_label, definition
+  SQL: export_data.sql päring 13 (FRASEOLOOGILISED VÄLJENDID)
+
+Väljund: data/fraseoloogilised.json
 """
 
-import csv
-import json
+import csv, json, colorsys
 from collections import defaultdict
 
-# Load CSV
-expressions = []
-with open('../fras.csv', 'r', encoding='utf-8') as f:
+CSV_FILE  = "../data/fras.csv"
+JSON_FILE = "../data/fraseoloogilised.json"
+
+# keelend → {word_id, semantic_type_code, semantic_type_label, definition}
+# grupeerime semantic_type_label järgi
+categories = defaultdict(lambda: {"code": None, "expressions": {}})
+
+with open(CSV_FILE, encoding="utf-8") as f:
     reader = csv.DictReader(f)
     for row in reader:
-        expressions.append(row)
+        label = row["semantic_type_label"].strip()
+        code  = row["semantic_type_code"].strip()
+        wid   = row["word_id"].strip()
+        keelend   = row["keelend"].strip()
+        definition = row["definition"].strip()
 
-# Filter to only classified
-classified = [e for e in expressions if e['semantilised_tuubid'].strip() not in ['NULL', '{}', '{NULL}', '']]
+        categories[label]["code"] = code
+        categories[label]["expressions"][wid] = {
+            "id":       wid,
+            "keelend":  keelend,
+            "definition": definition
+        }
 
-print(f"Total: {len(expressions)}")
-print(f"Classified: {len(classified)}")
+# Sorteeri kategooriad arvu järgi
+sorted_cats = sorted(categories.items(), key=lambda x: len(x[1]["expressions"]), reverse=True)
 
-# Group by category
-categories = defaultdict(list)
-
-for e in classified:
-    sem_type = e['semantilised_tuubid'].strip('{}')
-    # Use first type if multiple
-    main_type = sem_type.split(',')[0].split('(nt')[0].strip() if sem_type else 'Teadmata'
-
-    categories[main_type].append({
-        'id': e['word_id'],
-        'keelend': e['keelend'],
-        'seletused': e['seletused'].strip('{}')
-    })
-
-# Sort categories by count
-sorted_cats = sorted(categories.items(), key=lambda x: len(x[1]), reverse=True)
-
-print(f"\nTop 10 categories:")
-for cat, items in sorted_cats[:10]:
-    print(f"  {len(items):3d}  {cat}")
-
-# Create color palette (HSL for better distribution)
+# Värviskeem
 def hsl_to_hex(h, s, l):
-    import colorsys
-    h = h / 360.0
-    s = s / 100.0
-    l = l / 100.0
+    h /= 360.0; s /= 100.0; l /= 100.0
     r, g, b = colorsys.hls_to_rgb(h, l, s)
     return f"#{int(r*255):02x}{int(g*255):02x}{int(b*255):02x}"
 
-colors = {}
-for i, (cat, _) in enumerate(sorted_cats):
-    hue = (i * 360 / len(sorted_cats)) % 360
-    colors[cat] = hsl_to_hex(hue, 70, 60)
-
-# Prepare output for treemap
 categories_data = []
-for cat, items in sorted_cats:
+for i, (label, data) in enumerate(sorted_cats):
+    hue = (i * 360 / len(sorted_cats)) % 360
+    expressions = sorted(data["expressions"].values(), key=lambda e: e["keelend"])
     categories_data.append({
-        'name': cat,
-        'count': len(items),
-        'color': colors[cat],
-        'expressions': [
-            {
-                'id': item['id'],
-                'keelend': item['keelend'],
-                'seletused': item['seletused']
-            }
-            for item in items
-        ]
+        "name":        label,
+        "code":        data["code"],
+        "count":       len(expressions),
+        "color":       hsl_to_hex(hue, 70, 60),
+        "expressions": expressions
     })
 
-data = {
-    'categories': categories_data,
-    'total': len(classified),
-    'categoryCount': len(categories)
+result = {
+    "categories":    categories_data,
+    "total":         sum(c["count"] for c in categories_data),
+    "categoryCount": len(categories_data)
 }
 
-# Save
-with open('../data/fraseoloogilised.json', 'w', encoding='utf-8') as f:
-    json.dump(data, f, ensure_ascii=False, indent=2)
+with open(JSON_FILE, "w", encoding="utf-8") as f:
+    json.dump(result, f, ensure_ascii=False)
 
-print(f"\nOutput: {len(classified)} expressions across {len(categories)} categories")
-print(f"Saved to data/fraseoloogilised.json")
+print(f"Kategooriaid: {len(categories_data)}")
+print(f"Väljendeid kokku: {result['total']}")
+print(f"Salvestatud: {JSON_FILE}")

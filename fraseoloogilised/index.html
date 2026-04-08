@@ -29,9 +29,12 @@
       font-size: 12px; color: var(--text-dim); font-variant-numeric: tabular-nums;
     }
 
+    #panel.open { width: 520px; }
+    #panel-inner { width: 520px; overflow-y: hidden; display: flex; flex-direction: column; height: 100%; box-sizing: border-box; }
+    #p-meta { flex-shrink: 0; }
     #p-category { font-size: 18px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
     #p-count { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
-    #p-expressions { font-size: 13px; }
+    #p-expressions { flex: 1; overflow-y: auto; font-size: 13px; }
     .expr { padding: 8px 12px; margin-bottom: 6px; background: var(--surface);
             border-radius: var(--radius-sm); border-left: 3px solid var(--accent); }
     .expr-text {
@@ -40,6 +43,11 @@
     }
     .expr-text:hover { text-decoration: underline; }
     .expr-def { font-size: 12px; color: var(--text-muted); line-height: 1.3; }
+    #p-pager {
+      flex-shrink: 0; display: none; align-items: center; justify-content: center;
+      gap: 8px; padding: 12px 0 4px; border-top: 1px solid var(--border); margin-top: 8px;
+    }
+    #p-pg-numbers { display: flex; align-items: center; gap: 4px; }
 
     #pager {
       display: none; align-items: center; justify-content: center;
@@ -81,16 +89,6 @@
       </div>
       <div class="page-info-body open" id="info-body">
         <p class="page-info-desc">Klassifitseeritud fraseoloogilised väljendid rühmitatud semantiliste kategooriate kaupa.</p>
-        <div class="page-info-stats">
-          <div class="stat-row">
-            <span class="stat-label">Kokku</span>
-            <span class="stat-value" id="stat-total">—</span>
-          </div>
-          <div class="stat-row">
-            <span class="stat-label">Kategooriat</span>
-            <span class="stat-value" id="stat-categories">—</span>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -108,15 +106,22 @@
 
   <div id="panel" class="side-panel">
     <div id="panel-inner" class="side-panel__inner">
-      <div id="p-category"></div>
-      <div id="p-count"></div>
+      <div id="p-meta">
+        <div id="p-category"></div>
+        <div id="p-count"></div>
+      </div>
       <div id="p-expressions"></div>
+      <div id="p-pager">
+        <button type="button" class="btn btn-sm" id="p-pg-prev">← Eelmine</button>
+        <div id="p-pg-numbers"></div>
+        <button type="button" class="btn btn-sm" id="p-pg-next">Järgmine →</button>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
-const PAGE_SIZE = 50;
+const PAGE_SIZE = 20;
 let allCategories = [], currentCategories = [], maxCount = 1, currentPage = 1;
 
 function buildRow(cat) {
@@ -217,22 +222,70 @@ document.querySelector(".page-info-header").addEventListener("click", function()
   toggle.textContent = isOpen ? "+" : "−";
 });
 
+const P_PAGE_SIZE = 8;
+let currentExpressions = [], currentExprPage = 1;
+
+function renderExprPage(page) {
+  const start = (page - 1) * P_PAGE_SIZE;
+  const pageItems = currentExpressions.slice(start, start + P_PAGE_SIZE);
+  document.getElementById("p-expressions").innerHTML = pageItems.map(ex => `
+    <div class="expr">
+      <a class="expr-text" href="https://sonaveeb.ee/search/unif/dlall/dsall/${encodeURIComponent(ex.keelend)}/1/est" target="_blank" rel="noopener">${escapeHtml(ex.keelend)}</a>
+      <div class="expr-def">${escapeHtml(ex.definition || '')}</div>
+    </div>`).join("");
+  document.getElementById("p-expressions").scrollTop = 0;
+
+  const totalPages = Math.ceil(currentExpressions.length / P_PAGE_SIZE);
+  const pager = document.getElementById("p-pager");
+  pager.style.display = totalPages > 1 ? "flex" : "none";
+
+  const numbersDiv = document.getElementById("p-pg-numbers");
+  numbersDiv.innerHTML = "";
+  const range = 5;
+  let s = Math.max(1, page - Math.floor(range / 2));
+  let e = Math.min(totalPages, s + range - 1);
+  if (e - s < range - 1) s = Math.max(1, e - range + 1);
+  if (s > 1) {
+    addPgBtn(numbersDiv, "1", () => renderExprPage(1));
+    if (s > 2) { const d = document.createElement("span"); d.textContent = "…"; d.style.opacity = ".5"; numbersDiv.appendChild(d); }
+  }
+  for (let i = s; i <= e; i++) addPgBtn(numbersDiv, i, () => renderExprPage(i), i === page);
+  if (e < totalPages) {
+    if (e < totalPages - 1) { const d = document.createElement("span"); d.textContent = "…"; d.style.opacity = ".5"; numbersDiv.appendChild(d); }
+    addPgBtn(numbersDiv, totalPages, () => renderExprPage(totalPages));
+  }
+  document.getElementById("p-pg-prev").disabled = page <= 1;
+  document.getElementById("p-pg-next").disabled = page >= totalPages;
+  currentExprPage = page;
+}
+
+function addPgBtn(parent, label, onclick, current = false) {
+  const btn = document.createElement("button");
+  btn.className = "pg-btn" + (current ? " current" : "");
+  btn.textContent = label;
+  btn.onclick = onclick;
+  parent.appendChild(btn);
+}
+
 function openPanel(cat, row) {
   document.querySelectorAll(".row.selected").forEach(r => r.classList.remove("selected"));
   if (row) row.classList.add("selected");
 
   document.getElementById("p-category").textContent = cat.name || '(Klassifitseerimata)';
-  document.getElementById("p-count").textContent = `${cat.count} väljendid`;
-  document.getElementById("p-expressions").innerHTML = cat.expressions
-    .map(ex => `
-      <div class="expr">
-        <a class="expr-text" href="https://sonaveeb.ee/search/unif/dlall/dsall/${encodeURIComponent(ex.keelend)}/1/est" target="_blank" rel="noopener">${escapeHtml(ex.keelend)}</a>
-        <div class="expr-def">${escapeHtml(ex.seletused)}</div>
-      </div>
-    `).join("");
+  document.getElementById("p-count").textContent = `${cat.count} väljendit`;
+  currentExpressions = cat.expressions;
+  currentExprPage = 1;
+  renderExprPage(1);
 
   document.getElementById("panel").classList.add("open");
 }
+
+document.getElementById("p-pg-prev").addEventListener("click", () => {
+  if (currentExprPage > 1) renderExprPage(currentExprPage - 1);
+});
+document.getElementById("p-pg-next").addEventListener("click", () => {
+  if (currentExprPage < Math.ceil(currentExpressions.length / P_PAGE_SIZE)) renderExprPage(currentExprPage + 1);
+});
 
 function escapeHtml(text) {
   const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
@@ -253,8 +306,6 @@ fetch("../data/fraseoloogilised.json")
     allCategories = data.categories;
     const totalExpr = data.total;
 
-    document.getElementById("stat-total").textContent = totalExpr;
-    document.getElementById("stat-categories").textContent = allCategories.length;
     document.getElementById("count-info").textContent = `${allCategories.length} kategooriaid`;
 
     renderList(allCategories);
