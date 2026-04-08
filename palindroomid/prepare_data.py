@@ -1,7 +1,7 @@
 """
 Palindroomide andmete ettevalmistus.
 
-Sisend:  data/words_raw.csv
+Sisend:  data/words.csv
 Väljund: data/palindromes.json
 
 Filtreerimine:
@@ -12,7 +12,7 @@ Filtreerimine:
 import csv, json
 from collections import defaultdict
 
-INPUT_CSV   = '../data/words_raw.csv'
+INPUT_CSV   = '../data/words.csv'
 OUTPUT_JSON = '../data/palindromes.json'
 
 by_length = defaultdict(list)
@@ -42,4 +42,4 @@ result = {'groups': groups, 'total': total}
 with open(OUTPUT_JSON, 'w', encoding='utf-8') as f:
     json.dump(result, f, ensure_ascii=False)
 
-print(f'Eksporditud: {total} palindroomi, {len(groups)} pikkusegruppi → {OUTPUT_JSON}')
+print(f'Eksporditud: {total} palindroomi, {len(groups)} pikkusegruppi -> {OUTPUT_JSON}')

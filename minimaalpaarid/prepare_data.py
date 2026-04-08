@@ -2,7 +2,7 @@
 Minimaalpaaride ettevalmistus.
 Minimaalpar: kaks sama pikkusega sõna mis erinevad täpselt ühel positsioonil.
 
-Sisend:  data/words_raw.csv
+Sisend:  data/words.csv
 Väljund: data/minimalpairs.json
 
 Filtreerimine:
@@ -12,7 +12,7 @@ Filtreerimine:
 import csv, json
 from collections import defaultdict
 
-INPUT_CSV   = '../data/words_raw.csv'
+INPUT_CSV   = '../data/words.csv'
 OUTPUT_JSON = '../data/minimalpairs.json'
 MIN_LENGTH  = 4    # lühemad ei ole huvitavad
 MAX_PAIRS   = 3000
@@ -60,7 +60,7 @@ result = {'pairs': pairs, 'total': len(pairs)}
 with open(OUTPUT_JSON, 'w', encoding='utf-8') as f:
     json.dump(result, f, ensure_ascii=False)
 
-print(f'Eksporditud: {len(pairs)} minimaalpaar → {OUTPUT_JSON}')
+print(f'Eksporditud: {len(pairs)} minimaalpaar -> {OUTPUT_JSON}')
 if pairs:
     p = pairs[0]
     print(f'Näide: {p["a"]} / {p["b"]} (erinev positsioon {p["pos"]})')

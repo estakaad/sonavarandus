@@ -2,7 +2,7 @@
 Semordnilindide andmete ettevalmistus.
 Semordnilind: sõnapaar kus A tagurpidi = B (A ≠ B, ≠ palindroom).
 
-Sisend:  data/words_raw.csv
+Sisend:  data/words.csv
 Väljund: data/semordnilindid.json
 
 Filtreerimine:
@@ -13,7 +13,7 @@ Filtreerimine:
 
 import csv, json
 
-INPUT_CSV   = '../data/words_raw.csv'
+INPUT_CSV   = '../data/words.csv'
 OUTPUT_JSON = '../data/semordnilindid.json'
 
 words = set()
@@ -45,7 +45,7 @@ result = {'pairs': pairs, 'total': len(pairs)}
 with open(OUTPUT_JSON, 'w', encoding='utf-8') as f:
     json.dump(result, f, ensure_ascii=False)
 
-print(f'Eksporditud: {len(pairs)} anadroompaari → {OUTPUT_JSON}')
+print(f'Eksporditud: {len(pairs)} anadroompaari -> {OUTPUT_JSON}')
 if pairs:
     p = pairs[0]
-    print(f'Pikim: {p["a"]} ↔ {p["b"]} ({p["length"]} tähte)')
+    print(f'Pikim: {p["a"]} <-> {p["b"]} ({p["length"]} tähte)')

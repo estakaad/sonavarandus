@@ -1,9 +1,9 @@
 """
 Kärpimisahelate ettevalmistus.
 Beheadment: sõna mille esimese tähe mahavõtmine annab uue sõna, ja nii edasi.
-Nt: kraad → raad → aad
+Nt: kraad -> raad -> aad
 
-Sisend:  data/words_raw.csv
+Sisend:  data/words.csv
 Väljund: data/beheadments.json
 
 Filtreerimine:
@@ -14,7 +14,7 @@ Filtreerimine:
 
 import csv, json
 
-INPUT_CSV   = '../data/words_raw.csv'
+INPUT_CSV   = '../data/words.csv'
 OUTPUT_JSON = '../data/beheadments.json'
 MIN_CHAIN   = 3   # minimaalne ahela pikkus
 TOP_N       = 300
@@ -64,7 +64,7 @@ result = {'chains': top, 'total': len(all_chains)}
 with open(OUTPUT_JSON, 'w', encoding='utf-8') as f:
     json.dump(result, f, ensure_ascii=False)
 
-print(f'Eksporditud: {len(top)} / {len(all_chains)} ahelat → {OUTPUT_JSON}')
+print(f'Eksporditud: {len(top)} / {len(all_chains)} ahelat -> {OUTPUT_JSON}')
 if top:
     c = top[0]
-    print(f'Pikim ({c["depth"]}): {" → ".join(c["chain"])}')
+    print(f'Pikim ({c["depth"]}): {" -> ".join(c["chain"])}')

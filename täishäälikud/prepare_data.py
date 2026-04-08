@@ -8,7 +8,7 @@ Väljund: data/vowelwords.json
 import csv, json
 from collections import defaultdict
 
-INPUT_CSV   = '../data/words_raw.csv'
+INPUT_CSV   = '../data/words.csv'
 OUTPUT_JSON = '../data/vowelwords.json'
 
 VOWELS = set('aeiouõäöü')
@@ -32,6 +32,6 @@ result = {'groups': groups, 'total': total}
 with open(OUTPUT_JSON, 'w', encoding='utf-8') as f:
     json.dump(result, f, ensure_ascii=False)
 
-print(f'Eksporditud: {total} sõna {len(groups)} pikkusgrupis → {OUTPUT_JSON}')
+print(f'Eksporditud: {total} sõna {len(groups)} pikkusgrupis -> {OUTPUT_JSON}')
 if groups:
     print(f'Pikim: {groups[0]["words"][0]} ({groups[0]["length"]} tähte)')
