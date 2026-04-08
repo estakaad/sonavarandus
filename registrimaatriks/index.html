@@ -12,12 +12,15 @@
   .cell { cursor: pointer; transition: opacity .1s; }
   .cell:hover { opacity: 0.75; }
   .cell.selected { stroke: var(--text); stroke-width: 2; }
+  #panel.open { width: 420px; }
+  #panel-inner { width: 420px; overflow-y: hidden; display: flex; flex-direction: column; height: 100%; }
+  #p-meta { flex-shrink: 0; }
   #p-regs  { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 4px; line-height: 1.4; }
   #p-count { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
-  #p-words { font-size: 13px; max-height: calc(100vh - 320px); overflow-y: auto; margin-bottom: 12px; }
+  #p-words { flex: 1; overflow-y: auto; margin-bottom: 12px; }
   .w-item { display: inline-block; margin: 3px 4px 3px 0; padding: 3px 10px; border-radius: 20px; background: var(--surface-alt); color: var(--text-sec); font-size: 12px; }
   .w-item.diagonal { background: var(--accent-light); color: var(--accent); }
-  #p-pagination { display: flex; align-items: center; justify-content: center; gap: 16px; font-size: 12px; color: var(--text-muted); flex-wrap: nowrap; }
+  #p-pagination { flex-shrink: 0; display: flex; align-items: center; justify-content: center; gap: 16px; font-size: 12px; color: var(--text-muted); flex-wrap: nowrap; }
   .pg-nums { display: flex; align-items: center; gap: 8px; }
   #p-pagination button.pg-nav { padding: 4px 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text-sec); border-radius: 4px; cursor: pointer; font-size: 11px; flex-shrink: 0; }
   #p-pagination button.pg-nav:hover { background: var(--surface-alt); border-color: var(--accent); }
@@ -48,10 +51,7 @@
         <span class="page-info-toggle">−</span>
       </div>
       <div class="page-info-body">
-        <p class="page-info-desc">Registrimärgendiga sõnad.</p>
-        <div class="page-info-stats" id="page-stats">
-          <div class="stat-row"><span class="stat-label">Kokku</span><span class="stat-value" id="stat-total">–</span></div>
-        </div>
+        <p class="page-info-desc">Mõnda sõna kasutatakse põhiliselt kõnekeelsetes olukordades, mõnda sõna lastekeeles jne. Mõne sõna kohta on sõnaraamatus märgitud kaks registrit korraga. Siit maatriksist leiab need võimalikud kombinatsioonid.</p>
       </div>
     </div>
     <svg id="matrix-svg"></svg>
@@ -132,7 +132,6 @@ function draw(data) {
 
   // Calculate total entries (unique lexemes)
   const totalEntries = regs.reduce((s, r) => s + r.total, 0);
-  document.getElementById("stat-total").textContent = totalEntries.toLocaleString("et-EE");
 
   // ── mõõtmed ──────────────────────────────────────────────
   const CELL = 36;
@@ -217,7 +216,7 @@ function draw(data) {
 }
 
 // ── paneel ────────────────────────────────────────────────────
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 100;
 let currentWords = [];
 let currentDiag = false;
 let currentPage = 1;
@@ -281,9 +280,9 @@ function openPanel(r1, r2, count, words) {
   currentWords = words;
   currentDiag = isDiag;
   currentPage = 1;
+  document.getElementById("panel").classList.add("open");
   renderWordsPage(1);
 
-  document.getElementById("panel").classList.add("open");
 }
 </script>
 

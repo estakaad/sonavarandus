@@ -1,32 +1,17 @@
 """
 Ehitab registrite koosesinemismaatriksi.
 
-Sisend: data/registers_raw.csv
+Sisend: data/registers.csv
   Veerud: word, lexeme_id, register_code
+  SQL: export_data.sql päring 5 (REGISTRID)
 
 Väljund: data/registers.json
-
-SQL Dbeaveris (ekspordi CSV-na nimega registers_raw.csv):
-
-    SELECT
-        w.value AS word,
-        l.id AS lexeme_id,
-        lr.register_code
-    FROM word w
-    JOIN lexeme l ON l.word_id = w.id
-        AND l.dataset_code = 'eki'
-        AND l.is_public = true
-        AND l.is_collocation IS NOT TRUE
-    JOIN lexeme_register lr ON lr.lexeme_id = l.id
-    WHERE w.lang = 'est'
-      AND w.is_public = true
-    ORDER BY w.value, l.id, lr.register_code;
 """
 
 import csv, json
 from collections import defaultdict
 
-CSV_FILE = "../data/registers_raw.csv"
+CSV_FILE = "../data/registers.csv"
 JSON_FILE = "../data/registers.json"
 
 # Välja jäetavad registrid (kohanimega seotud, ajalooline ja ametlik)
