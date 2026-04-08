@@ -83,13 +83,7 @@
         <span class="page-info-toggle">−</span>
       </div>
       <div class="page-info-body open">
-        <div class="page-info-desc">Sünonüümid on eri sõnad, mis on sama tähendusega.</div>
-        <div class="page-info-stats">
-          <div class="stat-row">
-            <span class="stat-label">Kokku</span>
-            <span class="stat-value" id="stat-total">-</span>
-          </div>
-        </div>
+        <div class="page-info-desc">Sünonüümid on eri sõnad, mis on sama tähendusega. Mõne tähenduse jaoks piisab ühest, aga mõni tähendus väärib kümneid sõnu.</div>
       </div>
     </div>
 
@@ -252,9 +246,6 @@ fetch("../data/synonyms.json")
     document.getElementById("info").textContent =
       `${allMeanings.length} tähendust sünonüümidega`;
 
-    // Calculate total synonyms count for the stat
-    const totalSynonyms = allMeanings.reduce((sum, d) => sum + d.count, 0);
-    document.getElementById("stat-total").textContent = totalSynonyms;
 
     renderList(allMeanings);
     if (allMeanings.length) {

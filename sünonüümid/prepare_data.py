@@ -1,35 +1,16 @@
 """
 Sünonüümitiheduse andmete ettevalmistus.
 
-Sisend:  data/synonyms_raw.csv  (veerud: meaning_id, word, definition)
-Väljund: data/synonyms.json
+Sisend:  data/synonyms.csv  (veerud: meaning_id, word_id, word, definition)
+  SQL: export_data.sql päring 4 (SÜNONÜÜMID)
 
-SQL eksport (DBeaveris):
-    COPY (
-        WITH syn_meanings AS (
-            SELECT l.meaning_id FROM lexeme l
-            JOIN word w ON w.id = l.word_id
-            WHERE w.lang = 'est' AND w.is_public = true AND l.is_public = true
-            AND l.dataset_code = 'eki'
-            GROUP BY l.meaning_id HAVING count(DISTINCT w.id) >= 2
-        )
-        SELECT l.meaning_id, w.value AS word, d.value AS definition
-        FROM syn_meanings sm
-        JOIN lexeme l ON l.meaning_id = sm.meaning_id AND l.is_public = true
-        JOIN word w ON w.id = l.word_id AND w.lang = 'est' AND w.is_public = true
-        LEFT JOIN LATERAL (
-            SELECT value FROM definition
-            WHERE meaning_id = l.meaning_id AND lang = 'est' AND is_public = true
-            ORDER BY order_by LIMIT 1
-        ) d ON true
-        ORDER BY l.meaning_id, w.value
-    ) TO '.../synonyms_raw.csv' WITH CSV HEADER;
+Väljund: data/synonyms.json
 """
 
 import csv, json
 from collections import defaultdict
 
-INPUT_CSV   = '../data/synonyms_raw.csv'
+INPUT_CSV   = '../data/synonyms.csv'
 OUTPUT_JSON = '../data/synonyms.json'
 MAX_EXAMPLES = 80  # sõnade arv loendi reas (preview)
 
