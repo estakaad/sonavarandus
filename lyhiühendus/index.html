@@ -6,94 +6,99 @@
 <link rel="stylesheet" href="../css/main.css">
 <style>
   body { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-
   #body { display: flex; flex: 1; overflow: hidden; background: var(--bg); }
   #list-wrap { flex: 1; overflow-y: auto; padding: 16px 24px 40px; }
 
   #wrap {
     display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    gap: 36px; padding: 20px;
+    align-items: center; gap: 28px; padding: 32px 20px 20px;
   }
 
   /* ── sisestusalad ── */
-  #inputs { display: flex; align-items: flex-start; gap: 16px; }
+  #inputs { display: flex; align-items: flex-end; gap: 10px; }
   .input-group { position: relative; display: flex; flex-direction: column; gap: 6px; }
-  .input-label { font-size: 13px; letter-spacing: 1px; color: var(--text-muted); text-align: center; }
-  .word-input { width: 240px; font-size: 16px; padding: 10px 18px; }
-  #btn-row .btn { font-size: 16px; padding: 9px 22px; }
+  .input-label { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); }
+  .word-input { width: 200px; font-size: 15px; padding: 9px 16px; }
+
+  #btn-swap {
+    flex-shrink: 0; width: 34px; height: 38px; padding: 0; margin-bottom: 1px;
+    border: 1px solid var(--border); border-radius: var(--radius);
+    background: var(--bg); color: var(--text-dim); font-size: 16px;
+    cursor: pointer; transition: all .15s; display: flex; align-items: center; justify-content: center;
+  }
+  #btn-swap:hover { background: var(--surface-alt); color: var(--accent); border-color: var(--accent); }
 
   .suggestions {
-    position: absolute; top: calc(100% + 2px); left: 0; width: 240px;
+    position: absolute; top: calc(100% + 2px); left: 0; width: 200px;
     background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
     overflow: hidden; display: none; z-index: 50;
     box-shadow: 0 4px 16px rgba(0,0,0,0.08);
   }
-  .sug-item { padding: 7px 16px; cursor: pointer; font-size: 16px; color: var(--text-sec); transition: background .1s; }
+  .sug-item { padding: 7px 14px; cursor: pointer; font-size: 14px; color: var(--text-sec); transition: background .1s; }
   .sug-item:hover, .sug-item.active { background: var(--row-hover); color: var(--accent); }
-
-  .arrow-mid { font-size: 20px; color: var(--text-ghost); margin-top: 30px; flex-shrink: 0; }
 
   /* ── nupud ── */
   #btn-row { display: flex; gap: 10px; }
 
   /* ── tulemus ── */
-  #result { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%; max-width: 480px; }
-  #msg { font-size: 16px; color: var(--text-muted); text-align: center; line-height: 1.6; }
-  #path-len { font-size: 15px; color: var(--text-muted); letter-spacing: .5px; }
+  #result { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+  #msg { font-size: 15px; color: var(--text-muted); text-align: center; line-height: 1.6; }
+  #path-len { font-size: 12px; color: var(--text-ghost); letter-spacing: .5px; }
 
-  /* ── tee (vertikaalne, raudteestiiliga) ── */
+  /* ── horisontaalne tee ── */
   #chain-wrap {
-    position: relative; width: 100%;
-    padding-left: 28px;
+    width: 100%; overflow-x: auto; padding: 8px 0 16px;
   }
-  /* ühendav raudtee */
-  #chain-wrap::before {
-    content: '';
-    position: absolute; left: 7px; top: 18px; bottom: 18px;
-    width: 2px;
-    background: linear-gradient(to bottom, var(--accent), var(--border));
-    border-radius: 1px;
+  #chain {
+    display: flex; flex-direction: row; align-items: center;
+    width: 100%; padding: 8px 4px;
   }
-
-  #chain { display: flex; flex-direction: column; align-items: flex-start; gap: 0; width: 100%; }
 
   .chain-node {
-    position: relative;
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 10px; padding: 10px 22px;
-    font-size: 16px; color: var(--text); white-space: nowrap;
-    animation: fadeIn .3s ease both;
-  }
-  /* täpp raudteel */
-  .chain-node::before {
-    content: '';
-    position: absolute; left: -24px; top: 50%; transform: translateY(-50%);
-    width: 8px; height: 8px; border-radius: 50%;
-    background: var(--border); border: 2px solid var(--bg); z-index: 1;
+    flex-shrink: 0;
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 24px; padding: 9px 20px;
+    font-size: 15px; color: var(--text); white-space: nowrap;
+    animation: popIn .25s ease both;
+    cursor: default;
   }
   .chain-node.start {
     background: var(--accent); color: #fff; border-color: var(--accent);
-    font-size: 17px; font-weight: 600;
+    font-weight: 600;
   }
-  .chain-node.start::before { background: var(--accent); width: 12px; height: 12px; left: -26px; }
   .chain-node.end {
-    background: var(--accent-light); color: var(--accent);
-    border-color: var(--accent); font-size: 17px; font-weight: 600;
+    background: var(--accent-light, #eff6ff); color: var(--accent);
+    border-color: var(--accent); font-weight: 600;
   }
-  .chain-node.end::before { background: var(--accent); width: 12px; height: 12px; left: -26px; }
 
-  .chain-edge {
-    display: flex; align-items: center; gap: 6px;
-    padding: 3px 0 3px 6px;
-    animation: fadeIn .3s ease both;
+  .chain-connector {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; gap: 5px; padding: 0 2px;
+    min-width: 60px; animation: popIn .25s ease both;
   }
-  .edge-arrow { font-size: 12px; color: var(--text-ghost); }
-  .edge-type  { font-size: 13px; white-space: nowrap; }
+  .conn-label {
+    font-size: 10px; white-space: nowrap; letter-spacing: .3px;
+    padding: 2px 6px; border-radius: 8px;
+    background: var(--surface-alt, #f1f5f9); color: var(--text-sec);
+  }
+  .conn-line {
+    width: 100%; height: 2px; position: relative;
+    background: var(--border);
+  }
+  .conn-line::after {
+    content: '';
+    position: absolute; right: -1px; top: -4px;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-left: 7px solid var(--border);
+  }
 
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(6px); }
-    to   { opacity: 1; transform: translateY(0); }
+  .node-link { color: inherit; text-decoration: none; }
+  .node-link:hover { text-decoration: underline; }
+
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(.85); }
+    to   { opacity: 1; transform: scale(1); }
   }
 </style>
 </head>
@@ -118,7 +123,7 @@
         <span class="page-info-toggle">−</span>
       </div>
       <div class="page-info-body open">
-        <p class="page-info-desc">Leia tähendustevahelisi seoseid pidi liikudes lühim tee ühest sõnast teiseni.</p>
+        <p class="page-info-desc">Leia tähendustevahelisi seoseid pidi liikudes lühim tee ühest sõnast teiseni. Kuna seoseid pole määratud kõigile sõnadele, peab võib-olla mitme eri kombinatsiooniga proovima.</p>
       </div>
     </div>
 
@@ -129,7 +134,7 @@
           <input class="text-input word-input" id="w1" type="text" placeholder="nt käsi" autocomplete="off" spellcheck="false">
           <div class="suggestions" id="s1"></div>
         </div>
-        <div class="arrow-mid">→</div>
+        <button type="button" id="btn-swap" title="Vaheta sõnad">⇄</button>
         <div class="input-group">
           <span class="input-label">Lõppsõna</span>
           <input class="text-input word-input" id="w2" type="text" placeholder="nt jalg" autocomplete="off" spellcheck="false">
@@ -167,7 +172,6 @@ fetch("../data/graph.json")
   .then(data => {
     adjacency = data.adjacency;
     allWords  = Object.keys(adjacency).sort();
-
   });
 
 function findPath(start, end) {
@@ -204,27 +208,30 @@ function showPath(path) {
   const lenEl = document.getElementById("path-len");
   chain.innerHTML = "";
   const steps = path.length - 1;
+
   path.forEach((item, i) => {
+    if (i > 0) {
+      const color = REL_COLORS[item.type] || "var(--border)";
+      const delay = `${(i - 1) * 80 + 40}ms`;
+      const conn = document.createElement("div");
+      conn.className = "chain-connector";
+      conn.style.animationDelay = delay;
+      conn.innerHTML = `
+        <span class="conn-label" style="color:${color};background:${color}18">${item.type || ""}</span>
+        <div class="conn-line" style="background:${color};"></div>`;
+      conn.querySelector(".conn-line").style.setProperty("--arrow-color", color);
+      // inline arrowhead color via filter not easy — use inline style on ::after via a wrapper
+      chain.appendChild(conn);
+    }
+
     const node = document.createElement("div");
     node.className = "chain-node" + (i === 0 ? " start" : i === path.length - 1 ? " end" : "");
-    node.textContent = item.word;
+    node.innerHTML = `<a href="https://sonaveeb.ee/search/unif/dlall/dsall/${encodeURIComponent(item.word)}/1/est" target="_blank" rel="noopener" class="node-link">${item.word}</a>`;
     node.style.animationDelay = `${i * 80}ms`;
     chain.appendChild(node);
-    if (i < path.length - 1) {
-      const nextType = path[i + 1].type;
-      const edge = document.createElement("div");
-      edge.className = "chain-edge";
-      edge.style.animationDelay = `${i * 80 + 40}ms`;
-      const color = REL_COLORS[nextType] || "var(--text-ghost)";
-      edge.innerHTML = `
-        <span class="edge-arrow" style="color:${color}">↓</span>
-        <span class="edge-type" style="color:${color}">${nextType || ""}</span>`;
-      chain.appendChild(edge);
-    }
   });
-  lenEl.textContent = steps === 1 ? "otsene seos"
-    : steps === 0 ? ""
-    : `${path[0].word} → ${path[path.length-1].word} · ${steps} sammu`;
+
+  lenEl.textContent = steps === 0 ? "" : steps === 1 ? "otsene seos" : `${steps} sammu`;
 }
 
 function setMsg(txt) {
@@ -244,7 +251,7 @@ document.getElementById("btn-find").addEventListener("click", () => {
   setTimeout(() => {
     const path = findPath(a, b);
     if (!path) {
-      setMsg(`teed sõnade "${a}" ja "${b}" vahel ei leitud (liiga kaugel või ühendus puudub)`);
+      setMsg(`Teed „${a}" → „${b}" ei leitud — liiga kaugel või ühendus puudub.`);
     } else {
       document.getElementById("msg").textContent = "";
       showPath(path);
@@ -258,6 +265,12 @@ document.getElementById("btn-random").addEventListener("click", () => {
   document.getElementById("w1").value = pick();
   document.getElementById("w2").value = pick();
   document.getElementById("btn-find").click();
+});
+
+document.getElementById("btn-swap").addEventListener("click", () => {
+  const w1 = document.getElementById("w1");
+  const w2 = document.getElementById("w2");
+  [w1.value, w2.value] = [w2.value, w1.value];
 });
 
 function setupAutocomplete(inputId, sugId) {
@@ -281,11 +294,13 @@ function setupAutocomplete(inputId, sugId) {
   });
   inp.addEventListener("keydown", e => {
     const items = sug.querySelectorAll(".sug-item");
-    if (e.key === "ArrowDown") activeIdx = Math.min(activeIdx + 1, list.length - 1);
-    else if (e.key === "ArrowUp") activeIdx = Math.max(activeIdx - 1, 0);
+    if (e.key === "ArrowDown") { e.preventDefault(); activeIdx = Math.min(activeIdx + 1, list.length - 1); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); activeIdx = Math.max(activeIdx - 1, 0); }
     else if (e.key === "Enter") {
-      if (activeIdx >= 0) inp.value = list[activeIdx];
-      sug.style.display = "none"; return;
+      if (activeIdx >= 0) { inp.value = list[activeIdx]; sug.style.display = "none"; return; }
+      sug.style.display = "none";
+      document.getElementById("btn-find").click();
+      return;
     } else if (e.key === "Escape") { sug.style.display = "none"; return; }
     items.forEach((el, i) => el.classList.toggle("active", i === activeIdx));
   });
@@ -301,7 +316,6 @@ document.getElementById("w1").addEventListener("keydown", e => {
   if (e.key === "Tab") { e.preventDefault(); document.getElementById("w2").focus(); }
 });
 </script>
-
 
 <script src="../js/nav-config.js"></script>
 <script src="../js/nav-render.js"></script>
