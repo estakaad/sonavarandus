@@ -1,41 +1,15 @@
 """
 Scrabble-skoori andmete ettevalmistus.
 
-Sisend:  data/words_raw.csv  (veerg: value)
-         — sama eksport mis anagrammid/data/anagrams_raw.csv,
-           võib kopeerida/sümlingida.
-
+Sisend:  data/scrabble_raw.csv  (veerud: word_id, value)
 Väljund: data/scrabble.json
-
-SQL eksport (DBeaveris):
-    COPY (
-        SELECT DISTINCT w.value
-        FROM word w
-        JOIN lexeme l ON l.word_id = w.id
-            AND l.is_public = true
-            AND l.dataset_code = 'eki'
-        WHERE w.lang = 'est'
-          AND w.is_public = true
-          AND length(w.value) >= 2
-          AND NOT EXISTS (
-              SELECT 1 FROM lexeme_pos lp
-              WHERE lp.lexeme_id = l.id
-                AND lp.pos_code = 'prop'
-          )
-          AND NOT EXISTS (
-              SELECT 1 FROM word_word_type wwt
-              WHERE wwt.word_id = w.id
-                AND wwt.word_type_code IN ('l', 'lz')
-          )
-        ORDER BY w.value
-    ) TO '.../words_raw.csv' WITH CSV HEADER;
 
 Tähevaartused: Eesti Scrabble (vt https://www.scrabble.ee/)
 """
 
-import csv, json, re
+import csv, json, re, glob
 
-INPUT_CSV   = '../data/words_raw.csv'
+INPUT_CSV   = sorted(glob.glob('../data/scrabble*.csv'))[-1]
 OUTPUT_JSON = '../data/scrabble.json'
 TOP_N       = 500
 
@@ -65,13 +39,17 @@ VALID = set(SCORES.keys())
 def word_score(w):
     return sum(SCORES.get(ch, 0) for ch in w)
 
+def strip_fillers(w):
+    """Eemalda sidekriipsud ja tühikud — need ei lähe skooriarvestusse."""
+    return re.sub(r'[-\s]', '', w)
+
 def is_valid(w):
-    """Ainult scrabble-tähed, ei tühik/sidekriips/number. Max 15 tähte. Iga tähe arv <= klotside arv mängus."""
-    if not (bool(w) and len(w) <= 15 and all(ch in VALID for ch in w)):
+    """Scrabble-tähed (sidekriipsud/tühikud lubatud, aga ei loe pikkuse sisse). Max 15 tähte. Iga tähe arv <= klotside arv mängus."""
+    letters = strip_fillers(w)
+    if not (bool(letters) and len(letters) <= 15 and all(ch in VALID for ch in letters)):
         return False
-    # Kontrolli, et iga tähe arv sõnas ei ületa klotsidest arvu mängus
-    for ch in w:
-        if w.count(ch) > TILE_COUNTS.get(ch, 0):
+    for ch in letters:
+        if letters.count(ch) > TILE_COUNTS.get(ch, 0):
             return False
     return True
 
@@ -83,15 +61,16 @@ with open(INPUT_CSV, encoding='utf-8') as f:
         w = row['value'].strip().lower()
         if is_valid(w):
             score = word_score(w)
-            results.append({'word': w, 'score': score, 'len': len(w)})
+            letters = strip_fillers(w)
+            results.append({'word': w, 'score': score, 'len': len(letters)})
 
 results.sort(key=lambda x: (-x['score'], -x['len'], x['word']))
 top = results[:TOP_N]
 
-# Lisa tähejaotus paneeli jaoks
+# Lisa tähejaotus paneeli jaoks (sidekriipsud/tühikud vahele jätta)
 for item in top:
     item['letters'] = [
-        {'ch': ch, 'pts': SCORES[ch]} for ch in item['word']
+        {'ch': ch, 'pts': SCORES[ch]} for ch in item['word'] if ch in VALID
     ]
 
 out = {
@@ -104,6 +83,6 @@ out = {
 with open(OUTPUT_JSON, 'w', encoding='utf-8') as f:
     json.dump(out, f, ensure_ascii=False)
 
-print(f'Eksporditud: top {len(top)} / {len(results)} sobivat sõna → {OUTPUT_JSON}')
+print(f'Eksporditud: top {len(top)} / {len(results)} sobivat sona -> {OUTPUT_JSON}')
 if top:
     print(f'Parim: {top[0]["word"]} ({top[0]["score"]} punkti)')
