@@ -60,12 +60,6 @@
       </div>
       <div class="page-info-body" id="accordion-body" style="display: block;">
         <div class="page-info-desc">Sõnad, mille esimese tähe eemaldamisel tekib uus sõna.</div>
-        <div class="page-info-stats">
-          <div class="stat-row">
-            <div class="stat-label">Kokku</div>
-            <div class="stat-value" id="stat-total">—</div>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -158,7 +152,6 @@ fetch("../data/beheadments.json").then(r=>r.json()).then(data => {
   document.getElementById("info").textContent = `${allChains.length} ahelat · max ${maxD}`;
 
   // Display total chains in accordion
-  document.getElementById("stat-total").textContent = allChains.length;
 
   renderList(allChains);
 }).catch(() => { document.getElementById("list").textContent = "⚠ beheadments.json puudub — käivita prepare_data.py"; });

@@ -65,10 +65,6 @@
       </div>
       <div class="page-info-body">
         <p class="page-info-desc">Sõnapaarid mis erinevad täpselt ühe tähe poolest.</p>
-        <div class="page-info-stats">
-          <div class="stat-row"><span class="stat-label">Paarid</span><span class="stat-value" id="stat-total">–</span></div>
-          <div class="stat-row"><span class="stat-label">Sõnad</span><span class="stat-value" id="stat-words">–</span></div>
-        </div>
       </div>
     </div>
     <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; justify-content: space-between;">
@@ -91,8 +87,8 @@ let allPairs = [], currentPairs = [], currentPage = 1;
 document.querySelector(".page-info-header").addEventListener("click", function() {
   const body = this.nextElementSibling;
   const toggle = this.querySelector(".page-info-toggle");
-  body.style.display = body.style.display === "none" ? "block" : "none";
-  toggle.textContent = body.style.display === "none" ? "+" : "−";
+  body.style.display = getComputedStyle(body).display === "none" ? "block" : "none";
+  toggle.textContent = getComputedStyle(body).display === "none" ? "+" : "−";
 });
 
 function highlight(word, pos) {
@@ -201,8 +197,6 @@ fetch("../data/minimalpairs.json").then(r=>r.json()).then(data => {
   });
   const totalWords = uniqueWords.size;
 
-  document.getElementById("stat-total").textContent = totalPairs.toLocaleString("et-EE");
-  document.getElementById("stat-words").textContent = totalWords.toLocaleString("et-EE");
 
   document.getElementById("info").textContent = `${allPairs.length} paari`;
   renderList(allPairs);

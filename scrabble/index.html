@@ -132,16 +132,6 @@
       </div>
       <div class="page-info-body open" id="info-body">
         <p class="page-info-desc">Millised eestikeelsed sõnad toovad Scrabble'is kõige rohkem punkte?</p>
-        <div class="page-info-stats">
-          <div class="stat-row">
-            <span class="stat-label">Kokku</span>
-            <span class="stat-value" id="stat-total">—</span>
-          </div>
-          <div class="stat-row">
-            <span class="stat-label">Parim</span>
-            <span class="stat-value" id="stat-best">—</span>
-          </div>
-        </div>
       </div>
     </div>
     <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; justify-content: space-between;">
@@ -370,15 +360,6 @@ fetch("../data/scrabble.json")
     window.tileCounts = data.tile_counts || {};
     document.getElementById("info").textContent =
       `top ${allWords.length} / ${data.total_valid} sõnast`;
-
-    // Arvuta statistika
-    const totalValid = data.total_valid;
-    const bestWord = allWords.length > 0 ? allWords[0] : null;
-
-    document.getElementById("stat-total").textContent = totalValid.toLocaleString("et-EE");
-    if (bestWord) {
-      document.getElementById("stat-best").textContent = `${bestWord.word} (${bestWord.score} p)`;
-    }
 
     buildScoreTable(scoreMap);
     renderList(getSorted(allWords));

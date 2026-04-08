@@ -58,10 +58,6 @@
       </div>
       <div class="page-info-body">
         <p class="page-info-desc">Sõnad, mis tagurpidi loetuna annavad sama sõna.</p>
-        <div class="page-info-stats" id="page-stats">
-          <div class="stat-row"><span class="stat-label">Kokku</span><span class="stat-value" id="stat-total">–</span></div>
-          <div class="stat-row"><span class="stat-label">Pikkus</span><span class="stat-value" id="stat-range">–</span></div>
-        </div>
       </div>
     </div>
     <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; justify-content: space-between;">
@@ -80,8 +76,8 @@ let allGroups = [];
 document.querySelector(".page-info-header").addEventListener("click", function() {
   const body = this.nextElementSibling;
   const toggle = this.querySelector(".page-info-toggle");
-  body.style.display = body.style.display === "none" ? "block" : "none";
-  toggle.textContent = body.style.display === "none" ? "+" : "−";
+  body.style.display = getComputedStyle(body).display === "none" ? "block" : "none";
+  toggle.textContent = getComputedStyle(body).display === "none" ? "+" : "−";
 });
 
 function render(query) {
@@ -136,8 +132,6 @@ fetch("../data/palindromes.json")
     const minLen = Math.min(...allGroups.map(g => g.length));
     const maxLen = Math.max(...allGroups.map(g => g.length));
 
-    document.getElementById("stat-total").textContent = totalWords.toLocaleString("et-EE");
-    document.getElementById("stat-range").textContent = `${minLen}–${maxLen} tähte`;
 
     render("");
   })

@@ -62,10 +62,6 @@
       </div>
       <div class="page-info-body">
         <p class="page-info-desc">Samad tähed, eri sõnad.</p>
-        <div class="page-info-stats" id="page-stats">
-          <div class="stat-row"><span class="stat-label">Paarid</span><span class="stat-value" id="stat-total">–</span></div>
-          <div class="stat-row"><span class="stat-label">Sõnad</span><span class="stat-value" id="stat-words">–</span></div>
-        </div>
       </div>
     </div>
     <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; justify-content: space-between;">
@@ -84,8 +80,8 @@ let allGroups = [];
 document.querySelector(".page-info-header").addEventListener("click", function() {
   const body = this.nextElementSibling;
   const toggle = this.querySelector(".page-info-toggle");
-  body.style.display = body.style.display === "none" ? "block" : "none";
-  toggle.textContent = body.style.display === "none" ? "+" : "−";
+  body.style.display = getComputedStyle(body).display === "none" ? "block" : "none";
+  toggle.textContent = getComputedStyle(body).display === "none" ? "+" : "−";
 });
 
 // Rühmita pikkuse järgi: { length -> [group, ...] }
@@ -158,8 +154,6 @@ fetch("../data/anagrams.json")
     // Arvuta statistikat
     const totalWords = allGroups.reduce((sum, g) => sum + g.words.length, 0);
 
-    document.getElementById("stat-total").textContent = allGroups.length.toLocaleString("et-EE");
-    document.getElementById("stat-words").textContent = totalWords.toLocaleString("et-EE");
 
     render("");
   })
