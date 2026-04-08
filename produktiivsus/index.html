@@ -76,10 +76,7 @@
         <span class="page-info-toggle">−</span>
       </div>
       <div class="page-info-body">
-        <p class="page-info-desc">Millised sõnad moodustavad kõige rohkem liitsõnu?</p>
-        <div class="page-info-stats" id="page-stats">
-          <div class="stat-row"><span class="stat-label">Kokku</span><span class="stat-value" id="stat-total">–</span></div>
-        </div>
+        <p class="page-info-desc">Millised sõnad moodustavad kõige rohkem liitsõnu? Millised sõnad sobivad hästi liitsõnade esiosaks? Millised sõnad sobivad hästi liitsõnade järelosaks?</p>
       </div>
     </div>
     <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; justify-content: space-between;">
@@ -275,7 +272,6 @@ fetch("../data/productivity.json")
 
     document.getElementById("info").textContent =
       `${totalWords} sõna · ${totalCompounds} liitsõna`;
-    document.getElementById("stat-total").textContent = totalWords.toLocaleString("et-EE");
 
     renderList(getSorted(allWords));
   })

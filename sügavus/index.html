@@ -108,12 +108,6 @@
       </div>
       <div class="page-info-body" id="accordion-body" style="display: block;">
         <p class="page-info-desc">Kui liitsõna koosneb teistest liitsõnadest.</p>
-        <div class="page-info-stats">
-          <div class="stat-row">
-            <span class="stat-label">Kokku</span>
-            <span class="stat-value" id="total-stat">-</span>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -141,7 +135,7 @@
 </div>
 
 <script>
-const PAGE_SIZE = 50;
+const PAGE_SIZE = 20;
 let allChains = [], currentChains = [], compoundMap = {}, currentPage = 1;
 
 // ── ahela ridade ehitamine ─────────────────────────────────
@@ -369,7 +363,6 @@ fetch("../data/depth.json")
 
     document.getElementById("info").textContent =
       `${allChains.length} ahelat · max sügavus ${maxD}`;
-    document.getElementById("total-stat").textContent = totalCompounds;
     renderList(allChains);
   })
   .catch(() => {

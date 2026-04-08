@@ -11,7 +11,7 @@ Väljund: data/productivity.json
 import csv, json
 from collections import defaultdict
 
-CSV_FILE = "../data/compounds_raw.csv"
+CSV_FILE = "../data/liit.csv"
 JSON_FILE = "../data/productivity.json"
 
 MAX_EXAMPLES = 10
