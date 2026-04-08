@@ -137,7 +137,7 @@
         <span class="page-info-toggle">−</span>
       </div>
       <div class="page-info-body open">
-        <p class="page-info-desc">Liigu mööda tähendustevahelisi seoseid ja vaata, kuhu sedasi sattuda võib.</p>
+        <p class="page-info-desc">Sõnadel on tähendused ja tähenduste vahel on seosed. Mõni sõna on tähenduse poolest sarnane, mõni sõna on tähenduse poolest risti vastupidine. Klõpsa sõnadel ja vaata, kuhu tähendusipidi satud.</p>
         <div class="page-info-stats">
           <div class="stat-row">
             <span class="stat-label">Kokku</span>
@@ -220,9 +220,13 @@ const expanded = new Set();
 
 // --- simulatsioon ---
 const simulation = d3.forceSimulation([])
-  .force("link", d3.forceLink([]).id(d => d.id).distance(100).strength(0.4))
-  .force("charge", d3.forceManyBody().strength(-300))
-  .force("collision", d3.forceCollide().radius(d => nodeR(d) + 25))
+  .force("link", d3.forceLink([]).id(d => d.id).distance(d => {
+    const targetId = typeof d.target === 'object' ? d.target.id : d.target;
+    const targetDeg = adjacency[targetId]?.length || 1;
+    return 50 + 280 / Math.sqrt(targetDeg);  // hub words close, leaf words far
+  }).strength(0.5))
+  .force("charge", d3.forceManyBody().strength(-250))
+  .force("collision", d3.forceCollide().radius(d => nodeR(d) + 30))
   .alphaDecay(0.03)
   .on("tick", ticked);
 
