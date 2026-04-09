@@ -8,7 +8,8 @@
     }
 
     // Root detection: strip '../' if at root level
-    const depth = window.location.pathname.split('/').filter(Boolean).length;
+    const cleanPath = window.location.pathname.replace(/\/index\.html$/, '/');
+    const depth = cleanPath.split('/').filter(Boolean).length;
     const isRoot = depth <= 1;
 
     const nav = document.createElement('nav');
