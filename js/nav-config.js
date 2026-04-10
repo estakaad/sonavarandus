@@ -9,6 +9,7 @@ const NAV_CATEGORIES = [
       { name: 'Registrimaatriks', desc: 'Registrimärgendiga sõnad.', href: '../registrimaatriks/index.html' },
       { name: 'Sünonüümitihedus', desc: 'Sünonüümid on eri sõnad, mis on sama tähendusega.', href: '../sünonüümid/index.html' },
       { name: 'Fraseoloogilised väljendid', desc: 'Uurige 1500+ fraseoloogiliste väljendite semantiliste kategooriate võrgustikku.', href: '../fraseoloogilised/index.html' },
+      { name: 'Sõnarühmad', desc: 'Sõnad mis jagavad sama ülemmõistet — kaashüponüümide klastrid.', href: '../sõnarühmad/index.html' },
     ]
   },
   {

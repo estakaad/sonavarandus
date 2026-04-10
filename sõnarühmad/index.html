@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sõnavarandus - Sõnarühmad</title>
+<link rel="stylesheet" href="../css/main.css">
+<style>
+  body { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+  #body { display: flex; flex: 1; overflow: hidden; background: var(--bg); }
+  #list-wrap { flex: 1; overflow-y: auto; padding: 16px 24px 40px; }
+
+  .row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 5px 8px; border-radius: var(--radius-sm);
+    cursor: pointer; transition: background .1s;
+  }
+  .row:hover    { background: var(--row-hover); }
+  .row.selected { background: var(--row-selected); }
+
+  .row-words {
+    flex: 1; font-size: 13px; color: var(--text-sec);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .row-words strong { color: var(--text); font-weight: 600; }
+  .bar-wrap { width: 120px; flex-shrink: 0; height: 10px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .bar { height: 100%; border-radius: 3px; background: var(--accent); transition: width .3s ease; }
+  .num {
+    width: 32px; flex-shrink: 0; text-align: right;
+    font-size: 12px; color: var(--text-dim); font-variant-numeric: tabular-nums;
+  }
+
+  .sep     { height: 1px; background: var(--surface-alt); margin: 12px 0; }
+  .p-label { font-size: 10px; color: var(--text-muted); letter-spacing: 1px;
+             text-transform: uppercase; margin-bottom: 10px; }
+  .word-pill {
+    display: inline-block; margin: 3px 4px 3px 0;
+    padding: 4px 12px; border-radius: 20px; font-size: 13px;
+    background: var(--accent-light); color: var(--accent);
+    cursor: pointer; transition: background .1s, color .1s;
+  }
+  .word-pill:hover { color: var(--accent-hover); text-decoration: underline; }
+
+  #pager {
+    display: none; align-items: center; justify-content: center;
+    gap: 16px; padding: 16px 0 8px; flex-wrap: nowrap;
+  }
+  #pg-numbers { display: flex; align-items: center; gap: 8px; }
+  .pg-btn {
+    width: 36px; height: 36px; padding: 0; border: 1px solid var(--border);
+    border-radius: 50%; background: var(--bg); color: var(--text-sec);
+    font-size: 12px; cursor: pointer; transition: all .1s; display: flex;
+    align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .pg-btn:hover:not(:disabled) { background: var(--surface-alt); border-color: var(--accent); }
+  .pg-btn.current { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; }
+  .pg-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#body">Hüppa põhisisu juurde</a>
+
+<div class="app-header">
+  <a class="nav-brand" href="../index.html">Sõnavarandus</a>
+  <div id="top-nav-mount"></div>
+  <div class="header-end">
+    <a href="../info.html" style="font-size: 12px; color: var(--text-dim); text-decoration: none; transition: color 0.2s;">Info</a>
+  </div>
+</div>
+
+<div id="body">
+  <div id="list-wrap">
+    <div id="info-accordion" class="page-info-accordion open">
+      <div class="page-info-header">
+        <span class="page-info-icon">ℹ</span>
+        <span class="page-info-title">Sõnarühmad</span>
+        <span class="page-info-toggle">−</span>
+      </div>
+      <div class="page-info-body open">
+        <div class="page-info-desc">Kaashüponüümid on sõnad, mis jagavad sama ülemmõistet — näiteks <em>herbivoor</em>, <em>karnivoor</em> ja <em>segatoiduline</em> kuuluvad kõik samasse rühma. Rühmad on järjestatud suuruse järgi.</div>
+      </div>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; justify-content: space-between;">
+      <div id="info" class="header-info" style="font-size: 12px; color: var(--text-muted);"></div>
+      <input id="search" class="text-input" type="text" placeholder="Otsi sõna…" style="width: 200px;" autocomplete="off" spellcheck="false">
+    </div>
+
+    <div id="list"></div>
+    <div id="pager">
+      <button type="button" class="btn btn-sm" id="pg-prev">← Eelmine</button>
+      <div id="pg-numbers"></div>
+      <button type="button" class="btn btn-sm" id="pg-next">Järgmine →</button>
+    </div>
+  </div>
+
+  <div id="panel" class="side-panel">
+    <div id="panel-inner" class="side-panel__inner">
+      <div id="p-count" style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;"></div>
+      <div class="sep"></div>
+      <div class="p-label">Sõnad rühmas</div>
+      <div id="p-words"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const PAGE_SIZE = 50;
+let allClusters = [], currentClusters = [], maxCount = 1, currentPage = 1;
+
+function rowLabel(words) {
+  const first = words[0];
+  const rest  = words.slice(1, 4).join(" / ");
+  const more  = words.length > 4 ? ` <span style="color:var(--text-ghost)">+${words.length - 4}</span>` : "";
+  return `<strong>${first}</strong>${rest ? " / " + rest : ""}${more}`;
+}
+
+function buildRow(words) {
+  const row = document.createElement("div");
+  row.className = "row";
+  const pct = (words.length / maxCount * 100).toFixed(1);
+  row.innerHTML = `
+    <span class="row-words">${rowLabel(words)}</span>
+    <div class="bar-wrap"><div class="bar" style="width:${pct}%"></div></div>
+    <span class="num">${words.length}</span>`;
+  row.addEventListener("click", () => openPanel(words, row));
+  return row;
+}
+
+function renderList(clusters) {
+  currentClusters = clusters;
+  maxCount = clusters.length ? clusters[0].length : 1;
+  const list  = document.getElementById("list");
+  const start = (currentPage - 1) * PAGE_SIZE;
+  list.innerHTML = "";
+  clusters.slice(start, start + PAGE_SIZE).forEach(w => list.appendChild(buildRow(w)));
+  document.getElementById("list-wrap").scrollTop = 0;
+  renderPager();
+}
+
+function renderPager() {
+  const totalPages = Math.ceil(currentClusters.length / PAGE_SIZE);
+  const pager = document.getElementById("pager");
+  pager.style.display = totalPages > 1 ? "flex" : "none";
+
+  const numbersDiv = document.getElementById("pg-numbers");
+  numbersDiv.innerHTML = "";
+
+  const range = 5;
+  let start = Math.max(1, currentPage - Math.floor(range / 2));
+  let end   = Math.min(totalPages, start + range - 1);
+  if (end - start < range - 1) start = Math.max(1, end - range + 1);
+
+  if (start > 1) {
+    const btn1 = document.createElement("button");
+    btn1.className = "pg-btn"; btn1.textContent = "1";
+    btn1.onclick = () => { currentPage = 1; renderList(currentClusters); };
+    numbersDiv.appendChild(btn1);
+    if (start > 2) { const d = document.createElement("span"); d.textContent = "…"; d.style.opacity = "0.5"; numbersDiv.appendChild(d); }
+  }
+
+  for (let i = start; i <= end; i++) {
+    const btn = document.createElement("button");
+    btn.className = `pg-btn ${i === currentPage ? "current" : ""}`;
+    btn.textContent = i;
+    btn.onclick = () => { currentPage = i; renderList(currentClusters); };
+    numbersDiv.appendChild(btn);
+  }
+
+  if (end < totalPages) {
+    if (end < totalPages - 1) { const d = document.createElement("span"); d.textContent = "…"; d.style.opacity = "0.5"; numbersDiv.appendChild(d); }
+    const btnLast = document.createElement("button");
+    btnLast.className = "pg-btn"; btnLast.textContent = totalPages;
+    btnLast.onclick = () => { currentPage = totalPages; renderList(currentClusters); };
+    numbersDiv.appendChild(btnLast);
+  }
+
+  document.getElementById("pg-prev").disabled = currentPage <= 1;
+  document.getElementById("pg-next").disabled = currentPage >= totalPages;
+}
+
+document.getElementById("pg-prev").addEventListener("click", () => {
+  if (currentPage > 1) { currentPage--; renderList(currentClusters); }
+});
+document.getElementById("pg-next").addEventListener("click", () => {
+  if (currentPage < Math.ceil(currentClusters.length / PAGE_SIZE)) { currentPage++; renderList(currentClusters); }
+});
+
+function openPanel(words, row) {
+  document.querySelectorAll(".row.selected").forEach(r => r.classList.remove("selected"));
+  if (row) row.classList.add("selected");
+
+  document.getElementById("p-count").textContent = `${words.length} sõna`;
+  document.getElementById("p-words").innerHTML = words
+    .map(w => `<a class="word-pill" href="https://sonaveeb.ee/search/unif/dlall/dsall/${encodeURIComponent(w)}/1/est" target="_blank" rel="noopener">${w}</a>`)
+    .join("");
+
+  document.getElementById("panel").classList.add("open");
+}
+
+document.getElementById("search").addEventListener("input", function() {
+  const q = this.value.trim().toLowerCase();
+  const filtered = q
+    ? allClusters.filter(words => words.some(w => w.toLowerCase().includes(q)))
+    : allClusters;
+  currentPage = 1;
+  renderList(filtered);
+  document.getElementById("info").textContent = `${filtered.length} rühma`;
+
+  // kui täpne vaste, ava see kohe
+  if (q) {
+    const exact = filtered.find(words => words.some(w => w.toLowerCase() === q));
+    if (exact) {
+      setTimeout(() => {
+        const firstRow = document.querySelector("#list .row");
+        if (firstRow) openPanel(exact, firstRow);
+      }, 0);
+    }
+  }
+});
+
+document.querySelector(".page-info-header").addEventListener("click", function() {
+  const body = this.nextElementSibling;
+  const toggle = this.querySelector(".page-info-toggle");
+  const isOpen = body.classList.toggle("open");
+  toggle.textContent = isOpen ? "−" : "+";
+});
+
+fetch("../data/sonarühmad.json")
+  .then(r => r.json())
+  .then(data => {
+    allClusters = data.clusters;
+    document.getElementById("info").textContent = `${allClusters.length} rühma`;
+    renderList(allClusters);
+    if (allClusters.length) {
+      const firstRow = document.querySelector("#list .row");
+      openPanel(allClusters[0], firstRow);
+    }
+  })
+  .catch(() => {
+    document.getElementById("list").textContent =
+      "⚠ sonarühmad.json puudub — käivita prepare_data.py";
+  });
+</script>
+
+<script src="../js/nav-config.js"></script>
+<script src="../js/nav-render.js"></script>
+
+</body>
+</html>
