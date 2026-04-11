@@ -145,7 +145,10 @@
         <p class="page-info-desc">Sõnadel on tähendused ja tähenduste vahel on seosed. Mõni sõna on tähenduse poolest sarnane, mõni sõna on tähenduse poolest risti vastupidine. Klõpsa sõnadel ja vaata, kuhu tähendusipidi satud.</p>
       </div>
     </div>
-
+    <div id="search-wrap" style="position:relative;">
+      <input id="search" type="text" placeholder="Otsi sõna…" autocomplete="off" spellcheck="false">
+      <div id="suggestions"></div>
+    </div>
   </div>
 </div>
 
@@ -392,6 +395,49 @@ document.querySelector("#info-accordion .page-info-header").addEventListener("cl
   body.style.display = isOpen ? "none" : "block";
   toggle.textContent = isOpen ? "+" : "−";
 });
+
+// --- otsing ---
+const searchEl = document.getElementById("search");
+const suggestEl = document.getElementById("suggestions");
+let suggestList = [], activeIdx = -1;
+
+function renderActive() {
+  suggestEl.querySelectorAll(".suggestion").forEach((el, i) => {
+    el.classList.toggle("active", i === activeIdx);
+  });
+}
+
+function pick(word) {
+  searchEl.value = word;
+  suggestEl.style.display = "none";
+  suggestList = []; activeIdx = -1;
+  expandWord(word, W / 2, H / 2);
+}
+
+searchEl.addEventListener("input", function() {
+  const q = this.value.trim().toLowerCase();
+  if (!q) { suggestEl.style.display = "none"; return; }
+  suggestList = allWords.filter(w => w.toLowerCase().startsWith(q)).slice(0, 10);
+  if (!suggestList.length) { suggestEl.style.display = "none"; return; }
+  activeIdx = -1;
+  suggestEl.innerHTML = suggestList.map(w =>
+    `<div class="suggestion">${w}</div>`).join("");
+  suggestEl.querySelectorAll(".suggestion").forEach((el, i) => {
+    el.addEventListener("mousedown", e => { e.preventDefault(); pick(suggestList[i]); });
+  });
+  suggestEl.style.display = "block";
+});
+
+searchEl.addEventListener("keydown", function(e) {
+  if (e.key === "ArrowDown") { activeIdx = Math.min(activeIdx + 1, suggestList.length - 1); renderActive(); e.preventDefault(); }
+  else if (e.key === "ArrowUp") { activeIdx = Math.max(activeIdx - 1, -1); renderActive(); e.preventDefault(); }
+  else if (e.key === "Enter") {
+    const word = activeIdx >= 0 ? suggestList[activeIdx] : suggestList[0];
+    if (word) pick(word);
+  } else if (e.key === "Escape") { suggestEl.style.display = "none"; }
+});
+
+searchEl.addEventListener("blur", () => setTimeout(() => { suggestEl.style.display = "none"; }, 150));
 
 // --- lae andmed ---
 fetch("../data/graph.json")
