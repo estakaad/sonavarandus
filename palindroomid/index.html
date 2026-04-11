@@ -2,6 +2,7 @@
 <html lang="et">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sõnavarandus - Palindroomid</title>
 <link rel="stylesheet" href="../css/main.css">
 <style>
@@ -43,9 +44,6 @@
 <div class="app-header">
   <a class="nav-brand" href="../index.html">Sõnavarandus</a>
   <div id="top-nav-mount"></div>
-  <div class="header-end">
-    <a href="../info.html" style="font-size: 12px; color: var(--text-dim); text-decoration: none; transition: color 0.2s;">Info</a>
-  </div>
 </div>
 
 <div id="body">
@@ -60,9 +58,8 @@
         <p class="page-info-desc">Sõnad, mis tagurpidi loetuna annavad sama sõna.</p>
       </div>
     </div>
-    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; justify-content: space-between;">
-      <div id="info" class="header-info" style="font-size: 12px; color: var(--text-muted);"></div>
-      <input id="search" class="text-input" type="text" placeholder="Otsi…" style="width: 200px;" autocomplete="off" spellcheck="false">
+    <div style="margin-bottom: 16px;">
+      <input id="search" class="text-input" type="text" placeholder="Otsi…" style="width: 100%;" autocomplete="off" spellcheck="false">
     </div>
     <div id="list"></div>
   </div>
@@ -114,8 +111,6 @@ function render(query) {
     list.appendChild(section);
   });
 
-  document.getElementById("info").textContent =
-    q ? `${totalVisible} vastet` : `${allGroups.reduce((s,g) => s + g.words.length, 0)} palindroomi`;
 }
 
 document.getElementById("search").addEventListener("input", function() {

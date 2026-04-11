@@ -299,14 +299,170 @@ a.word:hover {
 .page-info-toggle { font-size: 18px; color: var(--text-muted); font-weight: 300; }
 
 .page-info-body {
-  padding: 0 16px 12px; border-top: 1px solid var(--border);
+  padding: 12px 16px 12px; border-top: 1px solid var(--border);
   display: none;
 }
 .page-info-body.open {
   display: block;
 }
-.page-info-desc { font-size: 13px; color: var(--text-sec); line-height: 1.5; margin-bottom: 12px; }
+.page-info-desc { font-size: 13px; color: var(--text-sec); line-height: 1.5; margin-bottom: 0; }
+.page-info-desc + .page-info-stats { margin-top: 12px; }
 .page-info-stats { display: flex; flex-wrap: wrap; gap: 20px; }
 .stat-row { display: flex; gap: 8px; }
 .stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
 .stat-value { font-size: 12px; color: var(--text); font-weight: 600; }
+
+/* ── Mobiilinavigatsioon ─────────────────────────────────── */
+.nav-hamburger {
+  display: none;
+  background: none;
+  border: none;
+  padding: 8px 10px;
+  cursor: pointer;
+  color: var(--text);
+  font-size: 20px;
+  line-height: 1;
+  border-radius: var(--radius-sm);
+  font-family: var(--font);
+  transition: background .1s;
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+}
+.nav-hamburger:hover { background: var(--surface-alt); }
+
+.mobile-nav {
+  display: none;
+  position: fixed;
+  top: 52px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--surface);
+  z-index: 9998;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  border-top: 1px solid var(--border);
+}
+.mobile-nav.open { display: block; }
+
+.mobile-nav__category {
+  padding: 24px 20px 8px;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.3px;
+}
+.mobile-nav__link {
+  display: block;
+  padding: 12px 20px 12px 28px;
+  font-size: 15px;
+  color: var(--text-sec);
+  text-decoration: none;
+  border-bottom: 1px solid var(--border);
+  transition: background .1s;
+}
+.mobile-nav__link:hover,
+.mobile-nav__link:active { background: var(--row-hover); color: var(--accent); }
+
+.mobile-nav__category--link {
+  display: block;
+  text-decoration: none;
+  padding-top: 28px;
+  transition: color .1s;
+}
+.mobile-nav__category--link:hover,
+.mobile-nav__category--link:active { color: var(--accent); }
+
+/* ── Mobiil: paneel sulgemisnupp ─────────────────────────── */
+.side-panel-close {
+  display: none;
+  margin-bottom: 16px;
+}
+.side-panel-close button {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 7px 16px;
+  font-size: 13px;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-family: var(--font);
+  transition: border-color .15s, color .15s;
+}
+.side-panel-close button:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── Mobiil (≤640px) ─────────────────────────────────────── */
+@media (max-width: 640px) {
+  .app-header { padding: 0 12px; }
+
+  .top-nav { display: none; }
+  #top-nav-mount { flex: 0 !important; }
+  .header-end { margin-left: 8px; }
+  .nav-hamburger { display: flex; margin-left: auto; }
+
+  /* Side panel — täisekraan kate */
+  .side-panel.open {
+    position: fixed;
+    top: 52px;
+    right: 0;
+    bottom: 0;
+    width: 100% !important;
+    z-index: 500;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    border-left: none;
+    border-top: 1px solid var(--border);
+  }
+  .side-panel__inner { width: 100% !important; }
+  .side-panel-close { display: block; }
+
+  /* Sisestusväljad — 16px takistab iOS automaatset suumimist */
+  .text-input { font-size: 16px !important; }
+  .btn { font-size: 14px !important; }
+  .btn-sm { font-size: 13px !important; }
+
+  /* Lugemistekst */
+  .page-info-desc { font-size: 15px; line-height: 1.6; }
+  .word-pill { font-size: 15px !important; }
+  .w-item { font-size: 13px !important; }
+  .top-nav__link { font-size: 15px; }
+
+  /* Moodulite sisu — väiksem padding */
+  #list-wrap { padding: 12px 16px 40px !important; }
+
+  /* Avaleht */
+  main { padding: 20px 16px 32px !important; }
+
+  /* Pagineerimine — lehenumbrid üles, eelmine/järgmine alla */
+  #pager {
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+  #pg-numbers {
+    order: -1;
+    flex: 0 0 100%;
+    gap: 4px !important;
+    flex-wrap: wrap !important;
+    justify-content: center;
+  }
+  .pg-btn { width: 32px !important; height: 32px !important; }
+
+  /* Paneel pagineerimine — sama reegel mis #pager-il */
+  #p-pager {
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+  #p-pg-numbers {
+    order: -1;
+    flex: 0 0 100%;
+    gap: 4px !important;
+    flex-wrap: wrap !important;
+    justify-content: center;
+  }
+
+  /* Toolbar — info tekst võib mähkida, otsinguväli saab kahaneda */
+  .header-info { white-space: normal; }
+  input#search { flex-shrink: 1 !important; min-width: 100px !important; }
+}

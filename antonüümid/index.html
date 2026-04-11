@@ -6,17 +6,17 @@
 <title>Sõnavarandus - Antonüümid</title>
 <link rel="stylesheet" href="../css/main.css">
 <style>
-  body { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-  #body { display: flex; flex: 1; overflow: hidden; background: var(--bg); }
-  #list-wrap { flex: 1; overflow-y: auto; padding: 16px 24px 40px; }
+  body { min-height: 100vh; display: flex; flex-direction: column; }
+  #body { display: flex; flex: 1; background: var(--bg); }
+  #list-wrap { flex: 1; padding: 16px 24px 40px; min-width: 0; }
 
   .row {
     display: flex; align-items: baseline; gap: 10px;
-    padding: 6px 8px; border-radius: var(--radius-sm);
+    padding: 6px 8px; border-radius: var(--radius-sm); flex-wrap: wrap;
   }
-  .row-word { font-size: 13px; font-weight: 600; color: var(--text); min-width: 180px; flex-shrink: 0; }
+  .row-word { font-size: 13px; font-weight: 600; color: var(--text); min-width: 140px; flex-shrink: 0; }
   .row-sep  { font-size: 13px; color: var(--text-ghost); flex-shrink: 0; }
-  .row-ants { flex: 1; font-size: 13px; color: var(--text-sec); flex-wrap: wrap; display: flex; gap: 4px; }
+  .row-ants { flex: 1; min-width: 0; font-size: 13px; color: var(--text-sec); flex-wrap: wrap; display: flex; gap: 4px; }
 
   .word-pill {
     display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 12px;
@@ -27,9 +27,9 @@
 
   #pager {
     display: none; align-items: center; justify-content: center;
-    gap: 16px; padding: 16px 0 8px;
+    gap: 8px; padding: 16px 0 8px; flex-wrap: wrap;
   }
-  #pg-numbers { display: flex; align-items: center; gap: 8px; }
+  #pg-numbers { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: center; }
   .pg-btn {
     width: 36px; height: 36px; padding: 0; border: 1px solid var(--border);
     border-radius: 50%; background: var(--bg); color: var(--text-sec);
@@ -39,6 +39,14 @@
   .pg-btn:hover:not(:disabled) { background: var(--surface-alt); border-color: var(--accent); }
   .pg-btn.current { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; }
   .pg-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  @media (max-width: 480px) {
+    #list-wrap { padding: 12px 12px 40px; }
+    .row { gap: 4px; }
+    .row-word { min-width: 0; flex: 0 0 100%; }
+    .row-sep { display: none; }
+    .row-ants { flex: 0 0 100%; padding-left: 4px; }
+  }
 </style>
 </head>
 <body>
@@ -48,9 +56,6 @@
 <div class="app-header">
   <a class="nav-brand" href="../index.html">Sõnavarandus</a>
   <div id="top-nav-mount"></div>
-  <div class="header-end">
-    <a href="../info.html" style="font-size: 12px; color: var(--text-dim); text-decoration: none; transition: color 0.2s;">Info</a>
-  </div>
 </div>
 
 <div id="body">
@@ -62,13 +67,13 @@
         <span class="page-info-toggle">−</span>
       </div>
       <div class="page-info-body open">
-        <div class="page-info-desc">Antonüümid on vastupidise tähendusega sõnad. Mõnel sõnal on mitu antonüümi — näiteks <em>vaene</em> vastandub nii <em>rikas</em>, <em>jõukas</em> kui <em>rahakas</em>.</div>
+        <div class="page-info-desc">Antonüümid on vastupidise tähendusega sõnad. Mõnel sõnal on mitu antonüümi — näiteks <em>vaese</em> antonüümid on nii <em>rikas</em>, <em>jõukas</em> kui ka <em>rahakas</em>.</div>
       </div>
     </div>
 
     <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; justify-content: space-between;">
       <div id="info" style="font-size: 12px; color: var(--text-muted);"></div>
-      <input id="search" class="text-input" type="text" placeholder="Otsi sõna…" style="width: 200px;" autocomplete="off" spellcheck="false">
+      <input id="search" class="text-input" type="text" placeholder="Otsi sõna…" style="width: min(200px, 100%);" autocomplete="off" spellcheck="false">
     </div>
 
     <div id="list"></div>
@@ -160,8 +165,9 @@ document.getElementById("search").addEventListener("input", function() {
 document.querySelector(".page-info-header").addEventListener("click", function() {
   const body = this.nextElementSibling;
   const toggle = this.querySelector(".page-info-toggle");
-  body.classList.toggle("open");
-  toggle.textContent = body.classList.contains("open") ? "−" : "+";
+  const isHidden = getComputedStyle(body).display === "none";
+  body.style.display = isHidden ? "block" : "none";
+  toggle.textContent = isHidden ? "−" : "+";
 });
 
 fetch("../data/antonüümid.json")

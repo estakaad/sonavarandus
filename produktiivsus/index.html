@@ -2,6 +2,7 @@
 <html lang="et">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sõnavarandus - Produktiivsed liitujad</title>
 <link rel="stylesheet" href="../css/main.css">
 <style>
@@ -26,6 +27,14 @@
   .bar-e { background: #3b82f6; height: 100%; transition: width .3s ease; }
   .bar-j { background: #10b981; height: 100%; transition: width .3s ease; }
   .num { width: 36px; flex-shrink: 0; text-align: right; font-size: 12px; color: var(--text-dim); font-variant-numeric: tabular-nums; }
+
+  @media (max-width: 640px) {
+    .word { width: 100px; }
+    #legend { flex-wrap: wrap; gap: 10px; }
+  }
+
+  #panel.side-panel.open { width: 480px; }
+  #panel .side-panel__inner { width: 480px; }
 
   #p-word  { font-size: 26px; font-weight: 300; color: var(--text); margin-bottom: 4px; }
   #p-stats { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
@@ -62,9 +71,6 @@
 <div class="app-header">
   <a class="nav-brand" href="../index.html">Sõnavarandus</a>
   <div id="top-nav-mount"></div>
-  <div class="header-end">
-    <a href="../info.html" style="font-size: 12px; color: var(--text-dim); text-decoration: none; transition: color 0.2s;">Info</a>
-  </div>
 </div>
 
 <div id="body">
@@ -79,9 +85,8 @@
         <p class="page-info-desc">Millised sõnad moodustavad kõige rohkem liitsõnu? Millised sõnad sobivad hästi liitsõnade esiosaks? Millised sõnad sobivad hästi liitsõnade järelosaks?</p>
       </div>
     </div>
-    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; justify-content: space-between;">
-      <div id="info" class="header-info" style="font-size: 12px; color: var(--text-muted);"></div>
-      <input id="search" class="text-input" type="text" placeholder="Otsi…" style="width: 200px;" autocomplete="off" spellcheck="false">
+    <div style="margin-bottom: 16px;">
+      <input id="search" class="text-input" type="text" placeholder="Otsi…" style="width: 100%;" autocomplete="off" spellcheck="false">
     </div>
     <div id="legend">
       <span><span class="leg-dot leg-esiosa"></span>Esiosana</span>
@@ -267,12 +272,6 @@ fetch("../data/productivity.json")
   .then(r => r.json())
   .then(data => {
     allWords = data.words;
-    const totalWords = allWords.length;
-    const totalCompounds = allWords.reduce((s, w) => s + w.esiosa + w.jarelosa, 0);
-
-    document.getElementById("info").textContent =
-      `${totalWords} sõna · ${totalCompounds} liitsõna`;
-
     renderList(getSorted(allWords));
   })
   .catch(() => {

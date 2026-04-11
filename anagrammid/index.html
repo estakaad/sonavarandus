@@ -2,6 +2,7 @@
 <html lang="et">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sõnavarandus - Anagrammipaarid</title>
 <link rel="stylesheet" href="../css/main.css">
 <style>
@@ -38,6 +39,21 @@
     font-size: 11px; color: var(--text-ghost);
     user-select: none; flex-shrink: 0;
   }
+
+  #pager {
+    display: none; align-items: center; justify-content: center;
+    gap: 8px; padding: 16px 0 8px; flex-wrap: wrap;
+  }
+  #pg-numbers { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: center; }
+  .pg-btn {
+    width: 36px; height: 36px; padding: 0; border: 1px solid var(--border);
+    border-radius: 50%; background: var(--bg); color: var(--text-sec);
+    font-size: 12px; cursor: pointer; transition: all .1s; display: flex;
+    align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .pg-btn:hover:not(:disabled) { background: var(--surface-alt); border-color: var(--accent); }
+  .pg-btn.current { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; }
+  .pg-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 </style>
 </head>
 <body>
@@ -47,9 +63,6 @@
 <div class="app-header">
   <a class="nav-brand" href="../index.html">Sõnavarandus</a>
   <div id="top-nav-mount"></div>
-  <div class="header-end">
-    <a href="../info.html" style="font-size: 12px; color: var(--text-dim); text-decoration: none; transition: color 0.2s;">Info</a>
-  </div>
 </div>
 
 <div id="body">
@@ -64,17 +77,22 @@
         <p class="page-info-desc">Samad tähed, eri sõnad.</p>
       </div>
     </div>
-    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; justify-content: space-between;">
-      <div id="info" class="header-info" style="font-size: 12px; color: var(--text-muted);"></div>
-      <input id="search" class="text-input" type="text" placeholder="Otsi…" style="width: 200px;" autocomplete="off" spellcheck="false">
+    <div style="margin-bottom: 16px;">
+      <input id="search" class="text-input" type="text" placeholder="Otsi…" style="width: 100%;" autocomplete="off" spellcheck="false">
     </div>
     <div id="list"></div>
+    <div id="pager">
+      <button type="button" class="btn btn-sm" id="pg-prev">← Eelmine</button>
+      <div id="pg-numbers"></div>
+      <button type="button" class="btn btn-sm" id="pg-next">Järgmine →</button>
+    </div>
   </div>
 </div>
 
 <script src="../js/utils.js"></script>
 <script>
-let allGroups = [];
+const PAGE_SIZE = 100;
+let allGroups = [], currentGroups = [], currentPage = 1;
 
 // Accordion toggle
 document.querySelector(".page-info-header").addEventListener("click", function() {
@@ -83,16 +101,6 @@ document.querySelector(".page-info-header").addEventListener("click", function()
   body.style.display = getComputedStyle(body).display === "none" ? "block" : "none";
   toggle.textContent = getComputedStyle(body).display === "none" ? "+" : "−";
 });
-
-// Rühmita pikkuse järgi: { length -> [group, ...] }
-function byLength(groups) {
-  const map = new Map();
-  groups.forEach(g => {
-    if (!map.has(g.length)) map.set(g.length, []);
-    map.get(g.length).push(g);
-  });
-  return new Map([...map.entries()].sort((a, b) => b[0] - a[0]));
-}
 
 function buildChip(g, q) {
   const chip = document.createElement("span");
@@ -110,52 +118,90 @@ function buildChip(g, q) {
   return chip;
 }
 
-function render(q) {
-  const filtered = q
-    ? allGroups.filter(g => g.words.some(w => w.includes(q)))
-    : allGroups;
-
+function renderPage() {
   const list = document.getElementById("list");
   list.innerHTML = "";
+  const q = document.getElementById("search").value.trim().toLowerCase();
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const pageGroups = currentGroups.slice(start, start + PAGE_SIZE);
 
-  byLength(filtered).forEach((groups, length) => {
+  // Rühmita lehel olevad grupid pikkuse järgi
+  const byLen = new Map();
+  pageGroups.forEach(g => {
+    if (!byLen.has(g.length)) byLen.set(g.length, []);
+    byLen.get(g.length).push(g);
+  });
+  new Map([...byLen.entries()].sort((a, b) => b[0] - a[0])).forEach((groups, length) => {
     const section = document.createElement("div");
     section.className = "length-section";
-
     const heading = document.createElement("div");
     heading.className = "length-heading";
     heading.innerHTML = `
       <span class="length-title">${length}-tähelised</span>
       <span class="length-meta">${groups.length} gruppi</span>`;
     section.appendChild(heading);
-
     const flow = document.createElement("div");
     flow.className = "groups-flow";
     groups.forEach(g => flow.appendChild(buildChip(g, q)));
     section.appendChild(flow);
-
     list.appendChild(section);
   });
 
-  document.getElementById("info").textContent =
-    q ? `${filtered.length} gruppi` : `${allGroups.length} gruppi`;
   document.getElementById("list-wrap").scrollTop = 0;
+  renderPager();
 }
 
+function renderPager() {
+  const totalPages = Math.ceil(currentGroups.length / PAGE_SIZE);
+  const pager = document.getElementById("pager");
+  pager.style.display = totalPages > 1 ? "flex" : "none";
+  const numbersDiv = document.getElementById("pg-numbers");
+  numbersDiv.innerHTML = "";
+
+  const range = 5;
+  let start = Math.max(1, currentPage - Math.floor(range / 2));
+  let end = Math.min(totalPages, start + range - 1);
+  if (end - start < range - 1) start = Math.max(1, end - range + 1);
+
+  if (start > 1) {
+    const b = document.createElement("button"); b.className = "pg-btn"; b.textContent = "1";
+    b.onclick = () => { currentPage = 1; renderPage(); }; numbersDiv.appendChild(b);
+    if (start > 2) { const d = document.createElement("span"); d.textContent = "…"; d.style.opacity = "0.5"; numbersDiv.appendChild(d); }
+  }
+  for (let i = start; i <= end; i++) {
+    const b = document.createElement("button");
+    b.className = `pg-btn ${i === currentPage ? "current" : ""}`; b.textContent = i;
+    b.onclick = () => { currentPage = i; renderPage(); }; numbersDiv.appendChild(b);
+  }
+  if (end < totalPages) {
+    if (end < totalPages - 1) { const d = document.createElement("span"); d.textContent = "…"; d.style.opacity = "0.5"; numbersDiv.appendChild(d); }
+    const b = document.createElement("button"); b.className = "pg-btn"; b.textContent = totalPages;
+    b.onclick = () => { currentPage = totalPages; renderPage(); }; numbersDiv.appendChild(b);
+  }
+  document.getElementById("pg-prev").disabled = currentPage <= 1;
+  document.getElementById("pg-next").disabled = currentPage >= totalPages;
+}
+
+document.getElementById("pg-prev").addEventListener("click", () => {
+  if (currentPage > 1) { currentPage--; renderPage(); }
+});
+document.getElementById("pg-next").addEventListener("click", () => {
+  if (currentPage < Math.ceil(currentGroups.length / PAGE_SIZE)) { currentPage++; renderPage(); }
+});
+
 document.getElementById("search").addEventListener("input", function() {
-  render(this.value.trim().toLowerCase());
+  const q = this.value.trim().toLowerCase();
+  currentGroups = q ? allGroups.filter(g => g.words.some(w => w.includes(q))) : allGroups;
+  currentPage = 1;
+  renderPage();
 });
 
 fetch("../data/anagrams.json")
   .then(r => r.json())
   .then(data => {
     allGroups = data.groups;
-
-    // Arvuta statistikat
-    const totalWords = allGroups.reduce((sum, g) => sum + g.words.length, 0);
-
-
-    render("");
+    currentGroups = allGroups;
+    renderPage();
   })
   .catch(() => {
     document.getElementById("list").textContent =

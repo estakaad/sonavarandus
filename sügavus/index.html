@@ -2,6 +2,7 @@
 <html lang="et">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sõnavarandus - Liitsõnade sügavus</title>
 <link rel="stylesheet" href="../css/main.css">
 <style>
@@ -93,9 +94,6 @@
 <div class="app-header">
   <a class="nav-brand" href="../index.html">Sõnavarandus</a>
   <div id="top-nav-mount"></div>
-  <div class="header-end">
-    <a href="../info.html" style="font-size: 12px; color: var(--text-dim); text-decoration: none; transition: color 0.2s;">Info</a>
-  </div>
 </div>
 
 <div id="body">
@@ -111,9 +109,8 @@
       </div>
     </div>
 
-    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; justify-content: space-between;">
-      <div id="info" class="header-info" style="font-size: 12px; color: var(--text-muted);"></div>
-      <input id="search" class="text-input" type="text" placeholder="Otsi…" style="width: 200px;" autocomplete="off" spellcheck="false">
+    <div style="margin-bottom: 16px;">
+      <input id="search" class="text-input" type="text" placeholder="Otsi…" style="width: 100%;" autocomplete="off" spellcheck="false">
     </div>
     <div id="list"></div>
     <div id="pager">
@@ -327,16 +324,13 @@ document.getElementById("search").addEventListener("input", function() {
   if (!q) {
     currentPage = 1;
     renderList(allChains);
-    document.getElementById("info").textContent = `${allChains.length} ahelat`;
     return;
   }
-  // Otsi ahelatest mis sisaldavad seda sõna
   const filtered = allChains.filter(item =>
     item.chain.some(w => w.toLowerCase().includes(q))
   );
   currentPage = 1;
   renderList(filtered);
-  document.getElementById("info").textContent = `${filtered.length} ahelat`;
 
   // Kui täpne vaste, ava paneel
   const exact = Object.keys(compoundMap).find(w => w.toLowerCase() === q);
@@ -358,11 +352,6 @@ fetch("../data/depth.json")
   .then(data => {
     allChains    = data.top_chains;
     compoundMap  = data.compound_map;
-    const maxD   = allChains[0]?.depth ?? 0;
-    const totalCompounds = Object.keys(compoundMap).length;
-
-    document.getElementById("info").textContent =
-      `${allChains.length} ahelat · max sügavus ${maxD}`;
     renderList(allChains);
   })
   .catch(() => {

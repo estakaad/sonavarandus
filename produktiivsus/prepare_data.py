@@ -14,8 +14,6 @@ from collections import defaultdict
 CSV_FILE = "../data/liit.csv"
 JSON_FILE = "../data/productivity.json"
 
-MAX_EXAMPLES = 10
-
 esiosa_of   = defaultdict(set)   # sõna → liitsõnad kus ta on esiosa
 jarelosa_of = defaultdict(set)   # sõna → liitsõnad kus ta on järelosa
 
@@ -41,8 +39,8 @@ for w in all_words:
         "esiosa":           len(e),
         "jarelosa":         len(j),
         "total":            len(e) + len(j),
-        "esiosa_ex":        e[:MAX_EXAMPLES],
-        "jarelosa_ex":      j[:MAX_EXAMPLES],
+        "esiosa_ex":        e,
+        "jarelosa_ex":      j,
     })
 
 words.sort(key=lambda x: -x["total"])

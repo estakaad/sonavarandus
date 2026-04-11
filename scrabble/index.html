@@ -2,6 +2,7 @@
 <html lang="et">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sõnavarandus - Scrabble'i punktid</title>
 <link rel="stylesheet" href="../css/main.css">
 <style>
@@ -42,6 +43,12 @@
   .tile-ch  { font-size: 18px; font-weight: 600; color: var(--text); line-height: 1; }
   .tile-pts { font-size: 10px; color: var(--accent); margin-top: 3px; font-weight: 600; }
 
+  /* ── mobiil ── */
+  @media (max-width: 640px) {
+    .rank { display: none; }
+    .word { width: 100px; }
+  }
+
   /* ── info accordion ── */
   .page-info-accordion {
     margin-bottom: 24px; background: var(--surface);
@@ -58,7 +65,7 @@
   .page-info-toggle { font-size: 18px; color: var(--text-muted); font-weight: 300; }
 
   .page-info-body {
-    padding: 0 16px 12px; border-top: 1px solid var(--border);
+    padding: 12px 16px 12px; border-top: 1px solid var(--border);
     display: none;
   }
   .page-info-body.open { display: block; }
@@ -117,9 +124,6 @@
 <div class="app-header">
   <a class="nav-brand" href="../index.html">Sõnavarandus</a>
   <div id="top-nav-mount"></div>
-  <div class="header-end">
-    <a href="../info.html" style="font-size: 12px; color: var(--text-dim); text-decoration: none; transition: color 0.2s;">Info</a>
-  </div>
 </div>
 
 <div id="body">
@@ -134,10 +138,8 @@
         <p class="page-info-desc">Millised eestikeelsed sõnad toovad Scrabble'is kõige rohkem punkte?</p>
       </div>
     </div>
-    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; justify-content: space-between;">
-      <div id="info" class="header-info" style="font-size: 12px; color: var(--text-muted);"></div>
-      <input id="search" class="text-input" type="text" placeholder="Otsi sõna…"
-             style="width:160px;" autocomplete="off" spellcheck="false">
+    <div style="margin-bottom: 16px;">
+      <input id="search" class="text-input" type="text" placeholder="Otsi sõna…" style="width: 100%;" autocomplete="off" spellcheck="false">
     </div>
     <div id="list"></div>
     <div id="pager">
@@ -317,8 +319,9 @@ const infoHeader = document.querySelector(".page-info-header");
 const infoBody = document.getElementById("info-body");
 const infoToggle = document.querySelector(".page-info-toggle");
 infoHeader.addEventListener("click", () => {
-  const open = infoBody.classList.toggle("open");
-  infoToggle.textContent = open ? "−" : "+";
+  const isHidden = getComputedStyle(infoBody).display === "none";
+  infoBody.style.display = isHidden ? "block" : "none";
+  infoToggle.textContent = isHidden ? "−" : "+";
   infoHeader.setAttribute("aria-expanded", open);
 });
 infoHeader.addEventListener("keydown", e => {
@@ -347,8 +350,6 @@ document.getElementById("search").addEventListener("input", function() {
   const filtered = q ? allWords.filter(d => d.word.includes(q)) : allWords;
   currentPage = 1;
   renderList(getSorted(filtered));
-  document.getElementById("info").textContent =
-    q ? `${filtered.length} vastet` : `top ${allWords.length}`;
 });
 
 // ── lae andmed ───────────────────────────────────────────────
@@ -358,12 +359,9 @@ fetch("../data/scrabble.json")
     allWords  = data.words;
     scoreMap  = data.scores;
     window.tileCounts = data.tile_counts || {};
-    document.getElementById("info").textContent =
-      `top ${allWords.length} / ${data.total_valid} sõnast`;
-
     buildScoreTable(scoreMap);
     renderList(getSorted(allWords));
-    if (allWords.length) openPanel(allWords[0], null);
+    if (allWords.length && window.innerWidth > 640) openPanel(allWords[0], null);
   })
   .catch(() => {
     document.getElementById("list").textContent =
