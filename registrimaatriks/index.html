@@ -2,6 +2,7 @@
 <html lang="et">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sõnavarandus - Registrimaatriks</title>
 <link rel="stylesheet" href="../css/main.css">
 <style>
@@ -30,6 +31,37 @@
   #p-pagination button.pg-num.current { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; }
   .sep { height: 1px; background: var(--surface-alt); margin: 14px 0; }
   .p-label { font-size: 10px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+
+  /* ── Mobiili nimekirjavaade ── */
+  #mobile-list { display: none; }
+  .pair-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 7px 8px; border-radius: var(--radius-sm);
+    cursor: pointer; transition: background .1s;
+  }
+  .pair-row:hover    { background: var(--row-hover); }
+  .pair-row.selected { background: var(--row-selected); }
+  .pair-regs { flex: 1; min-width: 0; font-size: 13px; color: var(--text-sec);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pair-regs.diag { color: var(--text); font-weight: 600; }
+  .pair-count {
+    flex-shrink: 0; width: 44px; text-align: right; padding-right: 8px;
+    font-size: 13px; font-weight: 600; color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media (max-width: 640px) {
+    body { height: auto; overflow-x: clip; overflow-y: auto; }
+    #body { flex: none; width: 100%; flex-direction: column; }
+    #matrix-wrap { overflow: hidden; flex: none; width: 100%; box-sizing: border-box; padding: 12px 16px 24px; }
+    #matrix-svg { display: none; }
+    #mobile-list { display: block; }
+
+    /* Paneel pagineerimine — lehenumbrid üles, nooled alla */
+    #p-pagination { flex-wrap: wrap !important; gap: 8px !important; }
+    .pg-nums { order: -1; flex: 0 0 100%; gap: 4px !important; flex-wrap: wrap !important; justify-content: center; }
+    .pg-num { width: 32px !important; height: 32px !important; font-size: 11px !important; }
+  }
 </style>
 </head>
 <body>
@@ -37,9 +69,6 @@
 <div class="app-header">
   <a class="nav-brand" href="../index.html">Sõnavarandus</a>
   <div id="top-nav-mount"></div>
-  <div class="header-end">
-    <a href="../info.html" style="font-size: 12px; color: var(--text-dim); text-decoration: none; transition: color 0.2s;">Info</a>
-  </div>
 </div>
 
 <div id="body">
@@ -54,6 +83,7 @@
         <p class="page-info-desc">Mõnda sõna kasutatakse põhiliselt kõnekeelsetes olukordades, mõnda sõna lastekeeles jne. Mõne sõna kohta on sõnaraamatus märgitud kaks registrit korraga. Siit maatriksist leiab need võimalikud kombinatsioonid.</p>
       </div>
     </div>
+    <div id="mobile-list"></div>
     <svg id="matrix-svg"></svg>
   </div>
 
@@ -75,13 +105,14 @@
 document.querySelector(".page-info-header").addEventListener("click", function() {
   const body = this.nextElementSibling;
   const toggle = this.querySelector(".page-info-toggle");
-  body.style.display = body.style.display === "none" ? "block" : "none";
-  toggle.textContent = body.style.display === "none" ? "+" : "−";
+  const isHidden = getComputedStyle(body).display === "none";
+  body.style.display = isHidden ? "block" : "none";
+  toggle.textContent = isHidden ? "−" : "+";
 });
 
 fetch("../data/registers.json")
   .then(r => r.json())
-  .then(draw)
+  .then(data => { if (window.innerWidth > 640) draw(data); renderMobileList(data); })
   .catch(() => {
     document.getElementById("matrix-wrap").innerHTML =
       '<p style="padding:40px;color:#94a3b8">⚠ registers.json puudub — käivita prepare_data.py</p>';
@@ -215,6 +246,46 @@ function draw(data) {
   const legY = H - 0;  // all nurgas polegi legendi, piisab vihjest
 }
 
+// ── Mobiili nimekirjavaade ────────────────────────────────────
+function renderMobileList(data) {
+  const { registers, matrix, pairs } = data;
+  const codes = registers.map(r => r.code);
+  const rows = [];
+
+  registers.forEach(r => {
+    if (r.total > 0) rows.push({ r1: r.code, r2: r.code, count: r.total, diag: true });
+  });
+  codes.forEach((r1, i) => {
+    codes.slice(i + 1).forEach(r2 => {
+      const val = matrix[r1]?.[r2] || 0;
+      if (val > 0) rows.push({ r1, r2, count: val, diag: false });
+    });
+  });
+  rows.sort((a, b) => b.count - a.count);
+
+  const list = document.getElementById("mobile-list");
+  list.innerHTML = rows.map((row, idx) => {
+    const text = row.diag ? label(row.r1) : `${label(row.r1)} × ${label(row.r2)}`;
+    return `<div class="pair-row" data-idx="${idx}">
+      <span class="pair-regs${row.diag ? ' diag' : ''}">${text}</span>
+      <span class="pair-count">${row.count}</span>
+    </div>`;
+  }).join('');
+
+  list._rows = rows;
+  list._pairs = pairs;
+
+  list.addEventListener('click', e => {
+    const el = e.target.closest('.pair-row');
+    if (!el) return;
+    list.querySelectorAll('.pair-row.selected').forEach(r => r.classList.remove('selected'));
+    el.classList.add('selected');
+    const { r1, r2, count } = list._rows[+el.dataset.idx];
+    const key = [r1, r2].sort().join('|');
+    openPanel(r1, r2, count, list._pairs[key] || []);
+  });
+}
+
 // ── paneel ────────────────────────────────────────────────────
 const PAGE_SIZE = 100;
 let currentWords = [];
@@ -235,7 +306,7 @@ function renderWordsPage(page) {
   const paginationDiv = document.getElementById("p-pagination");
 
   if (totalPages > 1) {
-    const html = ['<button class="pg-nav" onclick="renderWordsPage(currentPage - 1)" ' + (page === 1 ? 'disabled' : '') + '>←</button>', '<div class="pg-nums">'];
+    const html = ['<button class="pg-nav" onclick="renderWordsPage(currentPage - 1)" ' + (page === 1 ? 'disabled' : '') + '>← Eelmine</button>', '<div class="pg-nums">'];
 
     const range = 5;
     let pageStart = Math.max(1, page - Math.floor(range / 2));
@@ -262,7 +333,7 @@ function renderWordsPage(page) {
       html.push(`<button class="pg-num" onclick="renderWordsPage(${totalPages})">${totalPages}</button>`);
     }
 
-    html.push('</div>', '<button class="pg-nav" onclick="renderWordsPage(currentPage + 1)" ' + (page === totalPages ? 'disabled' : '') + '>→</button>');
+    html.push('</div>', '<button class="pg-nav" onclick="renderWordsPage(currentPage + 1)" ' + (page === totalPages ? 'disabled' : '') + '>Järgmine →</button>');
     paginationDiv.innerHTML = html.join('');
   } else {
     paginationDiv.innerHTML = '';

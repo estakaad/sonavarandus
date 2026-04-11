@@ -2,6 +2,7 @@
 <html lang="et">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sõnavarandus - Sünonüümitihedus</title>
 <link rel="stylesheet" href="../css/main.css">
 <style>
@@ -60,6 +61,11 @@
   .pg-btn.current { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; }
   .pg-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
+  .row-ellipsis { display: none; color: var(--text-ghost); }
+  @media (max-width: 640px) {
+    .row-extra    { display: none; }
+    .row-ellipsis { display: inline; }
+  }
 </style>
 </head>
 <body>
@@ -69,9 +75,6 @@
 <div class="app-header">
   <a class="nav-brand" href="../index.html">Sõnavarandus</a>
   <div id="top-nav-mount"></div>
-  <div class="header-end">
-    <a href="../info.html" style="font-size: 12px; color: var(--text-dim); text-decoration: none; transition: color 0.2s;">Info</a>
-  </div>
 </div>
 
 <div id="body">
@@ -119,8 +122,10 @@ function rowLabel(d) {
   const src   = d.preview || d.words;
   const first = src[0];
   const rest  = src.slice(1, 4).join(" / ");
-  const more  = d.count > 4 ? ` <span style="color:var(--text-ghost)">+${d.count - 4}</span>` : "";
-  return `<strong>${first}</strong>${rest ? " / " + rest : ""}${more}`;
+  const more  = d.count > 4 ? ` +${d.count - 4}` : "";
+  const hasRest = src.length > 1;
+  return `<strong>${first}</strong>`
+    + (hasRest ? `<span class="row-extra"> / ${rest}${more}</span><span class="row-ellipsis">, …</span>` : "");
 }
 
 function buildRow(d) {
@@ -235,8 +240,9 @@ document.getElementById("search").addEventListener("input", function() {
 document.querySelector(".page-info-header").addEventListener("click", function() {
   const body = this.nextElementSibling;
   const toggle = this.querySelector(".page-info-toggle");
-  const isOpen = body.classList.toggle("open");
-  toggle.textContent = isOpen ? "−" : "+";
+  const isHidden = getComputedStyle(body).display === "none";
+  body.style.display = isHidden ? "block" : "none";
+  toggle.textContent = isHidden ? "−" : "+";
 });
 
 fetch("../data/synonyms.json")
@@ -248,7 +254,7 @@ fetch("../data/synonyms.json")
 
 
     renderList(allMeanings);
-    if (allMeanings.length) {
+    if (allMeanings.length && window.innerWidth > 640) {
       const firstRow = document.querySelector("#list .row");
       openPanel(allMeanings[0], firstRow);
     }

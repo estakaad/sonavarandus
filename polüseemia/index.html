@@ -2,6 +2,7 @@
 <html lang="et">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sõnavarandus - Polüseemia</title>
 <link rel="stylesheet" href="../css/main.css">
 <style>
@@ -26,6 +27,10 @@
   .num {
     width: 28px; flex-shrink: 0; text-align: right;
     font-size: 12px; color: var(--text-dim); font-variant-numeric: tabular-nums;
+  }
+
+  @media (max-width: 640px) {
+    .word { width: 100px; }
   }
 
   #p-word  { font-size: 24px; font-weight: 300; letter-spacing: 1px; color: var(--text); margin-bottom: 4px; }
@@ -61,9 +66,6 @@
 <div class="app-header">
   <a class="nav-brand" href="../index.html">Sõnavarandus</a>
   <div id="top-nav-mount"></div>
-  <div class="header-end">
-    <a href="../info.html" style="font-size: 12px; color: var(--text-dim); text-decoration: none; transition: color 0.2s;">Info</a>
-  </div>
 </div>
 
 <div id="body">

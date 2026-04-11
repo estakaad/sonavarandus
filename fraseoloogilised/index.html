@@ -19,14 +19,18 @@
     .row.selected { background: var(--row-selected); }
 
     .category {
-      width: 200px; flex-shrink: 0; font-size: 13px; color: var(--text);
+      flex: 1; min-width: 0; font-size: 13px; color: var(--text);
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-    .bar-wrap { flex: 1; height: 12px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .bar-wrap { width: 80px; flex-shrink: 0; height: 12px; background: var(--border); border-radius: 3px; overflow: hidden; }
     .bar { height: 100%; border-radius: 3px; background: var(--accent); transition: width .3s ease; }
     .num {
       width: 32px; flex-shrink: 0; text-align: right;
       font-size: 12px; color: var(--text-dim); font-variant-numeric: tabular-nums;
+    }
+
+    @media (max-width: 640px) {
+      .category { width: 120px; }
     }
 
     #panel.open { width: 520px; }
@@ -74,9 +78,6 @@
 <div class="app-header">
   <a class="nav-brand" href="../index.html">Sõnavarandus</a>
   <div id="top-nav-mount"></div>
-  <div class="header-end">
-    <a href="../info.html" style="font-size: 12px; color: var(--text-dim); text-decoration: none; transition: color 0.2s;">Info</a>
-  </div>
 </div>
 
 <div id="body">
@@ -297,7 +298,7 @@ document.getElementById("search").addEventListener("input", function() {
   const filtered = q ? allCategories.filter(c => (c.name || '').toLowerCase().includes(q)) : allCategories;
   currentPage = 1;
   renderList(filtered);
-  document.getElementById("count-info").textContent = `${filtered.length} kategooriaid`;
+  document.getElementById("count-info").textContent = `${filtered.length} kategooriat`;
 });
 
 fetch("../data/fraseoloogilised.json")
@@ -306,10 +307,10 @@ fetch("../data/fraseoloogilised.json")
     allCategories = data.categories;
     const totalExpr = data.total;
 
-    document.getElementById("count-info").textContent = `${allCategories.length} kategooriaid`;
+    document.getElementById("count-info").textContent = `${allCategories.length} kategooriat`;
 
     renderList(allCategories);
-    if (allCategories.length) openPanel(allCategories[0], null);
+    if (allCategories.length && window.innerWidth > 640) openPanel(allCategories[0], null);
   })
   .catch(() => {
     document.getElementById("list").textContent =
