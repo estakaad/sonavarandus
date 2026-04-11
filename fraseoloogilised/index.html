@@ -93,10 +93,6 @@
       </div>
     </div>
 
-    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; justify-content: space-between;">
-      <div id="count-info" style="font-size: 12px; color: var(--text-muted);"></div>
-      <input id="search" class="text-input" type="text" placeholder="Otsi kategooriast…" style="width: 200px;" autocomplete="off" spellcheck="false">
-    </div>
     <div id="list"></div>
     <div id="pager">
       <button type="button" class="btn btn-sm" id="pg-prev">← Eelmine</button>
@@ -293,22 +289,10 @@ function escapeHtml(text) {
   return text.replace(/[&<>"']/g, m => map[m]);
 }
 
-document.getElementById("search").addEventListener("input", function() {
-  const q = this.value.trim().toLowerCase();
-  const filtered = q ? allCategories.filter(c => (c.name || '').toLowerCase().includes(q)) : allCategories;
-  currentPage = 1;
-  renderList(filtered);
-  document.getElementById("count-info").textContent = `${filtered.length} kategooriat`;
-});
-
 fetch("../data/fraseoloogilised.json")
   .then(r => r.json())
   .then(data => {
     allCategories = data.categories;
-    const totalExpr = data.total;
-
-    document.getElementById("count-info").textContent = `${allCategories.length} kategooriat`;
-
     renderList(allCategories);
     if (allCategories.length && window.innerWidth > 640) openPanel(allCategories[0], null);
   })

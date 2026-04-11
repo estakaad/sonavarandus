@@ -58,9 +58,6 @@
         <p class="page-info-desc">Sõnad, mis tagurpidi loetuna annavad sama sõna.</p>
       </div>
     </div>
-    <div style="margin-bottom: 16px;">
-      <input id="search" class="text-input" type="text" placeholder="Otsi…" style="width: 100%;" autocomplete="off" spellcheck="false">
-    </div>
     <div id="list"></div>
   </div>
 </div>
@@ -112,10 +109,6 @@ function render(query) {
   });
 
 }
-
-document.getElementById("search").addEventListener("input", function() {
-  render(this.value);
-});
 
 fetch("../data/palindromes.json")
   .then(r => r.json())

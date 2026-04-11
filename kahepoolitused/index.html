@@ -89,9 +89,6 @@
         <p class="page-info-desc">Liitsõnad, mille esi- ja järelosa piir võib jääda erinevatesse kohtadesse. Ei saa öelda, et tulemus alati senssi meigiks, aga huvitav sellegipoolest. Näiteks <em>esikäpp</em> sobib jagada nii <em>esi+käpp</em> kui ka <em>esik+äpp</em>.</p>
       </div>
     </div>
-    <div style="margin-bottom: 16px;">
-      <input id="search" class="text-input" type="text" placeholder="Otsi sõna…" style="width: 100%;" autocomplete="off" spellcheck="false">
-    </div>
     <div id="list"></div>
     <div id="pager">
       <button type="button" class="btn btn-sm" id="pg-prev">← Eelmine</button>
@@ -215,17 +212,6 @@ document.getElementById("pg-prev").addEventListener("click", () => {
 });
 document.getElementById("pg-next").addEventListener("click", () => {
   if (currentPage < Math.ceil(currentWords.length / PAGE_SIZE)) { currentPage++; renderList(currentWords); }
-});
-
-document.getElementById("search").addEventListener("input", function() {
-  const q = this.value.trim().toLowerCase();
-  currentWords = q
-    ? allWords.filter(d =>
-        d.word.includes(q) ||
-        d.splits.some(s => s.esiosa.includes(q) || s.jarelosa.includes(q)))
-    : allWords;
-  currentPage = 1;
-  renderList(currentWords);
 });
 
 fetch("../data/kahepoolitused.json")

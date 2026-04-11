@@ -138,9 +138,6 @@
         <p class="page-info-desc">Millised eestikeelsed sõnad toovad Scrabble'is kõige rohkem punkte?</p>
       </div>
     </div>
-    <div style="margin-bottom: 16px;">
-      <input id="search" class="text-input" type="text" placeholder="Otsi sõna…" style="width: 100%;" autocomplete="off" spellcheck="false">
-    </div>
     <div id="list"></div>
     <div id="pager">
       <button type="button" class="btn btn-sm" id="pg-prev">← Eelmine</button>
@@ -343,14 +340,6 @@ toggle.addEventListener("keydown", e => {
 
 // ── sorteerimine ─────────────────────────────────────────────
 // Alati skoori järgi, ei kasutaja seadeid
-
-// ── otsing ───────────────────────────────────────────────────
-document.getElementById("search").addEventListener("input", function() {
-  const q = this.value.trim().toLowerCase();
-  const filtered = q ? allWords.filter(d => d.word.includes(q)) : allWords;
-  currentPage = 1;
-  renderList(getSorted(filtered));
-});
 
 // ── lae andmed ───────────────────────────────────────────────
 fetch("../data/scrabble.json")

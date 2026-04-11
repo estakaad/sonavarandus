@@ -146,14 +146,6 @@
       </div>
     </div>
 
-    <div id="search-wrap">
-      <h1>Sõnagalaktika</h1>
-      <p>Avasta eesti keele semantilisi seoseid</p>
-      <div style="position:relative">
-        <input id="search" type="text" placeholder="Sisesta sõna…" autocomplete="off" spellcheck="false">
-        <div id="suggestions"></div>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -392,57 +384,6 @@ function onMouseMove(event) {
 }
 function onMouseOut() { tooltip.style.display = "none"; }
 
-// --- otsing ---
-const searchEl = document.getElementById("search");
-const suggestEl = document.getElementById("suggestions");
-const wrapEl = document.getElementById("search-wrap");
-let suggestList = [];
-let activeIdx = -1;
-
-searchEl.addEventListener("input", () => {
-  const q = searchEl.value.trim().toLowerCase();
-  if (!q) { suggestEl.style.display = "none"; return; }
-  suggestList = allWords.filter(w => w.toLowerCase().startsWith(q)).slice(0, 8);
-  if (!suggestList.length) { suggestEl.style.display = "none"; return; }
-  activeIdx = -1;
-  suggestEl.innerHTML = suggestList.map((w, i) =>
-    `<div class="suggestion" data-i="${i}">${w}</div>`).join("");
-  suggestEl.style.display = "block";
-  suggestEl.querySelectorAll(".suggestion").forEach(el => {
-    el.addEventListener("click", () => pick(el.dataset.i));
-  });
-});
-
-searchEl.addEventListener("keydown", e => {
-  if (e.key === "ArrowDown") { activeIdx = Math.min(activeIdx + 1, suggestList.length - 1); renderActive(); e.preventDefault(); }
-  else if (e.key === "ArrowUp") { activeIdx = Math.max(activeIdx - 1, 0); renderActive(); e.preventDefault(); }
-  else if (e.key === "Enter") {
-    if (activeIdx >= 0) pick(activeIdx);
-    else if (suggestList.length) pick(0);
-  }
-  else if (e.key === "Escape") { suggestEl.style.display = "none"; }
-});
-
-function renderActive() {
-  suggestEl.querySelectorAll(".suggestion").forEach((el, i) =>
-    el.classList.toggle("active", i === activeIdx));
-}
-
-function pick(i) {
-  const word = suggestList[i];
-  searchEl.value = word;
-  suggestEl.style.display = "none";
-  wrapEl.classList.add("top");
-  // Tühjenda vaade enne uue sõna kuvamist
-  nodes.length = 0;
-  links.length = 0;
-  nodeMap.clear();
-  linkSet.clear();
-  expanded.clear();
-  update();
-  expandWord(word, W / 2, H / 2);
-}
-
 // Accordion toggle
 document.querySelector("#info-accordion .page-info-header").addEventListener("click", function() {
   const body = this.nextElementSibling;
@@ -462,8 +403,6 @@ fetch("../data/graph.json")
 
     // Vaikimisi kuvamine
     if (adjacency["tragi"]) {
-      searchEl.value = "tragi";
-      wrapEl.classList.add("top");
       expandWord("tragi", W / 2, H / 2);
     }
   });

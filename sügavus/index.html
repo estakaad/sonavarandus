@@ -109,9 +109,6 @@
       </div>
     </div>
 
-    <div style="margin-bottom: 16px;">
-      <input id="search" class="text-input" type="text" placeholder="Otsi…" style="width: 100%;" autocomplete="off" spellcheck="false">
-    </div>
     <div id="list"></div>
     <div id="pager">
       <button type="button" class="btn btn-sm" id="pg-prev">← Eelmine</button>
@@ -317,25 +314,6 @@ function openPanel(word) {
 
   document.getElementById("panel").classList.add("open");
 }
-
-// ── otsing ────────────────────────────────────────────────
-document.getElementById("search").addEventListener("input", function() {
-  const q = this.value.trim().toLowerCase();
-  if (!q) {
-    currentPage = 1;
-    renderList(allChains);
-    return;
-  }
-  const filtered = allChains.filter(item =>
-    item.chain.some(w => w.toLowerCase().includes(q))
-  );
-  currentPage = 1;
-  renderList(filtered);
-
-  // Kui täpne vaste, ava paneel
-  const exact = Object.keys(compoundMap).find(w => w.toLowerCase() === q);
-  if (exact) openPanel(exact);
-});
 
 // ── accordion toggle ──────────────────────────────────────
 document.getElementById("accordion-toggle").addEventListener("click", function() {

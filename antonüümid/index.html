@@ -71,11 +71,6 @@
       </div>
     </div>
 
-    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; justify-content: space-between;">
-      <div id="info" style="font-size: 12px; color: var(--text-muted);"></div>
-      <input id="search" class="text-input" type="text" placeholder="Otsi sõna…" style="width: min(200px, 100%);" autocomplete="off" spellcheck="false">
-    </div>
-
     <div id="list"></div>
     <div id="pager">
       <button type="button" class="btn btn-sm" id="pg-prev">← Eelmine</button>
@@ -150,18 +145,6 @@ document.getElementById("pg-next").addEventListener("click", () => {
   if (currentPage < Math.ceil(currentPairs.length / PAGE_SIZE)) { currentPage++; renderList(currentPairs); }
 });
 
-document.getElementById("search").addEventListener("input", function() {
-  const q = this.value.trim().toLowerCase();
-  const filtered = q
-    ? allPairs.filter(d =>
-        d.word.toLowerCase().includes(q) ||
-        d.antonyms.some(a => a.toLowerCase().includes(q)))
-    : allPairs;
-  currentPage = 1;
-  renderList(filtered);
-  document.getElementById("info").textContent = `${filtered.length} sõna`;
-});
-
 document.querySelector(".page-info-header").addEventListener("click", function() {
   const body = this.nextElementSibling;
   const toggle = this.querySelector(".page-info-toggle");
@@ -174,7 +157,6 @@ fetch("../data/antonüümid.json")
   .then(r => r.json())
   .then(data => {
     allPairs = data.pairs;
-    document.getElementById("info").textContent = `${allPairs.length} sõna`;
     renderList(allPairs);
   })
   .catch(() => {

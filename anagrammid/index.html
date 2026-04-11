@@ -77,9 +77,6 @@
         <p class="page-info-desc">Samad tähed, eri sõnad.</p>
       </div>
     </div>
-    <div style="margin-bottom: 16px;">
-      <input id="search" class="text-input" type="text" placeholder="Otsi…" style="width: 100%;" autocomplete="off" spellcheck="false">
-    </div>
     <div id="list"></div>
     <div id="pager">
       <button type="button" class="btn btn-sm" id="pg-prev">← Eelmine</button>
@@ -121,7 +118,7 @@ function buildChip(g, q) {
 function renderPage() {
   const list = document.getElementById("list");
   list.innerHTML = "";
-  const q = document.getElementById("search").value.trim().toLowerCase();
+  const q = "";
   const start = (currentPage - 1) * PAGE_SIZE;
   const pageGroups = currentGroups.slice(start, start + PAGE_SIZE);
 
@@ -187,13 +184,6 @@ document.getElementById("pg-prev").addEventListener("click", () => {
 });
 document.getElementById("pg-next").addEventListener("click", () => {
   if (currentPage < Math.ceil(currentGroups.length / PAGE_SIZE)) { currentPage++; renderPage(); }
-});
-
-document.getElementById("search").addEventListener("input", function() {
-  const q = this.value.trim().toLowerCase();
-  currentGroups = q ? allGroups.filter(g => g.words.some(w => w.includes(q))) : allGroups;
-  currentPage = 1;
-  renderPage();
 });
 
 fetch("../data/anagrams.json")

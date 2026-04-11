@@ -79,11 +79,6 @@
       </div>
     </div>
 
-    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; justify-content: space-between;">
-      <div id="info" class="header-info" style="font-size: 12px; color: var(--text-muted);"></div>
-      <input id="search" class="text-input" type="text" placeholder="Otsi sõna…" style="width: 200px;" autocomplete="off" spellcheck="false">
-    </div>
-
     <div id="list"></div>
     <div id="pager">
       <button type="button" class="btn btn-sm" id="pg-prev">← Eelmine</button>
@@ -196,27 +191,6 @@ function openPanel(words, row) {
   document.getElementById("panel").classList.add("open");
 }
 
-document.getElementById("search").addEventListener("input", function() {
-  const q = this.value.trim().toLowerCase();
-  const filtered = q
-    ? allClusters.filter(words => words.some(w => w.toLowerCase().includes(q)))
-    : allClusters;
-  currentPage = 1;
-  renderList(filtered);
-  document.getElementById("info").textContent = `${filtered.length} rühma`;
-
-  // kui täpne vaste, ava see kohe
-  if (q) {
-    const exact = filtered.find(words => words.some(w => w.toLowerCase() === q));
-    if (exact) {
-      setTimeout(() => {
-        const firstRow = document.querySelector("#list .row");
-        if (firstRow) openPanel(exact, firstRow);
-      }, 0);
-    }
-  }
-});
-
 document.querySelector(".page-info-header").addEventListener("click", function() {
   const body = this.nextElementSibling;
   const toggle = this.querySelector(".page-info-toggle");
@@ -229,7 +203,6 @@ fetch("../data/sonarühmad.json")
   .then(r => r.json())
   .then(data => {
     allClusters = data.clusters;
-    document.getElementById("info").textContent = `${allClusters.length} rühma`;
     renderList(allClusters);
     if (allClusters.length && window.innerWidth > 640) {
       const firstRow = document.querySelector("#list .row");

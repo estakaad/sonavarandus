@@ -65,9 +65,6 @@
         <p class="page-info-desc">Ühtepidi üks sõna, teistpidi teine sõna.</p>
       </div>
     </div>
-    <div style="margin-bottom: 16px;">
-      <input id="search" class="text-input" type="text" placeholder="Otsi…" style="width: 100%;" autocomplete="off" spellcheck="false">
-    </div>
     <div id="list"></div>
     <div id="pager">
       <button type="button" class="btn btn-sm" id="pg-prev">← Eelmine</button>
@@ -160,12 +157,6 @@ function renderPager() {
 
 document.getElementById("pg-prev").addEventListener("click", () => { if (currentPage > 1) { currentPage--; renderList(currentPairs); } });
 document.getElementById("pg-next").addEventListener("click", () => { if (currentPage < Math.ceil(currentPairs.length / PAGE_SIZE)) { currentPage++; renderList(currentPairs); } });
-
-document.getElementById("search").addEventListener("input", function() {
-  const q = this.value.trim().toLowerCase();
-  const filtered = q ? allPairs.filter(p => p.a.includes(q) || p.b.includes(q)) : allPairs;
-  currentPage = 1; renderList(filtered);
-});
 
 // Accordion toggle
 document.querySelector(".page-info-header").addEventListener("click", function() {

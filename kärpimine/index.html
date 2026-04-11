@@ -61,9 +61,6 @@
       </div>
     </div>
 
-    <div style="margin-bottom: 16px;">
-      <input id="search" class="text-input" type="text" placeholder="Otsi…" style="width: 100%;" autocomplete="off" spellcheck="false">
-    </div>
     <div id="list"></div>
     <div id="pager">
       <button type="button" class="btn btn-sm" id="pg-prev">← Eelmine</button>
@@ -135,12 +132,6 @@ function renderPager() {
 
 document.getElementById("pg-prev").addEventListener("click", () => { if (currentPage > 1) { currentPage--; renderList(currentChains); } });
 document.getElementById("pg-next").addEventListener("click", () => { if (currentPage < Math.ceil(currentChains.length / PAGE_SIZE)) { currentPage++; renderList(currentChains); } });
-
-document.getElementById("search").addEventListener("input", function() {
-  const q = this.value.trim().toLowerCase();
-  const filtered = q ? allChains.filter(c => c.chain.some(w => w.includes(q))) : allChains;
-  currentPage = 1; renderList(filtered);
-});
 
 fetch("../data/beheadments.json").then(r=>r.json()).then(data => {
   allChains = data.chains;

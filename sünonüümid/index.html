@@ -90,11 +90,6 @@
       </div>
     </div>
 
-    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; justify-content: space-between;">
-      <div id="info" class="header-info" style="font-size: 12px; color: var(--text-muted);"></div>
-      <input id="search" class="text-input" type="text" placeholder="Otsi…" style="width: 200px;" autocomplete="off" spellcheck="false">
-    </div>
-
     <div id="list"></div>
     <div id="pager">
       <button type="button" class="btn btn-sm" id="pg-prev">← Eelmine</button>
@@ -226,16 +221,6 @@ function openPanel(d, row) {
   document.getElementById("panel").classList.add("open");
 }
 
-document.getElementById("search").addEventListener("input", function() {
-  const q = this.value.trim().toLowerCase();
-  const filtered = q
-    ? allMeanings.filter(d => d.words.some(w => w.toLowerCase().includes(q)))
-    : allMeanings;
-  currentPage = 1;
-  renderList(filtered);
-  document.getElementById("info").textContent = `${filtered.length} tähendust`;
-});
-
 // Accordion toggle
 document.querySelector(".page-info-header").addEventListener("click", function() {
   const body = this.nextElementSibling;
@@ -249,10 +234,6 @@ fetch("../data/synonyms.json")
   .then(r => r.json())
   .then(data => {
     allMeanings = data.meanings;
-    document.getElementById("info").textContent =
-      `${allMeanings.length} tähendust sünonüümidega`;
-
-
     renderList(allMeanings);
     if (allMeanings.length && window.innerWidth > 640) {
       const firstRow = document.querySelector("#list .row");

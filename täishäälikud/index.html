@@ -40,9 +40,6 @@
       <p class="page-info-desc">Sõnad mis koosnevad üksnes täishäälikutest.</p>
     </div>
   </div>
-  <div style="margin-bottom: 16px;">
-    <input id="search" class="text-input" type="text" placeholder="Otsi…" style="width: 100%;" autocomplete="off" spellcheck="false">
-  </div>
   <div id="list"></div>
 </div>
 <script src="../js/utils.js"></script>
@@ -79,8 +76,6 @@ function render(q) {
     list.appendChild(sec);
   });
 }
-
-document.getElementById("search").addEventListener("input", function() { render(this.value.trim().toLowerCase()); });
 
 fetch("../data/vowelwords.json").then(r=>r.json()).then(data => {
   allGroups = data.groups;

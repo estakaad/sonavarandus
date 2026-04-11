@@ -85,9 +85,6 @@
         <p class="page-info-desc">Millised sõnad moodustavad kõige rohkem liitsõnu? Millised sõnad sobivad hästi liitsõnade esiosaks? Millised sõnad sobivad hästi liitsõnade järelosaks?</p>
       </div>
     </div>
-    <div style="margin-bottom: 16px;">
-      <input id="search" class="text-input" type="text" placeholder="Otsi…" style="width: 100%;" autocomplete="off" spellcheck="false">
-    </div>
     <div id="legend">
       <span><span class="leg-dot leg-esiosa"></span>Esiosana</span>
       <span><span class="leg-dot leg-jarelosa"></span>Järelosana</span>
@@ -250,13 +247,6 @@ function openPanel(d, row) {
   document.getElementById("p-jarelosa-ex").innerHTML = exFn(d.jarelosa_ex, "j");
   document.getElementById("panel").classList.add("open");
 }
-
-document.getElementById("search").addEventListener("input", function() {
-  const q = this.value.trim().toLowerCase();
-  const filtered = q ? allWords.filter(w => w.word.toLowerCase().includes(q)) : allWords;
-  currentPage = 1;
-  renderList(getSorted(filtered));
-});
 
 document.querySelectorAll(".sort-btn").forEach(btn => {
   btn.addEventListener("click", () => {
