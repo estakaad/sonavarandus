@@ -407,10 +407,24 @@ function renderActive() {
   });
 }
 
+function resetGraph() {
+  nodes.length = 0;
+  links.length = 0;
+  nodeMap.clear();
+  linkSet.clear();
+  expanded.clear();
+  linkG.selectAll("line").remove();
+  nodeG.selectAll("circle").remove();
+  labelG.selectAll("text").remove();
+  simulation.stop();
+  document.getElementById("info").classList.remove("visible");
+}
+
 function pick(word) {
   searchEl.value = word;
   suggestEl.style.display = "none";
   suggestList = []; activeIdx = -1;
+  resetGraph();
   expandWord(word, W / 2, H / 2);
 }
 
@@ -449,6 +463,7 @@ fetch("../data/graph.json")
 
     // Vaikimisi kuvamine
     if (adjacency["tere"]) {
+      searchEl.value = "tere";
       expandWord("tere", W / 2, H / 2);
     }
   });
