@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sõnavarandus - Mitmemõttelised liitsõnad</title>
+<link rel="stylesheet" href="../css/main.css">
+<style>
+  body { min-height: 100vh; display: flex; flex-direction: column; }
+  #body { display: flex; flex: 1; background: var(--bg); }
+  #list-wrap { flex: 1; padding: 16px 24px 40px; min-width: 0; }
+
+  .row {
+    display: flex; align-items: baseline; gap: 12px;
+    padding: 7px 8px; border-radius: var(--radius-sm);
+    transition: background .1s; flex-wrap: wrap;
+  }
+  .row:hover { background: var(--row-hover); }
+
+  .row-word {
+    font-size: 14px; font-weight: 600; color: var(--text);
+    flex-shrink: 0; min-width: 160px;
+  }
+  .row-splits { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; align-items: center; }
+
+  .split-chip {
+    display: inline-flex; align-items: center; gap: 0;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 6px; padding: 3px 2px;
+    font-size: 12px; transition: background .1s, border-color .1s;
+  }
+  .split-chip:hover { background: var(--accent-light); border-color: var(--accent); }
+
+  .split-part {
+    padding: 0 7px; color: var(--text-sec);
+    text-decoration: none; transition: color .1s;
+  }
+  .split-part:hover { color: var(--accent); }
+  .split-plus {
+    font-size: 11px; color: var(--text-ghost);
+    user-select: none; flex-shrink: 0;
+  }
+
+  .count-badge {
+    flex-shrink: 0; padding: 1px 7px; border-radius: 10px;
+    font-size: 11px; font-weight: 600;
+    background: var(--accent-light); color: var(--accent);
+  }
+
+  #pager {
+    display: none; align-items: center; justify-content: center;
+    gap: 8px; padding: 16px 0 8px; flex-wrap: wrap;
+  }
+  #pg-numbers { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: center; }
+  .pg-btn {
+    width: 36px; height: 36px; padding: 0; border: 1px solid var(--border);
+    border-radius: 50%; background: var(--bg); color: var(--text-sec);
+    font-size: 12px; cursor: pointer; transition: all .1s; display: flex;
+    align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .pg-btn:hover:not(:disabled) { background: var(--surface-alt); border-color: var(--accent); }
+  .pg-btn.current { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; }
+  .pg-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  @media (max-width: 480px) {
+    #list-wrap { padding: 12px 12px 40px; }
+    .row-word { min-width: 0; flex: 0 0 100%; margin-bottom: 2px; }
+  }
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#body">Hüppa põhisisu juurde</a>
+
+<div class="app-header">
+  <a class="nav-brand" href="../index.html">Sõnavarandus</a>
+  <div id="top-nav-mount"></div>
+</div>
+
+<div id="body">
+  <div id="list-wrap">
+    <div class="page-info-accordion">
+      <div class="page-info-header">
+        <span class="page-info-icon">ℹ</span>
+        <span class="page-info-title">Mitmemõttelised liitsõnad</span>
+        <span class="page-info-toggle">−</span>
+      </div>
+      <div class="page-info-body">
+        <p class="page-info-desc">Liitsõnad, mille esi- ja järelosa piir võib jääda erinevatesse kohtadesse. Ei saa öelda, et tulemus alati senssi meigiks, aga huvitav sellegipoolest. Näiteks <em>esikäpp</em> sobib jagada nii <em>esi+käpp</em> kui ka <em>esik+äpp</em>.</p>
+      </div>
+    </div>
+    <div style="margin-bottom: 16px;">
+      <input id="search" class="text-input" type="text" placeholder="Otsi sõna…" style="width: 100%;" autocomplete="off" spellcheck="false">
+    </div>
+    <div id="list"></div>
+    <div id="pager">
+      <button type="button" class="btn btn-sm" id="pg-prev">← Eelmine</button>
+      <div id="pg-numbers"></div>
+      <button type="button" class="btn btn-sm" id="pg-next">Järgmine →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const PAGE_SIZE = 30;
+let allWords = [], currentWords = [], currentPage = 1;
+
+document.querySelector(".page-info-header").addEventListener("click", function() {
+  const body = this.nextElementSibling;
+  const toggle = this.querySelector(".page-info-toggle");
+  body.style.display = getComputedStyle(body).display === "none" ? "block" : "none";
+  toggle.textContent = getComputedStyle(body).display === "none" ? "+" : "−";
+});
+
+function svLink(word) {
+  return `https://sonaveeb.ee/search/unif/dlall/dsall/${encodeURIComponent(word)}/1/est`;
+}
+
+function buildRow(d) {
+  const row = document.createElement("div");
+  row.className = "row";
+
+  const wordEl = document.createElement("a");
+  wordEl.className = "row-word";
+  wordEl.href = svLink(d.word);
+  wordEl.target = "_blank";
+  wordEl.rel = "noopener";
+  wordEl.style.cssText = "color:inherit;text-decoration:none";
+  wordEl.textContent = d.word;
+  row.appendChild(wordEl);
+
+  const splitsEl = document.createElement("div");
+  splitsEl.className = "row-splits";
+
+  d.splits.forEach(s => {
+    const chip = document.createElement("span");
+    chip.className = "split-chip";
+
+    const a1 = document.createElement("a");
+    a1.className = "split-part";
+    a1.href = svLink(s.esiosa);
+    a1.target = "_blank"; a1.rel = "noopener";
+    a1.textContent = s.esiosa;
+
+    const plus = document.createElement("span");
+    plus.className = "split-plus";
+    plus.textContent = "+";
+
+    const a2 = document.createElement("a");
+    a2.className = "split-part";
+    a2.href = svLink(s.jarelosa);
+    a2.target = "_blank"; a2.rel = "noopener";
+    a2.textContent = s.jarelosa;
+
+    chip.appendChild(a1);
+    chip.appendChild(plus);
+    chip.appendChild(a2);
+    splitsEl.appendChild(chip);
+  });
+
+  if (d.splits.length > 2) {
+    const badge = document.createElement("span");
+    badge.className = "count-badge";
+    badge.textContent = d.splits.length;
+    splitsEl.appendChild(badge);
+  }
+
+  row.appendChild(splitsEl);
+  return row;
+}
+
+function renderList(words) {
+  currentWords = words;
+  const list = document.getElementById("list");
+  const start = (currentPage - 1) * PAGE_SIZE;
+  list.innerHTML = "";
+  words.slice(start, start + PAGE_SIZE).forEach(d => list.appendChild(buildRow(d)));
+  document.getElementById("list-wrap").scrollTop = 0;
+  renderPager();
+}
+
+function renderPager() {
+  const totalPages = Math.ceil(currentWords.length / PAGE_SIZE);
+  const pager = document.getElementById("pager");
+  pager.style.display = totalPages > 1 ? "flex" : "none";
+  const numbersDiv = document.getElementById("pg-numbers");
+  numbersDiv.innerHTML = "";
+
+  const range = 5;
+  let start = Math.max(1, currentPage - Math.floor(range / 2));
+  let end = Math.min(totalPages, start + range - 1);
+  if (end - start < range - 1) start = Math.max(1, end - range + 1);
+
+  if (start > 1) {
+    const b = document.createElement("button"); b.className = "pg-btn"; b.textContent = "1";
+    b.onclick = () => { currentPage = 1; renderList(currentWords); }; numbersDiv.appendChild(b);
+    if (start > 2) { const d = document.createElement("span"); d.textContent = "…"; d.style.opacity = "0.5"; numbersDiv.appendChild(d); }
+  }
+  for (let i = start; i <= end; i++) {
+    const b = document.createElement("button");
+    b.className = `pg-btn ${i === currentPage ? "current" : ""}`; b.textContent = i;
+    b.onclick = () => { currentPage = i; renderList(currentWords); }; numbersDiv.appendChild(b);
+  }
+  if (end < totalPages) {
+    if (end < totalPages - 1) { const d = document.createElement("span"); d.textContent = "…"; d.style.opacity = "0.5"; numbersDiv.appendChild(d); }
+    const b = document.createElement("button"); b.className = "pg-btn"; b.textContent = totalPages;
+    b.onclick = () => { currentPage = totalPages; renderList(currentWords); }; numbersDiv.appendChild(b);
+  }
+  document.getElementById("pg-prev").disabled = currentPage <= 1;
+  document.getElementById("pg-next").disabled = currentPage >= totalPages;
+}
+
+document.getElementById("pg-prev").addEventListener("click", () => {
+  if (currentPage > 1) { currentPage--; renderList(currentWords); }
+});
+document.getElementById("pg-next").addEventListener("click", () => {
+  if (currentPage < Math.ceil(currentWords.length / PAGE_SIZE)) { currentPage++; renderList(currentWords); }
+});
+
+document.getElementById("search").addEventListener("input", function() {
+  const q = this.value.trim().toLowerCase();
+  currentWords = q
+    ? allWords.filter(d =>
+        d.word.includes(q) ||
+        d.splits.some(s => s.esiosa.includes(q) || s.jarelosa.includes(q)))
+    : allWords;
+  currentPage = 1;
+  renderList(currentWords);
+});
+
+fetch("../data/kahepoolitused.json")
+  .then(r => r.json())
+  .then(data => {
+    allWords = data.words;
+    currentWords = allWords;
+    renderList(allWords);
+  })
+  .catch(() => {
+    document.getElementById("list").textContent =
+      "⚠ kahepoolitused.json puudub — käivita prepare_data.py";
+  });
+</script>
+
+<script src="../js/nav-config.js"></script>
+<script src="../js/nav-render.js"></script>
+</body>
+</html>

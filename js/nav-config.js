@@ -18,6 +18,7 @@ const NAV_CATEGORIES = [
     cards: [
       { name: 'Produktiivsed liitujad', desc: 'Millised sõnad moodustavad kõige rohkem liitsõnu?', href: '../produktiivsus/index.html' },
       { name: 'Liitsõnade sügavus', desc: 'Kui liitsõna koosneb teistest liitsõnadest.', href: '../sügavus/index.html' },
+      { name: 'Mitmemõttelised liitsõnad', desc: 'Liitsõnad, mille esi- ja järelosa piir võib jääda erinevatesse kohtadesse.', href: '../kahepoolitused/index.html' },
     ]
   },
   {
