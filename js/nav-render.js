@@ -50,6 +50,15 @@
       nav.appendChild(item);
     });
 
+    if (!window.location.pathname.endsWith('info.html')) {
+      const infoItem = document.createElement('a');
+      infoItem.className = 'top-nav__trigger';
+      infoItem.href = resolveHref('../info.html');
+      infoItem.textContent = 'Info';
+      infoItem.style.textDecoration = 'none';
+      nav.appendChild(infoItem);
+    }
+
     mount.appendChild(nav);
 
     // ── Hamburger nupp ───────────────────────────────────────
