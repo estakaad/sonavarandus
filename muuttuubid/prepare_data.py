@@ -5,7 +5,7 @@ csv.field_size_limit(10 ** 7)
 
 data = {'noomen': [], 'verb': [], 'muutumatu': []}
 
-with open('../data/paradigm_stat.csv', encoding='utf-8') as f:
+with open('../data/paradigm_stat_slim.csv', encoding='utf-8') as f:
     for row in csv.DictReader(f):
         wc = row['word_class'].strip()
         if wc not in data:
