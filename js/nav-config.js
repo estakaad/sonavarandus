@@ -14,6 +14,12 @@ const NAV_CATEGORIES = [
     ]
   },
   {
+    name: 'Morfoloogia',
+    cards: [
+      { name: 'Muuttüübid', desc: 'Millised käände- ja pöördtüübid on kõige sagedasemad? Millised on haruldased?', href: '../muuttuubid/index.html' },
+    ]
+  },
+  {
     name: 'Liitsõnad',
     cards: [
       { name: 'Produktiivsed liitujad', desc: 'Millised sõnad moodustavad kõige rohkem liitsõnu?', href: '../produktiivsus/index.html' },
